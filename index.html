@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa sentimental Elgin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="img/favicon.png">
+    <script src="https://code.jquery.com/jquery-1.11.2.js"></script>
+    <script type="text/javascript">
+        jQuery(window).load(function($){
+            atualizaRelogio();
+        });
+    </script>
+</head>
+<body>
+        <div class="header">
+            <div class="inner-header flex">
+                <svg version="1.1" class="logo" baseProfile="tiny" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 500 500" xml:space="preserve">
+                    <path fill="#FFFFFF" stroke="#000000" stroke-width="10" stroke-miterlimit="10" d="M57,283" />
+                </svg>
+                <div class="mainSection">
+                <h1>Como você está se sentindo hoje?</h1>     <div>
+                    <output id="data" style="font-family: 'arial black', 'avant garde'; font-size: 30px;"></output>
+                </div>
+                <div>
+                    <output id="hora" style="font-family: 'arial black', 'avant garde'; font-size: 24px;"></output>				
+                </div>	
+                <img src="img/elgin-logo-2022.svg" alt="" style="width: 100px;">
+                <div id="feels">
+                </div>
+                <div class="emocoes">
+                    <button class="buttonHappy" onclick="happy()">Feliz  
+                            <span class="badge">0</span>
+                    </button>
+                    <button class= "buttonSad" onclick="sad()">Triste
+                        <span class="badgeSad">0</span>
+                    </button>
+                    <button class="buttonSoso" onclick="soso()">Bem
+                        <span class="badgeSoso">0</span>
+                    </button>
+                    <button class="buttonGrr" onclick="grr()">Estressado
+                        <span class="badgeGrr">0</span>
+                    </button>
+                    
+                </div>
+            </div>
+        </div>
+
+            <div>
+                <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+                    <defs>
+                        <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+                    </defs>
+                    <g class="parallax">
+                        <use xlink:href="#gentle-wave" x="43" y="0" fill="rgba(255,255,255,0.7" />
+                        <use xlink:href="#gentle-wave" x="43" y="1" fill="rgba(255,255,255,0.5)" />
+                        <use xlink:href="#gentle-wave" x="43" y="3" fill="rgba(255,255,255,0.3)" />
+                        <use xlink:href="#gentle-wave" x="43" y="5" fill="#fff" />
+                    </g>
+                </svg>
+            </div>
+            
+        </div>
+    
+        <script src="script.js"></script>
+    </body>
+    </html>
