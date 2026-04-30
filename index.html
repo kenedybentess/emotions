@@ -1,145 +1,140 @@
-import sqlite3
-from flask import Flask, render_template, render_template_string, request, redirect, url_for
-
-app = Flask(__name__)
-
-# --- CONFIGURAÇÃO DO BANCO DE DADOS ---
-def init_db():
-    conn = sqlite3.connect('estoque_pro.db')
-    cursor = conn.cursor()
-    # Criando a tabela com base nas colunas da sua planilha de Injeção
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS produtos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            codigo TEXT NOT NULL,
-            descricao TEXT NOT NULL,
-            categoria TEXT,
-            quantidade INTEGER DEFAULT 0,
-            minimo INTEGER DEFAULT 5
-        )
-    ''')
-    # Inserindo dados de exemplo se a tabela estiver vazia
-    cursor.execute("SELECT COUNT(*) FROM produtos")
-    if cursor.fetchone()[0] == 0:
-        dados_iniciais = [
-            ('INJ-001', 'Molde Plástico A1', 'Injeção', 50, 10),
-            ('MAT-042', 'Resina Termoplástica', 'Matéria-prima', 3, 10),
-            ('PEC-089', 'Pino Extrator 10mm', 'Componentes', 120, 20)
-        ]
-        cursor.executemany("INSERT INTO produtos (codigo, descricao, categoria, quantidade, minimo) VALUES (?,?,?,?,?)", dados_iniciais)
-    conn.commit()
-    conn.close()
-
-# --- ROTAS DA APLICAÇÃO ---
-
-@app.route('/')
-def index():
-    conn = sqlite3.connect('estoque_pro.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM produtos")
-    produtos = cursor.fetchall()
-    
-    # Cálculos para o Dashboard
-    cursor.execute("SELECT COUNT(*) FROM produtos WHERE quantidade <= minimo")
-    alerta_estoque = cursor.fetchone()[0]
-    conn.close()
-    
-    return render_template_string(HTML_INTERFACE, produtos=produtos, alerta_estoque=alerta_estoque)
-
-@app.route('/imprimir/<int:id>')
-def imprimir(id):
-    conn = sqlite3.connect('estoque_pro.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM produtos WHERE id = ?", (id,))
-    p = cursor.fetchone()
-    conn.close()
-    return render_template_string(HTML_ETIQUETA, p=p)
-
-# --- TEMPLATES HTML (Interface e Etiqueta) ---
-
-HTML_INTERFACE = """
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <title>Estoque Pro - Injeção</title>
-    <style>
-        body { font-family: sans-serif; background: #f4f7f6; margin: 0; display: flex; }
-        .sidebar { width: 200px; background: #2c3e50; color: white; height: 100vh; padding: 20px; }
-        .main { flex: 1; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        th { background: #f8f9fa; }
-        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; font-size: 12px; }
-        .btn-print { background: #3498db; color: white; }
-        .badge-danger { background: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; }
-    </style>
+<meta charset="UTF-8">
+<title>Sistema Bentes Industrial</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#0f172a;
+    color:#fff;
+    padding:20px;
+}
+h1{margin-bottom:20px}
+
+input,select,button{
+    padding:10px;
+    margin:5px;
+    border-radius:8px;
+    border:none;
+}
+
+button{
+    background:#22c55e;
+    color:#000;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.card{
+    background:#1e293b;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:20px;
+}
+
+ul{list-style:none;padding:0}
+li{
+    background:#334155;
+    margin:5px 0;
+    padding:10px;
+    border-radius:8px;
+}
+</style>
 </head>
+
 <body>
-    <div class="sidebar">
-        <h2>Estoque Pro</h2>
-        <p>Dashboard</p>
-        <p>Produtos</p>
-        <p>Relatórios</p>
-    </div>
-    <div class="main">
-        <h1>Controle de Injeção</h1>
-        <div class="card">
-            <h3>Alertas Críticos: <span class="badge-danger">{{ alerta_estoque }}</span></h3>
-        </div>
-        <div class="card">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Descrição</th>
-                        <th>Qtd</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in produtos %}
-                    <tr>
-                        <td>{{ p[1] }}</td>
-                        <td>{{ p[2] }}</td>
-                        <td>{{ p[4] }}</td>
-                        <td>{% if p[4] <= p[5] %}<span class="badge-danger">BAIXO</span>{% else %}OK{% endif %}</td>
-                        <td><a href="/imprimir/{{ p[0] }}" target="_blank" class="btn btn-print">Imprimir Etiqueta</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+
+<h1>🏭 Sistema Bentes Industrial</h1>
+
+<div class="card">
+<h3>Produção</h3>
+
+<input id="codigo" placeholder="Código do Produto">
+<input id="ordem" placeholder="Ordem de Produção">
+<input id="qtd" type="number" placeholder="Quantidade">
+
+<br>
+
+<select id="maquina">
+<option>Injetora 01</option>
+<option>Injetora 02</option>
+<option>Injetora 03</option>
+</select>
+
+<select id="turno">
+<option>Manhã</option>
+<option>Tarde</option>
+<option>Noite</option>
+</select>
+
+<input id="cavidade" placeholder="Cavidade">
+
+<br>
+
+<button onclick="registrar()">Registrar Produção</button>
+
+</div>
+
+<div class="card">
+<h3>Histórico</h3>
+<ul id="lista"></ul>
+</div>
+
+<script>
+function registrar(){
+
+    let item = {
+        codigo: document.getElementById("codigo").value,
+        ordem: document.getElementById("ordem").value,
+        qtd: document.getElementById("qtd").value,
+        maquina: document.getElementById("maquina").value,
+        turno: document.getElementById("turno").value,
+        cavidade: document.getElementById("cavidade").value,
+        data: new Date().toLocaleString()
+    };
+
+    let dados = JSON.parse(localStorage.getItem("dados") || "[]");
+    dados.push(item);
+    localStorage.setItem("dados", JSON.stringify(dados));
+
+    limpar();
+    render();
+}
+
+function limpar(){
+    document.getElementById("codigo").value = "";
+    document.getElementById("ordem").value = "";
+    document.getElementById("qtd").value = "";
+    document.getElementById("cavidade").value = "";
+}
+
+function render(){
+
+    let dados = JSON.parse(localStorage.getItem("dados") || "[]");
+
+    let lista = document.getElementById("lista");
+    lista.innerHTML = "";
+
+    dados.reverse().forEach(d => {
+
+        let li = document.createElement("li");
+
+        li.innerHTML = `
+        <b>${d.codigo}</b> | QTD: ${d.qtd}<br>
+        Ordem: ${d.ordem}<br>
+        Máquina: ${d.maquina} | Turno: ${d.turno}<br>
+        Cavidade: ${d.cavidade}<br>
+        Data: ${d.data}
+        `;
+
+        lista.appendChild(li);
+    });
+}
+
+render();
+</script>
+
 </body>
 </html>
-"""
-
-HTML_ETIQUETA = """
-<html>
-<head>
-    <style>
-        @page { size: 80mm 40mm; margin: 0; }
-        body { width: 80mm; height: 40mm; padding: 5mm; font-family: Arial, sans-serif; }
-        .box { border: 2px solid black; height: 100%; padding: 5px; text-align: center; position: relative; }
-        .header { font-size: 10px; font-weight: bold; border-bottom: 1px solid black; }
-        .code { font-size: 22px; font-weight: bold; margin: 10px 0; }
-        .desc { font-size: 14px; }
-        .footer { font-size: 10px; position: absolute; bottom: 5px; width: 100%; text-align: center; }
-    </style>
-</head>
-<body onload="window.print()">
-    <div class="box">
-        <div class="header">ESTOQUE PRO - CONTROLE DE INJEÇÃO</div>
-        <div class="code">*{{ p[1] }}*</div>
-        <div class="desc">{{ p[2] }}</div>
-        <div class="footer">Categoria: {{ p[3] }} | Quantidade: {{ p[4] }}</div>
-    </div>
-</body>
-</html>
-"""
-
-if __name__ == '__main__':
-    init_db()
-    app.run(debug=True)
