@@ -1,8 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Sistema Bentes Industrial</title>
+<title>Sistema Bentes Industrial 2.0</title>
+
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode"></script>
 
 <style>
 body{
@@ -11,7 +14,15 @@ body{
     color:#fff;
     padding:20px;
 }
+
 h1{margin-bottom:20px}
+
+.card{
+    background:#1e293b;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:20px;
+}
 
 input,select,button{
     padding:10px;
@@ -22,19 +33,12 @@ input,select,button{
 
 button{
     background:#22c55e;
-    color:#000;
     font-weight:bold;
     cursor:pointer;
 }
 
-.card{
-    background:#1e293b;
-    padding:20px;
-    border-radius:12px;
-    margin-bottom:20px;
-}
-
 ul{list-style:none;padding:0}
+
 li{
     background:#334155;
     margin:5px 0;
@@ -42,6 +46,7 @@ li{
     border-radius:8px;
 }
 </style>
+
 </head>
 
 <body>
@@ -73,7 +78,7 @@ li{
 
 <br>
 
-<button onclick="registrar()">Registrar Produção</button>
+<button onclick="registrar()">Registrar Produção</button> <button onclick="imprimir()">Imprimir Etiqueta</button>
 
 </div>
 
@@ -83,15 +88,16 @@ li{
 </div>
 
 <script>
+
 function registrar(){
 
     let item = {
-        codigo: document.getElementById("codigo").value,
-        ordem: document.getElementById("ordem").value,
-        qtd: document.getElementById("qtd").value,
-        maquina: document.getElementById("maquina").value,
-        turno: document.getElementById("turno").value,
-        cavidade: document.getElementById("cavidade").value,
+        codigo: codigo.value,
+        ordem: ordem.value,
+        qtd: qtd.value,
+        maquina: maquina.value,
+        turno: turno.value,
+        cavidade: cavidade.value,
         data: new Date().toLocaleString()
     };
 
@@ -104,18 +110,17 @@ function registrar(){
 }
 
 function limpar(){
-    document.getElementById("codigo").value = "";
-    document.getElementById("ordem").value = "";
-    document.getElementById("qtd").value = "";
-    document.getElementById("cavidade").value = "";
+    codigo.value="";
+    ordem.value="";
+    qtd.value="";
+    cavidade.value="";
 }
 
 function render(){
 
     let dados = JSON.parse(localStorage.getItem("dados") || "[]");
 
-    let lista = document.getElementById("lista");
-    lista.innerHTML = "";
+    lista.innerHTML="";
 
     dados.reverse().forEach(d => {
 
@@ -123,17 +128,116 @@ function render(){
 
         li.innerHTML = `
         <b>${d.codigo}</b> | QTD: ${d.qtd}<br>
-        Ordem: ${d.ordem}<br>
-        Máquina: ${d.maquina} | Turno: ${d.turno}<br>
+        OP: ${d.ordem}<br>
+        ${d.maquina} | ${d.turno}<br>
         Cavidade: ${d.cavidade}<br>
-        Data: ${d.data}
+        ${d.data}
         `;
 
         lista.appendChild(li);
     });
 }
 
+function imprimir(){
+
+    let codigo = document.getElementById("codigo").value;
+    let ordem = document.getElementById("ordem").value;
+    let qtd = document.getElementById("qtd").value;
+
+    let data = new Date().toLocaleString();
+
+    let win = window.open("", "", "width=400,height=600");
+
+    win.document.write(`
+    <html>
+    <head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode"></script>
+
+```
+<style>
+body{margin:0;font-family:Arial}
+
+.etiqueta{
+    width:100mm;
+    height:60mm;
+    border:2px solid #000;
+    padding:4mm;
+    box-sizing:border-box;
+}
+
+.linha{
+    display:flex;
+    justify-content:space-between;
+    border-bottom:1px solid #000;
+    font-size:10px;
+}
+
+.big{
+    text-align:center;
+    font-size:16px;
+    font-weight:bold;
+    margin-top:5px;
+}
+
+svg{
+    width:100%;
+    height:40px;
+}
+</style>
+
+</head>
+
+<body onload="window.print();window.close()">
+
+<div class="etiqueta">
+
+    <div class="linha">
+        <div><b>elgin</b></div>
+        <div>CONTROLE - SEMI - ACABADO</div>
+    </div>
+
+    <div class="linha">
+        <div><b>OP:</b> ${ordem}</div>
+        <div><b>QTD:</b> ${qtd}</div>
+        <div>${data}</div>
+    </div>
+
+    <div style="margin-top:5px;font-size:11px">
+        <b>PRODUTO:</b> ${codigo}<br>
+        <b>OPERADOR:</b> ---<br>
+        <b>CQ:</b> ---
+    </div>
+
+    <div class="big">
+        ${codigo}
+    </div>
+
+    <div>
+        <svg id="barcode"></svg>
+    </div>
+
+    <div class="big">
+        ${codigo}
+    </div>
+
+</div>
+
+<script>
+    JsBarcode("#barcode","${codigo}",{format:"CODE128"});
+</script>
+
+</body>
+</html>
+`);
+
+win.document.close();
+```
+
+}
+
 render();
+
 </script>
 
 </body>
