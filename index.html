@@ -1,235 +1,145 @@
+import sqlite3
+from flask import Flask, render_template, render_template_string, request, redirect, url_for
+
+app = Flask(__name__)
+
+# --- CONFIGURAÇÃO DO BANCO DE DADOS ---
+def init_db():
+    conn = sqlite3.connect('estoque_pro.db')
+    cursor = conn.cursor()
+    # Criando a tabela com base nas colunas da sua planilha de Injeção
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS produtos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            codigo TEXT NOT NULL,
+            descricao TEXT NOT NULL,
+            categoria TEXT,
+            quantidade INTEGER DEFAULT 0,
+            minimo INTEGER DEFAULT 5
+        )
+    ''')
+    # Inserindo dados de exemplo se a tabela estiver vazia
+    cursor.execute("SELECT COUNT(*) FROM produtos")
+    if cursor.fetchone()[0] == 0:
+        dados_iniciais = [
+            ('INJ-001', 'Molde Plástico A1', 'Injeção', 50, 10),
+            ('MAT-042', 'Resina Termoplástica', 'Matéria-prima', 3, 10),
+            ('PEC-089', 'Pino Extrator 10mm', 'Componentes', 120, 20)
+        ]
+        cursor.executemany("INSERT INTO produtos (codigo, descricao, categoria, quantidade, minimo) VALUES (?,?,?,?,?)", dados_iniciais)
+    conn.commit()
+    conn.close()
+
+# --- ROTAS DA APLICAÇÃO ---
+
+@app.route('/')
+def index():
+    conn = sqlite3.connect('estoque_pro.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM produtos")
+    produtos = cursor.fetchall()
+    
+    # Cálculos para o Dashboard
+    cursor.execute("SELECT COUNT(*) FROM produtos WHERE quantidade <= minimo")
+    alerta_estoque = cursor.fetchone()[0]
+    conn.close()
+    
+    return render_template_string(HTML_INTERFACE, produtos=produtos, alerta_estoque=alerta_estoque)
+
+@app.route('/imprimir/<int:id>')
+def imprimir(id):
+    conn = sqlite3.connect('estoque_pro.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM produtos WHERE id = ?", (id,))
+    p = cursor.fetchone()
+    conn.close()
+    return render_template_string(HTML_ETIQUETA, p=p)
+
+# --- TEMPLATES HTML (Interface e Etiqueta) ---
+
+HTML_INTERFACE = """
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estoque Pro - Sistema de Gestão</title>
+    <title>Estoque Pro - Injeção</title>
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --success-color: #27ae60;
-            --danger-color: #e74c3c;
-            --warning-color: #f1c40f;
-            --light-bg: #f4f7f6;
-            --text-color: #333;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            background-color: var(--light-bg);
-            color: var(--text-color);
-            display: flex;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            height: 100vh;
-            background-color: var(--primary-color);
-            color: white;
-            position: fixed;
-            padding-top: 20px;
-        }
-
-        .sidebar h2 {
-            text-align: center;
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-            color: var(--secondary-color);
-        }
-
-        .sidebar nav a {
-            display: block;
-            color: white;
-            padding: 15px 25px;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-
-        .sidebar nav a:hover {
-            background-color: var(--secondary-color);
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-left: 250px;
-            padding: 30px;
-            width: calc(100% - 250px);
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            background: white;
-            padding: 15px 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .btn-logout {
-            background-color: var(--danger-color);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        /* Dash Cards */
-        .dashboard-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        .card h3 { margin: 0; font-size: 0.9rem; color: #7f8c8d; }
-        .card .value { font-size: 1.8rem; font-weight: bold; margin: 10px 0; }
-        .card.warning { border-top: 5px solid var(--warning-color); }
-        .card.success { border-top: 5px solid var(--success-color); }
-
-        /* Table Area */
-        .table-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .search-bar {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table th, table td {
-            text-align: left;
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-        }
-
-        table th {
-            background-color: #f8f9fa;
-            color: var(--primary-color);
-        }
-
-        .status-low {
-            color: var(--danger-color);
-            font-weight: bold;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar { width: 70px; }
-            .sidebar h2, .sidebar nav a span { display: none; }
-            .main-content { margin-left: 70px; width: calc(100% - 70px); }
-        }
+        body { font-family: sans-serif; background: #f4f7f6; margin: 0; display: flex; }
+        .sidebar { width: 200px; background: #2c3e50; color: white; height: 100vh; padding: 20px; }
+        .main { flex: 1; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #f8f9fa; }
+        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; font-size: 12px; }
+        .btn-print { background: #3498db; color: white; }
+        .badge-danger { background: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; }
     </style>
 </head>
 <body>
-
     <div class="sidebar">
         <h2>Estoque Pro</h2>
-        <nav>
-            <a href="#">🏠 <span>Dashboard</span></a>
-            <a href="#">📦 <span>Produtos</span></a>
-            <a href="#">➕ <span>Entradas</span></a>
-            <a href="#">➖ <span>Saídas</span></a>
-            <a href="#">👥 <span>Utilizadores</span></a>
-            <a href="#">⚙️ <span>Configurações</span></a>
-        </nav>
+        <p>Dashboard</p>
+        <p>Produtos</p>
+        <p>Relatórios</p>
     </div>
-
-    <div class="main-content">
-        <header>
-            <h1>Painel Geral de Injeção</h1>
-            <div class="user-info">
-                <span>Olá, <strong>Admin</strong></span>
-                <button class="btn-logout">Sair</button>
-            </div>
-        </header>
-
-        <div class="dashboard-cards">
-            <div class="card success">
-                <h3>Total de Itens</h3>
-                <div class="value">1.240</div>
-            </div>
-            <div class="card warning">
-                <h3>Estoque Baixo</h3>
-                <div class="value">12</div>
-            </div>
-            <div class="card">
-                <h3>Entradas (Mês)</h3>
-                <div class="value">450</div>
-            </div>
-            <div class="card">
-                <h3>Saídas (Mês)</h3>
-                <div class="value">310</div>
-            </div>
+    <div class="main">
+        <h1>Controle de Injeção</h1>
+        <div class="card">
+            <h3>Alertas Críticos: <span class="badge-danger">{{ alerta_estoque }}</span></h3>
         </div>
-
-        <div class="table-container">
-            <h2>Inventário Atual</h2>
-            <input type="text" class="search-bar" placeholder="Pesquisar produto, código ou categoria...">
+        <div class="card">
             <table>
                 <thead>
                     <tr>
-                        <th>Cód. Produto</th>
+                        <th>Código</th>
                         <th>Descrição</th>
-                        <th>Categoria</th>
-                        <th>Qtd. Atual</th>
+                        <th>Qtd</th>
                         <th>Status</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
+                    {% for p in produtos %}
                     <tr>
-                        <td>#INJ-001</td>
-                        <td>Molde Plástico A1</td>
-                        <td>Injeção</td>
-                        <td>50</td>
-                        <td><span style="color: var(--success-color);">OK</span></td>
-                        <td><button>Editar</button></td>
+                        <td>{{ p[1] }}</td>
+                        <td>{{ p[2] }}</td>
+                        <td>{{ p[4] }}</td>
+                        <td>{% if p[4] <= p[5] %}<span class="badge-danger">BAIXO</span>{% else %}OK{% endif %}</td>
+                        <td><a href="/imprimir/{{ p[0] }}" target="_blank" class="btn btn-print">Imprimir Etiqueta</a></td>
                     </tr>
-                    <tr>
-                        <td>#INJ-042</td>
-                        <td>Resina Termoplástica</td>
-                        <td>Matéria-prima</td>
-                        <td>5</td>
-                        <td><span class="status-low">ABAIXO DO MÍNIMO</span></td>
-                        <td><button>Editar</button></td>
-                    </tr>
-                    <tr>
-                        <td>#PEC-089</td>
-                        <td>Pino Extrator 10mm</td>
-                        <td>Componentes</td>
-                        <td>120</td>
-                        <td><span style="color: var(--success-color);">OK</span></td>
-                        <td><button>Editar</button></td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
-
 </body>
 </html>
+"""
+
+HTML_ETIQUETA = """
+<html>
+<head>
+    <style>
+        @page { size: 80mm 40mm; margin: 0; }
+        body { width: 80mm; height: 40mm; padding: 5mm; font-family: Arial, sans-serif; }
+        .box { border: 2px solid black; height: 100%; padding: 5px; text-align: center; position: relative; }
+        .header { font-size: 10px; font-weight: bold; border-bottom: 1px solid black; }
+        .code { font-size: 22px; font-weight: bold; margin: 10px 0; }
+        .desc { font-size: 14px; }
+        .footer { font-size: 10px; position: absolute; bottom: 5px; width: 100%; text-align: center; }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="box">
+        <div class="header">ESTOQUE PRO - CONTROLE DE INJEÇÃO</div>
+        <div class="code">*{{ p[1] }}*</div>
+        <div class="desc">{{ p[2] }}</div>
+        <div class="footer">Categoria: {{ p[3] }} | Quantidade: {{ p[4] }}</div>
+    </div>
+</body>
+</html>
+"""
+
+if __name__ == '__main__':
+    init_db()
+    app.run(debug=True)
