@@ -1,8 +1,17 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <title>Sistema Bentes Industrial</title>
+
+<!-- Firebase -->
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+
+<!-- QZ Tray -->
 
 <script src="https://cdn.jsdelivr.net/npm/qz-tray/qz-tray.js"></script>
 
@@ -11,29 +20,13 @@ body{font-family:Arial;background:#0f172a;color:#fff;padding:20px}
 .card{background:#1e293b;padding:20px;border-radius:12px;margin-bottom:20px}
 input,select,button{padding:10px;margin:5px;border-radius:8px;border:none}
 button{background:#22c55e;font-weight:bold;cursor:pointer}
-.hidden{display:none}
 </style>
+
 </head>
 
 <body>
 
 <h1>🏭 Sistema Bentes Industrial</h1>
-
-<div id="login" class="card">
-<h3>Login</h3>
-<input id="user" placeholder="Usuário">
-<input id="pass" type="password" placeholder="Senha">
-<button onclick="logar()">Entrar</button>
-</div>
-
-<div id="sistema" class="hidden">
-
-<div class="card">
-<h3>Cadastro Produto</h3>
-<input id="codProd" placeholder="Código">
-<input id="nomeProd" placeholder="Nome">
-<button onclick="salvarProduto()">Salvar</button>
-</div>
 
 <div class="card">
 <h3>Produção</h3>
@@ -55,108 +48,93 @@ button{background:#22c55e;font-weight:bold;cursor:pointer}
 
 <input id="cavidade" placeholder="Cavidade">
 
-<button onclick="registrar()">Registrar</button>
-<button onclick="imprimir()">Imprimir</button>
-
-</div>
-
-<div class="card">
-<h3>Histórico</h3>
-<ul id="lista"></ul>
-</div>
+<button onclick="registrar()">Registrar Produção</button>
 
 </div>
 
 <script>
 
-let usuarioLogado = "";
+// 🔥 CONFIGURE SEU FIREBASE AQUI
+const firebaseConfig = {
+  apiKey: "SUA_KEY",
+  authDomain: "SEU_DOMINIO",
+  projectId: "SEU_ID"
+};
 
-function logar(){
-    if(user.value && pass.value){
-        usuarioLogado = user.value;
-        login.classList.add("hidden");
-        sistema.classList.remove("hidden");
-    }
-}
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-function salvarProduto(){
-    let produtos = JSON.parse(localStorage.getItem("produtos")||"{}");
-    produtos[codProd.value] = nomeProd.value;
-    localStorage.setItem("produtos", JSON.stringify(produtos));
-    alert("Produto salvo");
-}
+// 🔄 ESCUTA PRODUÇÃO EM TEMPO REAL
+db.collection("producao").onSnapshot(snapshot => {
+    snapshot.docChanges().forEach(change => {
+        if (change.type === "added") {
+            imprimir(change.doc.data());
+        }
+    });
+});
 
+// 📥 REGISTRAR PRODUÇÃO
 function registrar(){
 
-    let produtos = JSON.parse(localStorage.getItem("produtos")||"{}");
-
-    let item = {
+    db.collection("producao").add({
         codigo: codigo.value,
-        nome: produtos[codigo.value] || "SEM CADASTRO",
         ordem: ordem.value,
         qtd: qtd.value,
         maquina: maquina.value,
         turno: turno.value,
         cavidade: cavidade.value,
-        operador: usuarioLogado,
-        data: new Date().toLocaleString()
-    };
-
-    let dados = JSON.parse(localStorage.getItem("dados")||"[]");
-    dados.push(item);
-    localStorage.setItem("dados", JSON.stringify(dados));
-
-    render();
-}
-
-function render(){
-    let dados = JSON.parse(localStorage.getItem("dados")||"[]");
-    lista.innerHTML="";
-    dados.reverse().forEach(d=>{
-        let li=document.createElement("li");
-        li.innerHTML = d.codigo+" | "+d.nome+" | "+d.qtd+" | "+d.operador;
-        lista.appendChild(li);
+        data: new Date()
     });
+
+    codigo.value="";
+    ordem.value="";
+    qtd.value="";
+    cavidade.value="";
 }
 
-async function imprimir(){
+// 🖨️ IMPRESSÃO DIRETA AUTOMÁTICA
+async function imprimir(d){
 
     try{
 
         await qz.websocket.connect();
 
-        const config = qz.configs.create("SNBC BTP-7400BPLE");
+        let nomeCorreto = "SNBC BTP-7400 BPLE (203 dpi)";
+        let printers = await qz.printers.find();
 
-        let codigo = document.getElementById("codigo").value;
-        let ordem = document.getElementById("ordem").value;
-        let qtd = document.getElementById("qtd").value;
+        let impressora = printers.includes(nomeCorreto)
+            ? nomeCorreto
+            : printers.find(p => p.toUpperCase().includes("SNBC"));
 
-        let data = new Date().toLocaleString();
+        if(!impressora){
+            alert("Impressora SNBC não encontrada!");
+            return;
+        }
 
-        let printData = [
-            '\x1B\x40',
-            'BENTES INDUSTRIAL\n',
-            'CONTROLE SEMI ACABADO\n',
-            '--------------------------\n',
-            'OP: '+ordem+'\n',
-            'QTD: '+qtd+'\n',
-            data+'\n',
-            '--------------------------\n',
-            'PRODUTO: '+codigo+'\n',
-            '\n'+codigo+'\n\n\n',
-            '\x1D\x56\x00'
+        const config = qz.configs.create(impressora);
+
+        let dataPrint = [
+            '\\x1B\\x40',
+            'BENTES INDUSTRIAL\\n',
+            'CONTROLE SEMI ACABADO\\n',
+            '--------------------------\\n',
+            'OP: ' + d.ordem + '\\n',
+            'QTD: ' + d.qtd + '\\n',
+            new Date().toLocaleString() + '\\n',
+            '--------------------------\\n',
+            'PRODUTO: ' + d.codigo + '\\n',
+            '\\n' + d.codigo + '\\n\\n\\n',
+            '\\x1D\\x56\\x00'
         ];
 
-        await qz.print(config, printData);
+        await qz.print(config, dataPrint);
 
         qz.websocket.disconnect();
 
     }catch(e){
-        alert("Erro: "+e);
+        console.error(e);
     }
 }
-
-render();
 
 </script>
 
