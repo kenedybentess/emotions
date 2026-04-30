@@ -1,71 +1,50 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Sistema Bentes Industrial 2.0</title>
+<title>Sistema Bentes Industrial</title>
 
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode"></script>
+<script src="https://cdn.jsdelivr.net/npm/qz-tray/qz-tray.js"></script>
 
 <style>
-body{
-    font-family:Arial;
-    background:#0f172a;
-    color:#fff;
-    padding:20px;
-}
-
-h1{margin-bottom:20px}
-
-.card{
-    background:#1e293b;
-    padding:20px;
-    border-radius:12px;
-    margin-bottom:20px;
-}
-
-input,select,button{
-    padding:10px;
-    margin:5px;
-    border-radius:8px;
-    border:none;
-}
-
-button{
-    background:#22c55e;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-ul{list-style:none;padding:0}
-
-li{
-    background:#334155;
-    margin:5px 0;
-    padding:10px;
-    border-radius:8px;
-}
+body{font-family:Arial;background:#0f172a;color:#fff;padding:20px}
+.card{background:#1e293b;padding:20px;border-radius:12px;margin-bottom:20px}
+input,select,button{padding:10px;margin:5px;border-radius:8px;border:none}
+button{background:#22c55e;font-weight:bold;cursor:pointer}
+.hidden{display:none}
 </style>
-
 </head>
 
 <body>
 
 <h1>🏭 Sistema Bentes Industrial</h1>
 
+<div id="login" class="card">
+<h3>Login</h3>
+<input id="user" placeholder="Usuário">
+<input id="pass" type="password" placeholder="Senha">
+<button onclick="logar()">Entrar</button>
+</div>
+
+<div id="sistema" class="hidden">
+
+<div class="card">
+<h3>Cadastro Produto</h3>
+<input id="codProd" placeholder="Código">
+<input id="nomeProd" placeholder="Nome">
+<button onclick="salvarProduto()">Salvar</button>
+</div>
+
 <div class="card">
 <h3>Produção</h3>
 
-<input id="codigo" placeholder="Código do Produto">
-<input id="ordem" placeholder="Ordem de Produção">
+<input id="codigo" placeholder="Código">
+<input id="ordem" placeholder="Ordem">
 <input id="qtd" type="number" placeholder="Quantidade">
-
-<br>
 
 <select id="maquina">
 <option>Injetora 01</option>
 <option>Injetora 02</option>
-<option>Injetora 03</option>
 </select>
 
 <select id="turno">
@@ -76,9 +55,8 @@ li{
 
 <input id="cavidade" placeholder="Cavidade">
 
-<br>
-
-<button onclick="registrar()">Registrar Produção</button> <button onclick="imprimir()">Imprimir Etiqueta</button>
+<button onclick="registrar()">Registrar</button>
+<button onclick="imprimir()">Imprimir</button>
 
 </div>
 
@@ -87,153 +65,95 @@ li{
 <ul id="lista"></ul>
 </div>
 
+</div>
+
 <script>
+
+let usuarioLogado = "";
+
+function logar(){
+    if(user.value && pass.value){
+        usuarioLogado = user.value;
+        login.classList.add("hidden");
+        sistema.classList.remove("hidden");
+    }
+}
+
+function salvarProduto(){
+    let produtos = JSON.parse(localStorage.getItem("produtos")||"{}");
+    produtos[codProd.value] = nomeProd.value;
+    localStorage.setItem("produtos", JSON.stringify(produtos));
+    alert("Produto salvo");
+}
 
 function registrar(){
 
+    let produtos = JSON.parse(localStorage.getItem("produtos")||"{}");
+
     let item = {
         codigo: codigo.value,
+        nome: produtos[codigo.value] || "SEM CADASTRO",
         ordem: ordem.value,
         qtd: qtd.value,
         maquina: maquina.value,
         turno: turno.value,
         cavidade: cavidade.value,
+        operador: usuarioLogado,
         data: new Date().toLocaleString()
     };
 
-    let dados = JSON.parse(localStorage.getItem("dados") || "[]");
+    let dados = JSON.parse(localStorage.getItem("dados")||"[]");
     dados.push(item);
     localStorage.setItem("dados", JSON.stringify(dados));
 
-    limpar();
     render();
 }
 
-function limpar(){
-    codigo.value="";
-    ordem.value="";
-    qtd.value="";
-    cavidade.value="";
-}
-
 function render(){
-
-    let dados = JSON.parse(localStorage.getItem("dados") || "[]");
-
+    let dados = JSON.parse(localStorage.getItem("dados")||"[]");
     lista.innerHTML="";
-
-    dados.reverse().forEach(d => {
-
-        let li = document.createElement("li");
-
-        li.innerHTML = `
-        <b>${d.codigo}</b> | QTD: ${d.qtd}<br>
-        OP: ${d.ordem}<br>
-        ${d.maquina} | ${d.turno}<br>
-        Cavidade: ${d.cavidade}<br>
-        ${d.data}
-        `;
-
+    dados.reverse().forEach(d=>{
+        let li=document.createElement("li");
+        li.innerHTML = d.codigo+" | "+d.nome+" | "+d.qtd+" | "+d.operador;
         lista.appendChild(li);
     });
 }
 
-function imprimir(){
+async function imprimir(){
 
-    let codigo = document.getElementById("codigo").value;
-    let ordem = document.getElementById("ordem").value;
-    let qtd = document.getElementById("qtd").value;
+    try{
 
-    let data = new Date().toLocaleString();
+        await qz.websocket.connect();
 
-    let win = window.open("", "", "width=400,height=600");
+        const config = qz.configs.create("SNBC BTP-7400BPLE");
 
-    win.document.write(`
-    <html>
-    <head>
+        let codigo = document.getElementById("codigo").value;
+        let ordem = document.getElementById("ordem").value;
+        let qtd = document.getElementById("qtd").value;
 
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode"></script>
+        let data = new Date().toLocaleString();
 
-```
-<style>
-body{margin:0;font-family:Arial}
+        let printData = [
+            '\x1B\x40',
+            'BENTES INDUSTRIAL\n',
+            'CONTROLE SEMI ACABADO\n',
+            '--------------------------\n',
+            'OP: '+ordem+'\n',
+            'QTD: '+qtd+'\n',
+            data+'\n',
+            '--------------------------\n',
+            'PRODUTO: '+codigo+'\n',
+            '\n'+codigo+'\n\n\n',
+            '\x1D\x56\x00'
+        ];
 
-.etiqueta{
-    width:100mm;
-    height:60mm;
-    border:2px solid #000;
-    padding:4mm;
-    box-sizing:border-box;
-}
+        await qz.print(config, printData);
 
-.linha{
-    display:flex;
-    justify-content:space-between;
-    border-bottom:1px solid #000;
-    font-size:10px;
-}
+        qz.websocket.disconnect();
 
-.big{
-    text-align:center;
-    font-size:16px;
-    font-weight:bold;
-    margin-top:5px;
-}
-
-svg{
-    width:100%;
-    height:40px;
-}
-</style>
-
-</head>
-
-<body onload="window.print();window.close()">
-
-<div class="etiqueta">
-
-    <div class="linha">
-        <div><b>elgin</b></div>
-        <div>CONTROLE - SEMI - ACABADO</div>
-    </div>
-
-    <div class="linha">
-        <div><b>OP:</b> ${ordem}</div>
-        <div><b>QTD:</b> ${qtd}</div>
-        <div>${data}</div>
-    </div>
-
-    <div style="margin-top:5px;font-size:11px">
-        <b>PRODUTO:</b> ${codigo}<br>
-        <b>OPERADOR:</b> ---<br>
-        <b>CQ:</b> ---
-    </div>
-
-    <div class="big">
-        ${codigo}
-    </div>
-
-    <div>
-        <svg id="barcode"></svg>
-    </div>
-
-    <div class="big">
-        ${codigo}
-    </div>
-
-</div>
-
-<script>
-    JsBarcode("#barcode","${codigo}",{format:"CODE128"});
-</script>
-
-</body>
-</html>
-`);
-
-win.document.close();
-```
-
+    }catch(e){
+        alert("Erro: "+e);
+    }
 }
 
 render();
