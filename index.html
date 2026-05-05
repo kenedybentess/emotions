@@ -3,197 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estoque Pro - Gestão de Injeção</title>
-    <!-- Chart.js para o gráfico -->
+    <title>Estoque Pro - Sistema de Gestão Total</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --success-color: #27ae60;
-            --danger-color: #e74c3c;
-            --warning-color: #f1c40f;
-            --light-bg: #f4f7f6;
-            --text-color: #333;
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
         }
 
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background-color: var(--light-bg); display: flex; color: var(--text-color); }
-        
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; display: flex; background: #f8f9fa; }
+
         /* Sidebar */
-        .sidebar { width: 250px; height: 100vh; background-color: var(--primary-color); color: white; position: fixed; transition: 0.3s; }
-        .sidebar h2 { text-align: center; color: var(--secondary-color); margin-top: 20px; font-size: 1.5rem; }
+        .sidebar { width: 240px; height: 100vh; background: var(--primary); color: white; position: fixed; }
+        .sidebar h2 { text-align: center; padding: 20px; border-bottom: 1px solid #34495e; color: var(--secondary); }
         .sidebar nav a { display: block; color: white; padding: 15px 25px; text-decoration: none; transition: 0.3s; }
-        .sidebar nav a:hover { background-color: var(--secondary-color); }
+        .sidebar nav a:hover { background: var(--secondary); padding-left: 35px; }
 
         /* Main Content */
-        .main-content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); min-height: 100vh; }
-        header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .main-content { margin-left: 240px; padding: 30px; width: 100%; }
+        header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
 
-        /* Dash Cards */
-        .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin: 20px 0; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
-        .card h3 { margin: 0; font-size: 0.9rem; color: #7f8c8d; }
-        .card .value { font-size: 2rem; font-weight: bold; margin-top: 10px; }
-        .card.status-critico { border-top: 5px solid var(--danger-color); }
+        /* Dashboard */
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 25px 0; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid transparent; }
+        .card.total { border-color: var(--secondary); }
+        .card.critico { border-color: var(--danger); }
+        .card h3 { font-size: 0.8rem; color: #7f8c8d; margin: 0; text-transform: uppercase; }
+        .card .value { font-size: 2.2rem; font-weight: bold; margin: 10px 0; }
 
         /* Table Area */
-        .table-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .controls { display: flex; gap: 15px; margin-bottom: 20px; }
-        .search-bar { flex-grow: 1; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
-        .btn-add { background: var(--success-color); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-add:hover { opacity: 0.9; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        table th { background-color: #f8f9fa; color: var(--primary-color); padding: 15px; text-align: left; border-bottom: 2px solid #eee; }
-        table td { padding: 15px; border-bottom: 1px solid #eee; }
+        .container { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .toolbar { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-input { flex-grow: 1; padding: 12px; border: 1px solid #ddd; border-radius: 5px; }
         
-        .status-pill { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; color: white; text-transform: uppercase; }
-        .btn-delete { background: none; border: 1px solid var(--danger-color); color: var(--danger-color); padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
-        .btn-delete:hover { background: var(--danger-color); color: white; }
+        .btn { padding: 10px 18px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-add { background: var(--success); color: white; }
+        .btn-export { background: var(--dark); color: white; }
+        .btn-delete { background: none; border: 1px solid var(--danger); color: var(--danger); }
+        .btn-delete:hover { background: var(--danger); color: white; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #fdfdfd; padding: 15px; text-align: left; border-bottom: 2px solid #eee; color: var(--primary); }
+        td { padding: 15px; border-bottom: 1px solid #eee; }
+
+        .pill { padding: 5px 12px; border-radius: 15px; font-size: 10px; font-weight: bold; color: white; }
 
         /* Modal */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
-        .modal-content { background: white; width: 400px; margin: 8% auto; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .modal-content h3 { margin-top: 0; color: var(--primary-color); }
-        .modal-content input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-
-        @media (max-width: 768px) {
-            .sidebar { width: 70px; }
-            .sidebar h2, .sidebar span { display: none; }
-            .main-content { margin-left: 70px; width: calc(100% - 70px); }
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; }
+        .modal-content { background: white; width: 400px; margin: 100px auto; padding: 30px; border-radius: 10px; position: relative; }
+        .modal-content input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <h2>E-Pro</h2>
+    <aside class="sidebar">
+        <h2>E-PRO</h2>
         <nav>
-            <a href="#">🏠 <span>Dashboard</span></a>
-            <a href="#">📦 <span>Produtos</span></a>
-            <a href="#">📊 <span>Relatórios</span></a>
-            <a href="#">⚙️ <span>Configurações</span></a>
+            <a href="#">🏠 Dashboard</a>
+            <a href="#">📦 Inventário</a>
+            <a href="#">📉 Movimentações</a>
+            <a href="#">⚙️ Configurações</a>
         </nav>
-    </div>
+    </aside>
 
-    <div class="main-content">
+    <main class="main-content">
         <header>
-            <h1>Painel de Gestão - Injeção</h1>
-            <div class="user-info">Olá, <strong>Admin</strong></div>
+            <h1>Gestão de Injeção & Moldes</h1>
+            <span>Operador: <strong>Admin</strong></span>
         </header>
 
-        <div class="dashboard-cards">
-            <div class="card">
+        <section class="dashboard">
+            <div class="card total">
                 <h3>Total de Itens</h3>
-                <div class="value" id="total-items">0</div>
+                <div class="value" id="count-total">0</div>
             </div>
-            <div class="card status-critico">
-                <h3>Atenção Necessária</h3>
-                <div class="value" id="critico-count" style="color: var(--danger-color);">0</div>
+            <div class="card critico">
+                <h3>Abaixo do Mínimo</h3>
+                <div class="value" id="count-alert" style="color: var(--danger);">0</div>
             </div>
             <div class="card">
-                <canvas id="healthChart" style="max-height: 80px;"></canvas>
+                <canvas id="chartHealth" style="max-height: 100px;"></canvas>
             </div>
-        </div>
+        </section>
 
-        <div class="table-container">
-            <div class="controls">
-                <input type="text" id="search" class="search-bar" placeholder="Buscar por código ou descrição...">
-                <button class="btn-add" onclick="toggleModal(true)">+ Novo Produto</button>
+        <section class="container">
+            <div class="toolbar">
+                <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar por nome ou código...">
+                <button class="btn btn-export" onclick="exportCSV()">📥 Exportar Excel</button>
+                <button class="btn btn-add" onclick="toggleModal(true)">+ Novo Item</button>
             </div>
+
             <table>
                 <thead>
                     <tr>
-                        <th>Cód. Produto</th>
+                        <th>Cód.</th>
                         <th>Descrição</th>
-                        <th>Qtd. Atual</th>
-                        <th>Mín. Exigido</th>
+                        <th>Estoque</th>
+                        <th>Mínimo</th>
                         <th>Status</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
-                <tbody id="inventory-body">
-                    <!-- Gerado via JS -->
-                </tbody>
+                <tbody id="tableBody"></tbody>
             </table>
-        </div>
-    </div>
+        </section>
+    </main>
 
-    <!-- Modal de Cadastro -->
-    <div id="modal" class="modal">
+    <div id="itemModal" class="modal">
         <div class="modal-content">
-            <h3>Cadastrar Novo Item</h3>
-            <input type="text" id="p-code" placeholder="Código (Ex: #MAT-01)">
-            <input type="text" id="p-desc" placeholder="Descrição do Produto">
-            <input type="number" id="p-qty" placeholder="Quantidade em Estoque">
-            <input type="number" id="p-min" placeholder="Estoque Mínimo de Segurança">
-            
-            <div class="modal-actions">
-                <button onclick="toggleModal(false)" style="background:none; border:none; color:#7f8c8d; cursor:pointer;">Cancelar</button>
-                <button class="btn-add" onclick="addProduct()">Salvar Item</button>
+            <h3>Cadastrar Produto</h3>
+            <input type="text" id="form-code" placeholder="Código (Ex: #MOL-001)">
+            <input type="text" id="form-desc" placeholder="Descrição">
+            <input type="number" id="form-qty" placeholder="Qtd. Atual">
+            <input type="number" id="form-min" placeholder="Qtd. Mínima de Segurança">
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-add" style="flex: 1;" onclick="saveItem()">Salvar</button>
+                <button class="btn" style="background:#eee;" onclick="toggleModal(false)">Fechar</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Dados iniciais e LocalStorage
-        let inventory = JSON.parse(localStorage.getItem('estoque_dados_injecao')) || [
-            { code: '#INJ-001', desc: 'Molde Plástico A1', qty: 50, min: 20 },
-            { code: '#MAT-042', desc: 'Resina Polipropileno', qty: 8, min: 25 }
+        // BANCO DE DADOS LOCAL
+        let db = JSON.parse(localStorage.getItem('injecao_pro_db')) || [
+            { code: 'RES-01', desc: 'Resina Polipropileno', qty: 100, min: 50 },
+            { code: 'MOL-05', desc: 'Molde Carcaça A', qty: 2, min: 5 }
         ];
 
-        let myChart;
+        let chart;
 
-        function toggleModal(show) {
-            document.getElementById('modal').style.display = show ? 'block' : 'none';
+        function toggleModal(val) {
+            document.getElementById('itemModal').style.display = val ? 'block' : 'none';
         }
 
-        // Adicionar Produto
-        function addProduct() {
-            const code = document.getElementById('p-code').value;
-            const desc = document.getElementById('p-desc').value;
-            const qty = parseInt(document.getElementById('p-qty').value);
-            const min = parseInt(document.getElementById('p-min').value);
+        function saveItem() {
+            const item = {
+                code: document.getElementById('form-code').value,
+                desc: document.getElementById('form-desc').value,
+                qty: parseInt(document.getElementById('form-qty').value),
+                min: parseInt(document.getElementById('form-min').value)
+            };
 
-            if (code && desc && !isNaN(qty) && !isNaN(min)) {
-                inventory.push({ code, desc, qty, min });
-                saveAndRefresh();
+            if(item.code && item.desc && !isNaN(item.qty)) {
+                db.push(item);
+                render();
                 toggleModal(false);
-                // Limpa campos
                 document.querySelectorAll('.modal-content input').forEach(i => i.value = '');
-            } else {
-                alert("Por favor, preencha todos os campos corretamente.");
             }
         }
 
-        // Remover Produto
-        function deleteProduct(index) {
-            if(confirm("Deseja realmente excluir este item?")) {
-                inventory.splice(index, 1);
-                saveAndRefresh();
+        function deleteItem(index) {
+            if(confirm("Excluir item?")) {
+                db.splice(index, 1);
+                render();
             }
         }
 
-        // Atualizar Interface
-        function updateUI() {
-            const tbody = document.getElementById('inventory-body');
+        function render() {
+            const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
-            let criticoTotal = 0;
+            let alerts = 0;
 
-            inventory.forEach((item, index) => {
-                let statusText = 'OK';
-                let statusClass = 'var(--success-color)';
-
-                // Lógica de Status Baseada no Mínimo
-                if (item.qty <= (item.min * 0.5)) {
-                    statusText = 'CRÍTICO';
-                    statusClass = 'var(--danger-color)';
-                    criticoTotal++;
-                } else if (item.qty <= item.min) {
-                    statusText = 'ALERTA';
-                    statusClass = 'var(--warning-color)';
-                    criticoTotal++;
+            db.forEach((item, index) => {
+                let status = "OK";
+                let color = "var(--success)";
+                
+                if(item.qty <= (item.min * 0.5)) {
+                    status = "CRÍTICO";
+                    color = "var(--danger)";
+                    alerts++;
+                } else if(item.qty <= item.min) {
+                    status = "ALERTA";
+                    color = "var(--warning)";
+                    alerts++;
                 }
 
                 tbody.innerHTML += `
@@ -202,64 +189,60 @@
                         <td>${item.desc}</td>
                         <td>${item.qty}</td>
                         <td>${item.min}</td>
-                        <td><span class="status-pill" style="background:${statusClass}">${statusText}</span></td>
-                        <td>
-                            <button class="btn-delete" onclick="deleteProduct(${index})">Excluir</button>
-                        </td>
+                        <td><span class="pill" style="background:${color}">${status}</span></td>
+                        <td><button class="btn btn-delete" onclick="deleteItem(${index})">Remover</button></td>
                     </tr>
                 `;
             });
 
-            document.getElementById('total-items').innerText = inventory.length;
-            document.getElementById('critico-count').innerText = criticoTotal;
-            
-            updateChart();
+            document.getElementById('count-total').innerText = db.length;
+            document.getElementById('count-alert').innerText = alerts;
+            localStorage.setItem('injecao_pro_db', JSON.stringify(db));
+            initChart();
         }
 
-        function saveAndRefresh() {
-            localStorage.setItem('estoque_dados_injecao', JSON.stringify(inventory));
-            updateUI();
+        // FUNCIONALIDADE: EXPORTAR CSV
+        function exportCSV() {
+            let csv = 'Codigo;Descricao;Quantidade;Minimo\n';
+            db.forEach(item => {
+                csv += `${item.code};${item.desc};${item.qty};${item.min}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", "relatorio_estoque.csv");
+            link.click();
         }
 
-        // Gráfico de Saúde do Estoque
-        function updateChart() {
-            const okItems = inventory.filter(i => i.qty > i.min).length;
-            const alertItems = inventory.filter(i => i.qty <= i.min).length;
+        // GRÁFICO
+        function initChart() {
+            const ctx = document.getElementById('chartHealth').getContext('2d');
+            const ok = db.filter(i => i.qty > i.min).length;
+            const alert = db.filter(i => i.qty <= i.min).length;
 
-            const ctx = document.getElementById('healthChart').getContext('2d');
-            
-            if (myChart) myChart.destroy();
-
-            myChart = new Chart(ctx, {
+            if(chart) chart.destroy();
+            chart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Estável', 'Atenção'],
                     datasets: [{
-                        data: [okItems, alertItems],
-                        backgroundColor: ['#27ae60', '#e74c3c'],
-                        borderWidth: 0
+                        data: [ok, alert],
+                        backgroundColor: ['#27ae60', '#e74c3c']
                     }]
                 },
-                options: {
-                    cutout: '70%',
-                    plugins: { legend: { display: false } }
-                }
+                options: { cutout: '70%', plugins: { legend: { display: false } } }
             });
         }
 
-        // Busca em Tempo Real
-        document.getElementById('search').addEventListener('input', function(e) {
+        // BUSCA
+        document.getElementById('searchInput').addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('#inventory-body tr');
-            
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(term) ? '' : 'none';
+            document.querySelectorAll('tbody tr').forEach(tr => {
+                tr.style.display = tr.innerText.toLowerCase().includes(term) ? '' : 'none';
             });
         });
 
-        // Inicialização
-        updateUI();
+        render();
     </script>
 </body>
 </html>
