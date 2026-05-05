@@ -3,154 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estoque Pro - Histórico Completo</title>
+    <title>Estoque Pro - Sistema Integrado</title>
     <style>
         :root {
             --primary: #2c3e50;
+            --secondary: #3498db;
             --success: #27ae60;
             --danger: #e74c3c;
             --light: #f4f7f6;
+            --dark: #1a252f;
         }
 
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); display: flex; }
-        .sidebar { width: 220px; height: 100vh; background: var(--primary); color: white; position: fixed; padding: 20px; }
-        .main-content { margin-left: 260px; padding: 30px; width: calc(100% - 260px); }
         
-        .section-title { border-left: 5px solid var(--primary); padding-left: 15px; margin: 30px 0 15px 0; color: var(--primary); }
+        /* Sidebar */
+        .sidebar { width: 220px; height: 100vh; background: var(--primary); color: white; position: fixed; padding: 20px; box-sizing: border-box; }
+        .sidebar h2 { color: var(--secondary); text-align: center; margin-bottom: 30px; }
         
-        section { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        /* Layout */
+        .main-content { margin-left: 220px; padding: 30px; width: 100%; box-sizing: border-box; }
+        .header-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        
+        /* Botões */
+        .btn { padding: 12px 18px; border: none; border-radius: 6px; cursor: pointer; color: white; font-weight: bold; transition: 0.2s; font-size: 0.9rem; }
+        .btn-new { background: var(--primary); }
+        .btn-in { background: var(--success); }
+        .btn-out { background: var(--danger); }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* Cards e Tabelas */
+        .grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 25px; }
+        section { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        h3 { margin-top: 0; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
         
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-size: 0.85rem; text-transform: uppercase; color: #666; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        th { background: #fafafa; color: #7f8c8d; }
 
-        /* Estilos do Histórico */
-        .tipo-entrada { color: var(--success); font-weight: bold; }
-        .tipo-saida { color: var(--danger); font-weight: bold; }
-        .data-log { color: #888; font-size: 0.85rem; }
-        
-        .badge-in { background: #e8f5e9; color: var(--success); padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; }
-        .badge-out { background: #ffebee; color: var(--danger); padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; }
+        /* Modais */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
+        .modal-content { background: white; width: 400px; margin: 8% auto; padding: 25px; border-radius: 12px; }
+        label { display: block; margin-top: 12px; font-weight: 600; font-size: 0.85rem; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
 
-        .btn-clear { background: #95a5a6; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; float: right; }
+        /* Badges */
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; color: white; font-weight: bold; }
+        .log-in { color: var(--success); }
+        .log-out { color: var(--danger); }
     </style>
 </head>
 <body>
 
     <aside class="sidebar">
         <h2>E-PRO</h2>
-        <p>Histórico de Fluxo</p>
+        <p style="font-size: 0.8rem; opacity: 0.7;">Gestão Integrada</p>
+        <nav style="margin-top: 40px;">
+            <div style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer;">📦 Inventário</div>
+            <div style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer;">📜 Histórico</div>
+        </nav>
     </aside>
 
     <main class="main-content">
-        <h1>Movimentações de Materiais</h1>
-
-        <!-- TABELA DE ESTOQUE ATUAL (RESUMIDA) -->
-        <h3 class="section-title">Resumo de Inventário</h3>
-        <section>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Descrição</th>
-                        <th>Saldo Atual</th>
-                    </tr>
-                </thead>
-                <tbody id="estoqueResumo"></tbody>
-            </table>
-        </section>
-
-        <!-- TABELA DE HISTÓRICO DETALHADO -->
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 class="section-title">Registro de Entradas e Saídas</h3>
-            <button class="btn-clear" onclick="limparHistorico()">Limpar Histórico</button>
+        <div class="header-box">
+            <h1>Controle de Materiais</h1>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-new" onclick="openModal('modalNovo')">📦 Novo Produto</button>
+                <button class="btn btn-in" onclick="openModal('modalEntrada')">➕ Entrada</button>
+                <button class="btn btn-out" onclick="openModal('modalSaida')">➖ Saída</button>
+            </div>
         </div>
-        
-        <section>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Data/Hora</th>
-                        <th>Operação</th>
-                        <th>Produto</th>
-                        <th>Qtd Movimentada</th>
-                        <th>Saldo Pós-Ação</th>
-                    </tr>
-                </thead>
-                <tbody id="historicoCorpo">
-                    <!-- Logs aparecerão aqui -->
-                </tbody>
-            </table>
-        </section>
+
+        <div class="grid">
+            <!-- Tabela de Estoque -->
+            <section>
+                <h3>Estoque Atual</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cód.</th>
+                            <th>Descrição</th>
+                            <th>Qtd.</th>
+                            <th>Mín.</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaProdutos"></tbody>
+                </table>
+            </section>
+
+            <!-- Tabela de Histórico -->
+            <section>
+                <h3>Últimas Movimentações</h3>
+                <table style="font-size: 0.8rem;">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Ação</th>
+                            <th>Produto</th>
+                            <th>Qtd.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaHistorico"></tbody>
+                </table>
+            </section>
+        </div>
     </main>
 
+    <!-- MODAL 1: CADASTRAR NOVO -->
+    <div id="modalNovo" class="modal">
+        <div class="modal-content">
+            <h3>Cadastrar Produto</h3>
+            <label>Código:</label>
+            <input type="text" id="cad-codigo" placeholder="Ex: MOL-001">
+            <label>Descrição:</label>
+            <input type="text" id="cad-desc" placeholder="Ex: Resina PP Azul">
+            <label>Quantidade Inicial:</label>
+            <input type="number" id="cad-qtd" value="0">
+            <label>Quantidade Mínima:</label>
+            <input type="number" id="cad-min" value="10">
+            <button class="btn btn-new" style="width: 100%; margin-top: 15px;" onclick="cadastrar()">Salvar Produto</button>
+            <button onclick="closeModal('modalNovo')" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer; color:#666;">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- MODAL 2: ENTRADA -->
+    <div id="modalEntrada" class="modal">
+        <div class="modal-content">
+            <h3 style="color: var(--success)">Registrar Entrada</h3>
+            <label>Produto:</label>
+            <select id="sel-in"></select>
+            <label>Quantidade:</label>
+            <input type="number" id="qty-in" placeholder="Quanto entrou?">
+            <button class="btn btn-in" style="width: 100%;" onclick="movimentar('ENTRADA')">Confirmar Entrada</button>
+            <button onclick="closeModal('modalEntrada')" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer;">Fechar</button>
+        </div>
+    </div>
+
+    <!-- MODAL 3: SAÍDA -->
+    <div id="modalSaida" class="modal">
+        <div class="modal-content">
+            <h3 style="color: var(--danger)">Registrar Saída</h3>
+            <label>Produto:</label>
+            <select id="sel-out"></select>
+            <label>Quantidade:</label>
+            <input type="number" id="qty-out" placeholder="Quanto saiu?">
+            <button class="btn btn-out" style="width: 100%;" onclick="movimentar('SAIDA')">Confirmar Saída</button>
+            <button onclick="closeModal('modalSaida')" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer;">Fechar</button>
+        </div>
+    </div>
+
     <script>
-        // Recupera dados do sistema anterior
-        let db = JSON.parse(localStorage.getItem('injecao_db')) || [];
-        let historico = JSON.parse(localStorage.getItem('injecao_historico')) || [];
+        // Memória do Sistema
+        let produtos = JSON.parse(localStorage.getItem('sys_prod')) || [];
+        let historico = JSON.parse(localStorage.getItem('sys_logs')) || [];
 
-        function renderizarTabelas() {
-            // 1. Renderiza Resumo do Estoque
-            const resumo = document.getElementById('estoqueResumo');
-            resumo.innerHTML = '';
-            db.forEach(item => {
-                resumo.innerHTML += `
-                    <tr>
-                        <td><strong>${item.codigo}</strong></td>
-                        <td>${item.desc}</td>
-                        <td>${item.qtd}</td>
-                    </tr>
-                `;
-            });
+        function openModal(id) {
+            if (id !== 'modalNovo') carregarSelects();
+            document.getElementById(id).style.display = 'block';
+        }
 
-            // 2. Renderiza Histórico (do mais recente para o mais antigo)
-            const corpoH = document.getElementById('historicoCorpo');
-            corpoH.innerHTML = '';
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
 
-            if (historico.length === 0) {
-                corpoH.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999;">Nenhuma movimentação registrada.</td></tr>';
-            }
-
-            historico.forEach(log => {
-                const classeTipo = log.tipo === 'ENTRADA' ? 'tipo-entrada' : 'tipo-saida';
-                const badge = log.tipo === 'ENTRADA' ? 'badge-in' : 'badge-out';
-                const sinal = log.tipo === 'ENTRADA' ? '+' : '-';
-
-                corpoH.innerHTML += `
-                    <tr>
-                        <td class="data-log">${log.data}</td>
-                        <td><span class="${badge}">${log.tipo}</span></td>
-                        <td><strong>${log.produto}</strong></td>
-                        <td class="${classeTipo}">${sinal} ${log.qtdMov}</td>
-                        <td style="color:#2c3e50; font-weight:500;">${log.saldoFinal}</td>
-                    </tr>
-                `;
+        function carregarSelects() {
+            const inS = document.getElementById('sel-in');
+            const outS = document.getElementById('sel-out');
+            inS.innerHTML = outS.innerHTML = '<option value="">Selecione...</option>';
+            produtos.forEach((p, i) => {
+                let opt = `<option value="${i}">${p.desc} (${p.codigo})</option>`;
+                inS.innerHTML += opt;
+                outS.innerHTML += opt;
             });
         }
 
-        function limparHistorico() {
-            if(confirm("Deseja apagar todo o histórico de movimentações? (Isso não altera o estoque atual)")) {
-                historico = [];
-                localStorage.setItem('injecao_historico', JSON.stringify(historico));
-                renderizarTabelas();
-            }
+        function cadastrar() {
+            const p = {
+                codigo: document.getElementById('cad-codigo').value.toUpperCase(),
+                desc: document.getElementById('cad-desc').value,
+                qtd: parseInt(document.getElementById('cad-qtd').value) || 0,
+                min: parseInt(document.getElementById('cad-min').value) || 0
+            };
+            if (!p.codigo || !p.desc) return alert("Preencha os campos obrigatórios!");
+            
+            produtos.push(p);
+            salvarERenderizar();
+            closeModal('modalNovo');
+            limparCampos();
         }
 
-        // Executa ao abrir a página
-        renderizarTabelas();
+        function movimentar(tipo) {
+            const idx = document.getElementById(tipo === 'ENTRADA' ? 'sel-in' : 'sel-out').value;
+            const q = parseInt(document.getElementById(tipo === 'ENTRADA' ? 'qty-in' : 'qty-out').value);
 
-        // Nota: Para que este histórico funcione com seus botões de Entrada/Saída anteriores,
-        // você deve adicionar esta lógica dentro da função movimentar() do seu código principal:
-        /*
-        historico.unshift({
-            data: new Date().toLocaleString('pt-BR'),
-            tipo: tipo, // 'ENTRADA' ou 'SAIDA'
-            produto: db[idx].codigo + " - " + db[idx].desc,
-            qtdMov: qtd,
-            saldoFinal: db[idx].qtd
-        });
-        localStorage.setItem('injecao_historico', JSON.stringify(historico));
-        */
+            if (idx === "" || isNaN(q) || q <= 0) return alert("Informe valores válidos!");
+            const prod = produtos[idx];
+
+            if (tipo === 'SAIDA' && prod.qtd < q) return alert("Estoque insuficiente!");
+
+            // Atualiza Saldo
+            prod.qtd = (tipo === 'ENTRADA') ? prod.qtd + q : prod.qtd - q;
+
+            // Gera Histórico
+            historico.unshift({
+                data: new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}),
+                tipo: tipo,
+                prod: prod.codigo,
+                qtd: q
+            });
+
+            salvarERenderizar();
+            closeModal(tipo === 'ENTRADA' ? 'modalEntrada' : 'modalSaida');
+        }
+
+        function salvarERenderizar() {
+            localStorage.setItem('sys_prod', JSON.stringify(produtos));
+            localStorage.setItem('sys_logs', JSON.stringify(historico));
+            
+            // Render Estoque
+            const tabP = document.getElementById('tabelaProdutos');
+            tabP.innerHTML = '';
+            produtos.forEach(p => {
+                const status = p.qtd <= p.min ? 
+                    `<span class="badge" style="background:var(--danger)">ALERTA</span>` : 
+                    `<span class="badge" style="background:var(--success)">OK</span>`;
+                tabP.innerHTML += `<tr><td>${p.codigo}</td><td>${p.desc}</td><td><strong>${p.qtd}</strong></td><td>${p.min}</td><td>${status}</td></tr>`;
+            });
+
+            // Render Histórico
+            const tabH = document.getElementById('tabelaHistorico');
+            tabH.innerHTML = '';
+            historico.slice(0, 10).forEach(h => {
+                const cor = h.tipo === 'ENTRADA' ? 'log-in' : 'log-out';
+                const sinal = h.tipo === 'ENTRADA' ? '+' : '-';
+                tabH.innerHTML += `<tr><td>${h.data}</td><td>${h.tipo}</td><td>${h.prod}</td><td class="${cor}">${sinal}${h.qtd}</td></tr>`;
+            });
+        }
+
+        function limparCampos() {
+            document.getElementById('cad-codigo').value = '';
+            document.getElementById('cad-desc').value = '';
+            document.getElementById('cad-qtd').value = 0;
+            document.getElementById('cad-min').value = 10;
+        }
+
+        salvarERenderizar();
     </script>
 </body>
 </html>
