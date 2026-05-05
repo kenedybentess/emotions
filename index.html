@@ -1,248 +1,106 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estoque Pro - Sistema de Gestão Total</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Etiqueta Elgin - Estoque Pro</title>
+    <!-- Importante: CDN para o código de barras -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --success: #27ae60;
-            --danger: #e74c3c;
-            --warning: #f39c12;
-            --light: #ecf0f1;
-            --dark: #2c3e50;
+        @media print { .no-print { display: none; } body { padding: 0; background: white; } }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; display: flex; padding: 20px; gap: 20px; }
+        
+        /* Painel de Edição */
+        .painel { background: white; padding: 20px; border-radius: 8px; width: 300px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .painel input { width: 100%; padding: 8px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        
+        /* Layout da Etiqueta (Baseado na imagem_dbdb90.png) */
+        .etiqueta { 
+            width: 140mm; height: 100mm; background: white; border: 3px solid black;
+            display: grid; grid-template-columns: 70px 1fr 110px;
         }
 
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; display: flex; background: #f8f9fa; }
+        .elgin-sidebar { 
+            border-right: 2px solid black; writing-mode: vertical-rl; 
+            transform: rotate(180deg); display: flex; align-items: center; 
+            justify-content: center; font-size: 35px; font-weight: 900; 
+        }
 
-        /* Sidebar */
-        .sidebar { width: 240px; height: 100vh; background: var(--primary); color: white; position: fixed; }
-        .sidebar h2 { text-align: center; padding: 20px; border-bottom: 1px solid #34495e; color: var(--secondary); }
-        .sidebar nav a { display: block; color: white; padding: 15px 25px; text-decoration: none; transition: 0.3s; }
-        .sidebar nav a:hover { background: var(--secondary); padding-left: 35px; }
-
-        /* Main Content */
-        .main-content { margin-left: 240px; padding: 30px; width: 100%; }
-        header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-
-        /* Dashboard */
-        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 25px 0; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid transparent; }
-        .card.total { border-color: var(--secondary); }
-        .card.critico { border-color: var(--danger); }
-        .card h3 { font-size: 0.8rem; color: #7f8c8d; margin: 0; text-transform: uppercase; }
-        .card .value { font-size: 2.2rem; font-weight: bold; margin: 10px 0; }
-
-        /* Table Area */
-        .container { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .toolbar { display: flex; gap: 10px; margin-bottom: 20px; }
-        .search-input { flex-grow: 1; padding: 12px; border: 1px solid #ddd; border-radius: 5px; }
+        .main-content { display: flex; flex-direction: column; }
+        .row { border-bottom: 2px solid black; padding: 5px; font-size: 11px; }
+        .barcode-section { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 2px solid black; }
         
-        .btn { padding: 10px 18px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-        .btn-add { background: var(--success); color: white; }
-        .btn-export { background: var(--dark); color: white; }
-        .btn-delete { background: none; border: 1px solid var(--danger); color: var(--danger); }
-        .btn-delete:hover { background: var(--danger); color: white; }
-
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #fdfdfd; padding: 15px; text-align: left; border-bottom: 2px solid #eee; color: var(--primary); }
-        td { padding: 15px; border-bottom: 1px solid #eee; }
-
-        .pill { padding: 5px 12px; border-radius: 15px; font-size: 10px; font-weight: bold; color: white; }
-
-        /* Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; }
-        .modal-content { background: white; width: 400px; margin: 100px auto; padding: 30px; border-radius: 10px; position: relative; }
-        .modal-content input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .right-sidebar { display: grid; grid-template-rows: 1fr 100px; border-left: 2px solid black; }
+        .qc-circle { 
+            display: flex; align-items: center; justify-content: center; 
+        }
+        .circle { 
+            border: 2px solid black; border-radius: 50%; width: 70px; height: 70px; 
+            text-align: center; display: flex; flex-direction: column; justify-content: center; font-size: 10px;
+        }
+        .date-section { border-top: 2px solid black; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <aside class="sidebar">
-        <h2>E-PRO</h2>
-        <nav>
-            <a href="#">🏠 Dashboard</a>
-            <a href="#">📦 Inventário</a>
-            <a href="#">📉 Movimentações</a>
-            <a href="#">⚙️ Configurações</a>
-        </nav>
-    </aside>
+<div class="painel no-print">
+    <h3>Editar Etiqueta</h3>
+    <label>Produto:</label>
+    <input type="text" id="edit_nome" value="IMPRESSORA TERMICA BEMA MP4200 HS" oninput="atualizar()">
+    <label>Cód. Elgin:</label>
+    <input type="text" id="edit_elgin" value="46B4200HS001" oninput="atualizar()">
+    <label>EAN-13:</label>
+    <input type="text" id="edit_ean" value="7908412525957" oninput="atualizar()">
+    <label>Responsável:</label>
+    <input type="number" id="edit_qc" value="21" oninput="atualizar()">
+    <button onclick="window.print()" style="width:100%; padding:10px; background:#28a745; color:white; border:none; border-radius:4px; cursor:pointer;">IMPRIMIR</button>
+</div>
 
-    <main class="main-content">
-        <header>
-            <h1>Gestão de Injeção & Moldes</h1>
-            <span>Operador: <strong>Admin</strong></span>
-        </header>
-
-        <section class="dashboard">
-            <div class="card total">
-                <h3>Total de Itens</h3>
-                <div class="value" id="count-total">0</div>
-            </div>
-            <div class="card critico">
-                <h3>Abaixo do Mínimo</h3>
-                <div class="value" id="count-alert" style="color: var(--danger);">0</div>
-            </div>
-            <div class="card">
-                <canvas id="chartHealth" style="max-height: 100px;"></canvas>
-            </div>
-        </section>
-
-        <section class="container">
-            <div class="toolbar">
-                <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar por nome ou código...">
-                <button class="btn btn-export" onclick="exportCSV()">📥 Exportar Excel</button>
-                <button class="btn btn-add" onclick="toggleModal(true)">+ Novo Item</button>
-            </div>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Cód.</th>
-                        <th>Descrição</th>
-                        <th>Estoque</th>
-                        <th>Mínimo</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </section>
-    </main>
-
-    <div id="itemModal" class="modal">
-        <div class="modal-content">
-            <h3>Cadastrar Produto</h3>
-            <input type="text" id="form-code" placeholder="Código (Ex: #MOL-001)">
-            <input type="text" id="form-desc" placeholder="Descrição">
-            <input type="number" id="form-qty" placeholder="Qtd. Atual">
-            <input type="number" id="form-min" placeholder="Qtd. Mínima de Segurança">
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn btn-add" style="flex: 1;" onclick="saveItem()">Salvar</button>
-                <button class="btn" style="background:#eee;" onclick="toggleModal(false)">Fechar</button>
-            </div>
+<div class="etiqueta">
+    <div class="elgin-sidebar">'elgin</div>
+    
+    <div class="main-content">
+        <div class="row"><strong>CNPJ: 14.200.166/0005-90</strong></div>
+        <div class="row" style="height: 60px;">
+            <b id="txt_nome">IMPRESSORA TERMICA BEMA MP4200 HS</b><br>
+            FIRMWARE: 7.010CR2N<br>
+            CÓDIGO: <span id="txt_elgin_info">46B4200HS001</span><br>
+            QTD: 01 | VOL: 01
+        </div>
+        <div class="barcode-section">
+            <small>CÓDIGO ELGIN</small>
+            <svg id="bar_elgin"></svg>
+        </div>
+        <div class="barcode-section" style="border-bottom: none;">
+            <small>CÓDIGO EAN 13</small>
+            <svg id="bar_ean"></svg>
         </div>
     </div>
 
-    <script>
-        // BANCO DE DADOS LOCAL
-        let db = JSON.parse(localStorage.getItem('injecao_pro_db')) || [
-            { code: 'RES-01', desc: 'Resina Polipropileno', qty: 100, min: 50 },
-            { code: 'MOL-05', desc: 'Molde Carcaça A', qty: 2, min: 5 }
-        ];
+    <div class="right-sidebar">
+        <div class="qc-circle">
+            <div class="circle">
+                CONTROLE<br><b>21</b><br>APROVADO
+            </div>
+        </div>
+        <div class="date-section">
+            DATA<br><span id="txt_data">05/05/2026</span>
+        </div>
+    </div>
+</div>
 
-        let chart;
+<script>
+    function atualizar() {
+        // Sincroniza textos
+        document.getElementById('txt_nome').innerText = document.getElementById('edit_nome').value;
+        document.getElementById('txt_elgin_info').innerText = document.getElementById('edit_elgin.value');
+        document.getElementById('txt_data').innerText = new Date().toLocaleDateString('pt-BR');
 
-        function toggleModal(val) {
-            document.getElementById('itemModal').style.display = val ? 'block' : 'none';
-        }
+        // Gera códigos de barras
+        JsBarcode("#bar_elgin", document.getElementById('edit_elgin').value, { height: 30, fontSize: 12 });
+        JsBarcode("#bar_ean", document.getElementById('edit_ean').value, { format: "EAN13", height: 30, fontSize: 12 });
+    }
+    atualizar();
+</script>
 
-        function saveItem() {
-            const item = {
-                code: document.getElementById('form-code').value,
-                desc: document.getElementById('form-desc').value,
-                qty: parseInt(document.getElementById('form-qty').value),
-                min: parseInt(document.getElementById('form-min').value)
-            };
-
-            if(item.code && item.desc && !isNaN(item.qty)) {
-                db.push(item);
-                render();
-                toggleModal(false);
-                document.querySelectorAll('.modal-content input').forEach(i => i.value = '');
-            }
-        }
-
-        function deleteItem(index) {
-            if(confirm("Excluir item?")) {
-                db.splice(index, 1);
-                render();
-            }
-        }
-
-        function render() {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
-            let alerts = 0;
-
-            db.forEach((item, index) => {
-                let status = "OK";
-                let color = "var(--success)";
-                
-                if(item.qty <= (item.min * 0.5)) {
-                    status = "CRÍTICO";
-                    color = "var(--danger)";
-                    alerts++;
-                } else if(item.qty <= item.min) {
-                    status = "ALERTA";
-                    color = "var(--warning)";
-                    alerts++;
-                }
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${item.code}</strong></td>
-                        <td>${item.desc}</td>
-                        <td>${item.qty}</td>
-                        <td>${item.min}</td>
-                        <td><span class="pill" style="background:${color}">${status}</span></td>
-                        <td><button class="btn btn-delete" onclick="deleteItem(${index})">Remover</button></td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById('count-total').innerText = db.length;
-            document.getElementById('count-alert').innerText = alerts;
-            localStorage.setItem('injecao_pro_db', JSON.stringify(db));
-            initChart();
-        }
-
-        // FUNCIONALIDADE: EXPORTAR CSV
-        function exportCSV() {
-            let csv = 'Codigo;Descricao;Quantidade;Minimo\n';
-            db.forEach(item => {
-                csv += `${item.code};${item.desc};${item.qty};${item.min}\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", "relatorio_estoque.csv");
-            link.click();
-        }
-
-        // GRÁFICO
-        function initChart() {
-            const ctx = document.getElementById('chartHealth').getContext('2d');
-            const ok = db.filter(i => i.qty > i.min).length;
-            const alert = db.filter(i => i.qty <= i.min).length;
-
-            if(chart) chart.destroy();
-            chart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    datasets: [{
-                        data: [ok, alert],
-                        backgroundColor: ['#27ae60', '#e74c3c']
-                    }]
-                },
-                options: { cutout: '70%', plugins: { legend: { display: false } } }
-            });
-        }
-
-        // BUSCA
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            document.querySelectorAll('tbody tr').forEach(tr => {
-                tr.style.display = tr.innerText.toLowerCase().includes(term) ? '' : 'none';
-            });
-        });
-
-        render();
-    </script>
 </body>
 </html>
