@@ -2,166 +2,129 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Etiqueta Elgin - Fidelidade Máxima</title>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <style>
+        /* Estilo Industrial Elgin */
         @page { size: landscape; margin: 0; }
-        body { 
-            font-family: "Arial Black", Gadget, sans-serif; 
-            background: #444; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh;
-            margin: 0;
-        }
+        body { font-family: "Arial Black", sans-serif; background: #555; display: flex; justify-content: center; padding: 20px; }
 
-        .no-print { 
-            width: 300px; background: white; padding: 20px; 
-            margin-right: 30px; border-radius: 12px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-        }
-        .no-print input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #bbb; border-radius: 6px; font-family: sans-serif; }
-        .btn-print { width: 100%; padding: 15px; background: #000; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-
-        /* A ETIQUETA */
-        .etiqueta-master {
+        .etiqueta-real {
             width: 140mm;
             height: 102mm;
             background: white;
-            border: 7px solid black;
+            border: 8px solid black; /* Borda externa bem grossa como na foto */
             display: grid;
-            grid-template-columns: 82px 1fr 135px;
+            grid-template-columns: 85px 1fr 140px;
             color: black;
             box-sizing: border-box;
-            overflow: hidden;
         }
 
-        /* Divisões Fortes */
-        .thick-border-right { border-right: 6px solid black; }
-        .thick-border-left { border-left: 6px solid black; }
-        .thick-border-bottom { border-bottom: 6px solid black; }
+        /* Divisões de Grade */
+        .b-right { border-right: 6px solid black; }
+        .b-left { border-left: 6px solid black; }
+        .b-bottom { border-bottom: 6px solid black; }
 
-        /* Coluna 1: Logo e CNPJ */
-        .col-1 { display: flex; flex-direction: column; height: 100%; }
-        .logo-area { flex: 1; display: flex; align-items: center; justify-content: center; }
-        .logo-area img { width: 62px; height: auto; }
-        .cnpj-area { 
-            height: 50px; border-top: 6px solid black; 
+        /* Coluna Esquerda: Logo e CNPJ */
+        .col-elgin { display: flex; flex-direction: column; }
+        .logo-box { flex: 1; display: flex; align-items: center; justify-content: center; }
+        .logo-box img { width: 65px; transform: rotate(0deg); }
+        .cnpj-box { 
+            height: 55px; border-top: 6px solid black; 
             display: flex; align-items: center; justify-content: center;
             writing-mode: vertical-rl; transform: rotate(180deg);
             font-size: 13px; font-weight: 900;
         }
 
-        /* Coluna 2: Informações e Códigos */
-        .col-2 { display: flex; flex-direction: column; }
-        .text-header { 
-            padding: 12px; font-size: 12.5px; line-height: 1.25; 
-            height: 95px; box-sizing: border-box; font-weight: 900;
+        /* Coluna Central: Dados e Barcodes */
+        .col-dados { display: flex; flex-direction: column; }
+        .header-info { 
+            padding: 10px 15px; font-size: 13px; line-height: 1.3; 
+            height: 95px; font-weight: 900; box-sizing: border-box;
         }
-        .barcode-section { 
+        .barcode-area { 
             flex: 1; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; padding: 4px 0;
+            align-items: center; justify-content: center; padding: 2px 0;
         }
-        .barcode-section span { font-size: 10px; font-weight: 900; margin-bottom: 2px; letter-spacing: 0.5px; }
-        canvas { max-width: 96%; height: auto !important; }
+        .barcode-area span { font-size: 10px; font-weight: 900; margin-bottom: 2px; }
+        canvas { max-width: 95%; height: 42px !important; }
 
-        /* Coluna 3: Selo, Data e Polo */
-        .col-3 { display: grid; grid-template-rows: 1.2fr 90px 115px; }
-        .selo-container { display: flex; align-items: center; justify-content: center; padding: 10px; }
-        .selo-container img { width: 110px; }
+        /* Coluna Direita: Selo, Data e Polo */
+        .col-selo { display: grid; grid-template-rows: 1.2fr 85px 115px; }
+        .selo-img-box { display: flex; align-items: center; justify-content: center; }
+        .selo-img-box img { width: 120px; }
         
-        .data-container { 
+        .data-box { 
             border-top: 6px solid black; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; 
         }
-        .data-label { font-size: 12px; font-weight: 900; margin-bottom: -2px; }
-        .data-value { font-size: 22px; font-weight: 900; }
+        .data-box b { font-size: 11px; }
+        .data-box span { font-size: 22px; font-weight: 900; }
 
-        .polo-container { border-top: 6px solid black; display: flex; align-items: center; justify-content: center; }
-        .polo-container img { width: 100%; height: 100%; object-fit: fill; }
+        .polo-box { border-top: 6px solid black; overflow: hidden; }
+        .polo-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        @media print {
-            .no-print { display: none; }
-            body { background: white; padding: 0; }
-            .etiqueta-master { border: 7px solid black; }
-        }
+        /* Painel de Controle oculto na impressão */
+        .no-print { width: 250px; background: white; padding: 20px; margin-right: 20px; border-radius: 10px; height: fit-content; }
+        @media print { .no-print { display: none; } body { background: white; padding: 0; } }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 </head>
 <body>
 
 <div class="no-print">
-    <h3 style="margin:0 0 15px 0">Ajuste Fino - Estoque Pro</h3>
-    <label>Nome do Produto:</label>
-    <input type="text" id="in_nome" value="IMPRESSORA TERMICA BEMA MP4200 HS" oninput="draw()">
-    <label>Código Elgin:</label>
-    <input type="text" id="in_cod" value="46B4200HS001" oninput="draw()">
-    <label>EAN-13:</label>
-    <input type="text" id="in_ean" value="7908412525957" oninput="draw()">
-    <label>Série:</label>
-    <input type="text" id="in_ser" value="12345678" oninput="draw()">
-    <button class="btn-print" onclick="window.print()">IMPRIMIR AGORA</button>
+    <h2 style="margin-top:0">Configurar</h2>
+    <input type="text" id="in_nome" value="IMPRESSORA TERMICA BEMA MP4200 HS" style="width:100%; margin-bottom:10px" oninput="render()">
+    <input type="text" id="in_cod" value="46B4200HS001" style="width:100%; margin-bottom:10px" oninput="render()">
+    <input type="text" id="in_ean" value="7908412525957" style="width:100%; margin-bottom:10px" oninput="render()">
+    <button onclick="window.print()" style="width:100%; padding:10px; cursor:pointer">IMPRIMIR</button>
 </div>
 
-<div class="etiqueta-master">
-    <!-- Lateral Logo -->
-    <div class="col-1 thick-border-right">
-        <div class="logo-area"><img src="elgin.png"></div>
-        <div class="cnpj-area">CNPJ: 14.200.166/0005-90</div>
+<div class="etiqueta-real">
+    <div class="col-elgin b-right">
+        <div class="logo-box"><img src="image_db5b5b.png"></div> <!-- Logo Elgin -->
+        <div class="cnpj-box">CNPJ: 14.200.166/0005-90</div>
     </div>
 
-    <!-- Centro -->
-    <div class="col-2">
-        <div class="text-header thick-border-bottom">
-            <span id="txt_nome" style="font-size: 14px;">IMPRESSORA TERMICA BEMA MP4200 HS</span><br>
+    <div class="col-dados">
+        <div class="header-info b-bottom">
+            <div style="font-size: 15px;" id="txt_n">IMPRESSORA TERMICA BEMA MP4200 HS</div>
             VERSÃO DO FIRMWARE: 7.010CR2N<br>
-            CÓDIGO DO PRODUTO ELGIN: <span id="txt_cod_desc">46B4200HS001</span><br>
+            CÓDIGO DO PRODUTO ELGIN: <span id="txt_c">46B4200HS001</span><br>
             QTD: 01 &nbsp; VOL: 01
         </div>
-        <div class="barcode-section thick-border-bottom">
+        <div class="barcode-area b-bottom">
             <span>CÓDIGO ELGIN</span>
-            <canvas id="b_elgin"></canvas>
+            <canvas id="b1"></canvas>
         </div>
-        <div class="barcode-section thick-border-bottom">
+        <div class="barcode-area b-bottom">
             <span>CÓDIGO EAN 13</span>
-            <canvas id="b_ean"></canvas>
+            <canvas id="b2"></canvas>
         </div>
-        <div class="barcode-section">
+        <div class="barcode-area">
             <span>NÚMERO DE SÉRIE</span>
-            <canvas id="b_ser"></canvas>
+            <canvas id="b3"></canvas>
         </div>
     </div>
 
-    <!-- Lateral Direita -->
-    <div class="col-3 thick-border-left">
-        <div class="selo-container"><img src="selo.png"></div>
-        <div class="data-container">
-            <div class="data-label">DATA</div>
-            <div class="data-value">05/05/2026</div>
+    <div class="col-selo b-left">
+        <div class="selo-img-box"><img src="image_db5b75.png"></div> <!-- Selo Qualidade -->
+        <div class="data-box">
+            <b>DATA</b>
+            <span>05/05/2026</span>
         </div>
-        <div class="polo-container"><img src="polo.png"></div>
+        <div class="polo-box"><img src="image_db5456.png"></div> <!-- Polo Manaus -->
     </div>
 </div>
 
 <script>
-    function draw() {
-        document.getElementById('txt_nome').innerText = document.getElementById('in_nome').value.toUpperCase();
-        document.getElementById('txt_cod_desc').innerText = document.getElementById('in_cod').value.toUpperCase();
-
-        const common = { 
-            displayValue: true, 
-            fontSize: 16, 
-            fontOptions: "bold", 
-            margin: 0, 
-            background: "#ffffff",
-            lineColor: "#000000"
-        };
-
-        JsBarcode("#b_elgin", document.getElementById('in_cod').value, { ...common, height: 40 });
-        JsBarcode("#b_ean", document.getElementById('in_ean').value, { ...common, height: 40, format: "EAN13" });
-        JsBarcode("#b_ser", document.getElementById('in_ser').value, { ...common, height: 40 });
+    function render() {
+        document.getElementById('txt_n').innerText = document.getElementById('in_nome').value;
+        document.getElementById('txt_c').innerText = document.getElementById('in_cod').value;
+        const s = { displayValue: true, fontSize: 16, fontOptions: "bold", margin: 0 };
+        JsBarcode("#b1", document.getElementById('in_cod').value, s);
+        JsBarcode("#b2", document.getElementById('in_ean').value, { ...s, format: "EAN13" });
+        JsBarcode("#b3", "12345678", s);
     }
-    window.onload = draw;
+    window.onload = render;
 </script>
 
 </body>
