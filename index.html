@@ -3,121 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estoque Pro - Cadastro e Movimentação</title>
+    <title>Estoque Pro - Gestão de Injeção</title>
     <style>
         :root {
             --primary: #2c3e50;
             --secondary: #3498db;
             --success: #27ae60;
             --danger: #e74c3c;
-            --warning: #f39c12;
             --light: #f4f7f6;
         }
 
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); display: flex; }
         .sidebar { width: 220px; height: 100vh; background: var(--primary); color: white; position: fixed; padding: 20px; }
-        .main-content { margin-left: 260px; padding: 30px; width: 100%; }
+        .main-content { margin-left: 260px; padding: 30px; width: calc(100% - 260px); }
         
-        /* Botões */
-        .header-actions { display: flex; gap: 10px; margin-bottom: 20px; }
-        .btn { padding: 12px 18px; border: none; border-radius: 6px; cursor: pointer; color: white; font-weight: bold; transition: 0.2s; }
-        .btn-new { background: var(--primary); }
+        .header-actions { display: flex; gap: 10px; margin-bottom: 25px; }
+        .btn { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; color: white; font-weight: bold; transition: 0.2s; }
+        .btn-new { background: var(--secondary); }
         .btn-in { background: var(--success); }
         .btn-out { background: var(--danger); }
-        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
 
-        /* Tabelas */
-        .grid { display: grid; grid-template-columns: 2fr 1.2fr; gap: 20px; }
         section { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #fafafa; color: #7f8c8d; font-size: 0.85rem; }
+        th { background: #f8f9fa; color: #7f8c8d; }
 
-        /* Modais */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-        .modal-content { background: white; width: 400px; margin: 10% auto; padding: 25px; border-radius: 12px; }
-        input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        /* Estilo dos Modais */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
+        .modal-content { background: white; width: 420px; margin: 8% auto; padding: 30px; border-radius: 12px; position: relative; }
+        .modal-content h3 { margin-top: 0; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
         
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; color: white; }
+        label { display: block; margin-top: 10px; font-weight: bold; font-size: 0.9rem; color: #444; }
+        input, select { width: 100%; padding: 12px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        
+        .badge { padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; color: white; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <aside class="sidebar">
         <h2>E-PRO</h2>
-        <p>Injeção Plástica</p>
+        <p>Controle Industrial</p>
+        <hr style="opacity: 0.2;">
+        <p style="font-size: 0.8rem; color: #bdc3c7;">v2.0 - Fluxo de Materiais</p>
     </aside>
 
     <main class="main-content">
-        <h1>Painel de Controle de Estoque</h1>
-        
-        <div class="header-actions">
-            <button class="btn btn-new" onclick="openModal('modalNovo')">📦 Cadastrar Produto</button>
-            <button class="btn btn-in" onclick="openModal('modalEntrada')">➕ Entrada</button>
-            <button class="btn btn-out" onclick="openModal('modalSaida')">➖ Saída</button>
-        </div>
+        <header>
+            <h1>Gestão de Estoque</h1>
+            <div class="header-actions">
+                <button class="btn btn-new" onclick="openModal('modalNovo')">📦 Cadastrar Novo Produto</button>
+                <button class="btn btn-in" onclick="openModal('modalEntrada')">➕ Registrar Entrada</button>
+                <button class="btn btn-out" onclick="openModal('modalSaida')">➖ Registrar Saída</button>
+            </div>
+        </header>
 
-        <div class="grid">
-            <section>
-                <h3>Inventário Geral</h3>
-                <table>
-                    <thead>
-                        <tr><th>Cód.</th><th>Descrição</th><th>Qtd.</th><th>Status</th></tr>
-                    </thead>
-                    <tbody id="listaProdutos"></tbody>
-                </table>
-            </section>
-
-            <section>
-                <h3>Movimentações Recentes</h3>
-                <table style="font-size: 0.85rem;">
-                    <tbody id="listaLogs"></tbody>
-                </table>
-            </section>
-        </div>
+        <section>
+            <h3>Materiais em Estoque</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descrição</th>
+                        <th>Quantidade</th>
+                        <th>Qtd. Mínima</th>
+                        <th>Status</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaCorpo"></tbody>
+            </table>
+        </section>
     </main>
 
-    <!-- MODAL 1: CADASTRAR PRODUTO -->
+    <!-- MODAL CADASTRO (O que você pediu) -->
     <div id="modalNovo" class="modal">
         <div class="modal-content">
-            <h3>Novo Produto</h3>
-            <input type="text" id="new-code" placeholder="Código (Ex: #MOL-01)">
-            <input type="text" id="new-desc" placeholder="Descrição (Ex: Resina PP)">
-            <input type="number" id="new-min" placeholder="Estoque Mínimo">
-            <button class="btn btn-new" style="width:100%" onclick="cadastrarProduto()">Salvar Produto</button>
-            <button onclick="closeModal('modalNovo')" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer">Fechar</button>
+            <h3>Cadastrar Produto</h3>
+            
+            <label>Código do Item:</label>
+            <input type="text" id="cad-codigo" placeholder="Ex: RES-PP-01">
+
+            <label>Descrição:</label>
+            <input type="text" id="cad-descricao" placeholder="Ex: Resina Polipropileno">
+
+            <label>Quantidade Inicial:</label>
+            <input type="number" id="cad-qtd" value="0">
+
+            <label>Quantidade Mínima (Alerta):</label>
+            <input type="number" id="cad-min" value="10">
+
+            <button class="btn btn-new" style="width:100%; margin-top:10px;" onclick="salvarNovoProduto()">Salvar no Sistema</button>
+            <button onclick="closeModal('modalNovo')" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer; color:#666;">Cancelar</button>
         </div>
     </div>
 
-    <!-- MODAL 2: ENTRADA -->
+    <!-- MODAL ENTRADA -->
     <div id="modalEntrada" class="modal">
         <div class="modal-content">
-            <h3>Registrar Entrada</h3>
-            <select id="select-in"></select>
-            <input type="number" id="qty-in" placeholder="Quantidade a somar">
-            <button class="btn btn-in" style="width:100%" onclick="movimentar('IN')">Confirmar Entrada</button>
-            <button onclick="closeModal('modalEntrada')" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer">Fechar</button>
+            <h3 style="color:var(--success)">Registrar Entrada</h3>
+            <label>Selecione o Produto:</label>
+            <select id="sel-entrada"></select>
+            <label>Quantidade a Somar:</label>
+            <input type="number" id="qtd-entrada">
+            <button class="btn btn-success" style="width:100%; background:var(--success)" onclick="movimentar('ENTRADA')">Confirmar Entrada</button>
+            <button onclick="closeModal('modalEntrada')" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer;">Fechar</button>
         </div>
     </div>
 
-    <!-- MODAL 3: SAÍDA -->
+    <!-- MODAL SAÍDA -->
     <div id="modalSaida" class="modal">
         <div class="modal-content">
-            <h3>Registrar Saída</h3>
-            <select id="select-out"></select>
-            <input type="number" id="qty-out" placeholder="Quantidade a retirar">
-            <button class="btn btn-out" style="width:100%" onclick="movimentar('OUT')">Confirmar Saída</button>
-            <button onclick="closeModal('modalSaida')" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer">Fechar</button>
+            <h3 style="color:var(--danger)">Registrar Saída</h3>
+            <label>Selecione o Produto:</label>
+            <select id="sel-saida"></select>
+            <label>Quantidade a Retirar:</label>
+            <input type="number" id="qtd-saida">
+            <button class="btn btn-danger" style="width:100%; background:var(--danger)" onclick="movimentar('SAIDA')">Confirmar Saída</button>
+            <button onclick="closeModal('modalSaida')" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer;">Fechar</button>
         </div>
     </div>
 
     <script>
-        // Banco de dados local (Substituir por Firebase para multiusuário)
-        let produtos = JSON.parse(localStorage.getItem('inj_produtos')) || [];
-        let logs = JSON.parse(localStorage.getItem('inj_logs')) || [];
+        let db = JSON.parse(localStorage.getItem('injecao_db')) || [];
 
         function openModal(id) {
-            if (id !== 'modalNovo') preencherSelects();
+            if(id !== 'modalNovo') carregarSelects();
             document.getElementById(id).style.display = 'block';
         }
 
@@ -125,72 +136,81 @@
             document.getElementById(id).style.display = 'none';
         }
 
-        function cadastrarProduto() {
-            const code = document.getElementById('new-code').value;
-            const desc = document.getElementById('new-desc').value;
-            const min = parseInt(document.getElementById('new-min').value);
+        function salvarNovoProduto() {
+            const item = {
+                codigo: document.getElementById('cad-codigo').value,
+                desc: document.getElementById('cad-descricao').value,
+                qtd: parseInt(document.getElementById('cad-qtd').value) || 0,
+                min: parseInt(document.getElementById('cad-min').value) || 0
+            };
 
-            if (!code || !desc) return alert("Preencha os campos!");
+            if(!item.codigo || !item.desc) return alert("Código e Descrição são obrigatórios!");
 
-            produtos.push({ code, desc, min, qty: 0 });
-            salvar();
+            db.push(item);
+            atualizarTudo();
             closeModal('modalNovo');
+            
+            // Limpar campos
+            document.getElementById('cad-codigo').value = '';
+            document.getElementById('cad-descricao').value = '';
         }
 
-        function preencherSelects() {
-            const sIn = document.getElementById('select-in');
-            const sOut = document.getElementById('select-out');
-            sIn.innerHTML = sOut.innerHTML = '<option value="">Selecione o produto...</option>';
+        function carregarSelects() {
+            const sIn = document.getElementById('sel-entrada');
+            const sOut = document.getElementById('sel-saida');
+            sIn.innerHTML = sOut.innerHTML = '<option value="">Escolha o material...</option>';
             
-            produtos.forEach((p, index) => {
-                let opt = `<option value="${index}">${p.desc} (${p.code})</option>`;
+            db.forEach((item, index) => {
+                let opt = `<option value="${index}">${item.desc} (${item.codigo})</option>`;
                 sIn.innerHTML += opt;
                 sOut.innerHTML += opt;
             });
         }
 
         function movimentar(tipo) {
-            const idx = document.getElementById(tipo === 'IN' ? 'select-in' : 'select-out').value;
-            const qty = parseInt(document.getElementById(tipo === 'IN' ? 'qty-in' : 'qty-out').value);
+            const idx = document.getElementById(tipo === 'ENTRADA' ? 'sel-entrada' : 'sel-saida').value;
+            const qtd = parseInt(document.getElementById(tipo === 'ENTRADA' ? 'qtd-entrada' : 'qtd-saida').value);
 
-            if (idx === "" || isNaN(qty)) return alert("Dados inválidos!");
+            if(idx === "" || isNaN(qtd)) return alert("Selecione o produto e a quantidade!");
 
-            const p = produtos[idx];
-            if (tipo === 'OUT' && p.qty < qty) return alert("Estoque insuficiente!");
+            if(tipo === 'SAIDA' && db[idx].qtd < qtd) return alert("Saldo insuficiente!");
 
-            p.qty = tipo === 'IN' ? p.qty + qty : p.qty - qty;
+            db[idx].qtd = (tipo === 'ENTRADA') ? db[idx].qtd + qtd : db[idx].qtd - qtd;
             
-            logs.unshift({
-                data: new Date().toLocaleTimeString(),
-                txt: `${tipo === 'IN' ? '➕' : '➖'} ${qty} un. de ${p.code}`
-            });
-
-            salvar();
-            closeModal(tipo === 'IN' ? 'modalEntrada' : 'modalSaida');
+            atualizarTudo();
+            closeModal(tipo === 'ENTRADA' ? 'modalEntrada' : 'modalSaida');
         }
 
-        function salvar() {
-            localStorage.setItem('inj_produtos', JSON.stringify(produtos));
-            localStorage.setItem('inj_logs', JSON.stringify(logs));
-            renderizar();
+        function excluirItem(index) {
+            if(confirm("Deseja remover este produto do sistema?")) {
+                db.splice(index, 1);
+                atualizarTudo();
+            }
         }
 
-        function renderizar() {
-            const lista = document.getElementById('listaProdutos');
-            lista.innerHTML = '';
-            produtos.forEach(p => {
-                let status = p.qty <= p.min ? '<span class="badge" style="background:var(--danger)">ALERTA</span>' : '<span class="badge" style="background:var(--success)">OK</span>';
-                lista.innerHTML += `<tr><td>${p.code}</td><td>${p.desc}</td><td>${p.qty}</td><td>${status}</td></tr>`;
-            });
+        function atualizarTudo() {
+            localStorage.setItem('injecao_db', JSON.stringify(db));
+            const tabela = document.getElementById('tabelaCorpo');
+            tabela.innerHTML = '';
 
-            const listaL = document.getElementById('listaLogs');
-            listaL.innerHTML = '';
-            logs.slice(0, 8).forEach(l => {
-                listaL.innerHTML += `<tr><td>${l.data}</td><td>${l.txt}</td></tr>`;
+            db.forEach((item, index) => {
+                const statusClasse = item.qtd <= item.min ? 'background:var(--danger)' : 'background:var(--success)';
+                const statusTexto = item.qtd <= item.min ? 'ABAIXO DO MÍNIMO' : 'OK';
+
+                tabela.innerHTML += `
+                    <tr>
+                        <td><strong>${item.codigo}</strong></td>
+                        <td>${item.desc}</td>
+                        <td>${item.qtd}</td>
+                        <td>${item.min}</td>
+                        <td><span class="badge" style="${statusClasse}">${statusTexto}</span></td>
+                        <td><button onclick="excluirItem(${index})" style="background:none; border:none; color:red; cursor:pointer;">Excluir</button></td>
+                    </tr>
+                `;
             });
         }
 
-        renderizar();
+        atualizarTudo();
     </script>
 </body>
 </html>
