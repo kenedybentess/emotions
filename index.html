@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estoque Pro - Registro de Fluxo</title>
+    <title>Estoque Pro - Cadastro e Movimentação</title>
     <style>
         :root {
             --primary: #2c3e50;
@@ -11,111 +11,113 @@
             --success: #27ae60;
             --danger: #e74c3c;
             --warning: #f39c12;
-            --light: #f8f9fa;
+            --light: #f4f7f6;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; background: var(--light); }
-        .sidebar { width: 240px; height: 100vh; background: var(--primary); color: white; position: fixed; }
-        .main-content { margin-left: 240px; padding: 30px; width: calc(100% - 240px); }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); display: flex; }
+        .sidebar { width: 220px; height: 100vh; background: var(--primary); color: white; position: fixed; padding: 20px; }
+        .main-content { margin-left: 260px; padding: 30px; width: 100%; }
         
-        .card-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-
-        .btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
+        /* Botões */
+        .header-actions { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn { padding: 12px 18px; border: none; border-radius: 6px; cursor: pointer; color: white; font-weight: bold; transition: 0.2s; }
+        .btn-new { background: var(--primary); }
         .btn-in { background: var(--success); }
         .btn-out { background: var(--danger); }
-        
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f1f1f1; color: var(--primary); }
+        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; }
-        .modal-content { background: white; width: 450px; margin: 80px auto; padding: 30px; border-radius: 12px; }
-        .modal-content h3 { margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        /* Tabelas */
+        .grid { display: grid; grid-template-columns: 2fr 1.2fr; gap: 20px; }
+        section { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #fafafa; color: #7f8c8d; font-size: 0.85rem; }
+
+        /* Modais */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; width: 400px; margin: 10% auto; padding: 25px; border-radius: 12px; }
+        input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         
-        .log-entrada { color: var(--success); font-weight: bold; }
-        .log-saida { color: var(--danger); font-weight: bold; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; color: white; }
     </style>
 </head>
 <body>
 
     <aside class="sidebar">
-        <h2 style="text-align:center">E-PRO</h2>
-        <nav style="padding: 20px;">
-            <p>SISTEMA DE FLUXO</p>
-        </nav>
+        <h2>E-PRO</h2>
+        <p>Injeção Plástica</p>
     </aside>
 
     <main class="main-content">
-        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h1>Controle de Movimentação</h1>
-            <div style="display:flex; gap:10px;">
-                <button class="btn btn-in" onclick="openModal('modalEntrada')">➕ Registrar Entrada</button>
-                <button class="btn btn-out" onclick="openModal('modalSaida')">➖ Registrar Saída</button>
-            </div>
-        </header>
+        <h1>Painel de Controle de Estoque</h1>
+        
+        <div class="header-actions">
+            <button class="btn btn-new" onclick="openModal('modalNovo')">📦 Cadastrar Produto</button>
+            <button class="btn btn-in" onclick="openModal('modalEntrada')">➕ Entrada</button>
+            <button class="btn btn-out" onclick="openModal('modalSaida')">➖ Saída</button>
+        </div>
 
-        <div class="card-container">
-            <div class="card">
-                <h3>Estoque Atual</h3>
-                <table id="estoqueTable">
+        <div class="grid">
+            <section>
+                <h3>Inventário Geral</h3>
+                <table>
                     <thead>
-                        <tr><th>Produto</th><th>Qtd</th></tr>
+                        <tr><th>Cód.</th><th>Descrição</th><th>Qtd.</th><th>Status</th></tr>
                     </thead>
-                    <tbody id="estoqueBody"></tbody>
+                    <tbody id="listaProdutos"></tbody>
                 </table>
-            </div>
-            <div class="card">
-                <h3>Últimas Atividades</h3>
-                <table id="historyTable">
-                    <thead>
-                        <tr><th>Data</th><th>Tipo</th><th>Produto</th><th>Qtd</th></tr>
-                    </thead>
-                    <tbody id="historyBody"></tbody>
+            </section>
+
+            <section>
+                <h3>Movimentações Recentes</h3>
+                <table style="font-size: 0.85rem;">
+                    <tbody id="listaLogs"></tbody>
                 </table>
-            </div>
+            </section>
         </div>
     </main>
 
-    <!-- MODAL ENTRADA -->
-    <div id="modalEntrada" class="modal">
+    <!-- MODAL 1: CADASTRAR PRODUTO -->
+    <div id="modalNovo" class="modal">
         <div class="modal-content">
-            <h3 style="color: var(--success)">Registrar Entrada de Material</h3>
-            <label>Selecione o Produto:</label>
-            <select id="in-select"></select>
-            <label>Quantidade a Adicionar:</label>
-            <input type="number" id="in-qty" min="1">
-            <button class="btn btn-in" style="width:100%" onclick="processarFluxo('ENTRADA')">Confirmar Entrada</button>
-            <button onclick="closeModal('modalEntrada')" style="width:100%; margin-top:10px; background:none; border:none; cursor:pointer">Cancelar</button>
+            <h3>Novo Produto</h3>
+            <input type="text" id="new-code" placeholder="Código (Ex: #MOL-01)">
+            <input type="text" id="new-desc" placeholder="Descrição (Ex: Resina PP)">
+            <input type="number" id="new-min" placeholder="Estoque Mínimo">
+            <button class="btn btn-new" style="width:100%" onclick="cadastrarProduto()">Salvar Produto</button>
+            <button onclick="closeModal('modalNovo')" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer">Fechar</button>
         </div>
     </div>
 
-    <!-- MODAL SAÍDA -->
+    <!-- MODAL 2: ENTRADA -->
+    <div id="modalEntrada" class="modal">
+        <div class="modal-content">
+            <h3>Registrar Entrada</h3>
+            <select id="select-in"></select>
+            <input type="number" id="qty-in" placeholder="Quantidade a somar">
+            <button class="btn btn-in" style="width:100%" onclick="movimentar('IN')">Confirmar Entrada</button>
+            <button onclick="closeModal('modalEntrada')" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer">Fechar</button>
+        </div>
+    </div>
+
+    <!-- MODAL 3: SAÍDA -->
     <div id="modalSaida" class="modal">
         <div class="modal-content">
-            <h3 style="color: var(--danger)">Registrar Saída (Produção)</h3>
-            <label>Selecione o Produto:</label>
-            <select id="out-select"></select>
-            <label>Quantidade a Retirar:</label>
-            <input type="number" id="out-qty" min="1">
-            <button class="btn btn-out" style="width:100%" onclick="processarFluxo('SAIDA')">Confirmar Saída</button>
-            <button onclick="closeModal('modalSaida')" style="width:100%; margin-top:10px; background:none; border:none; cursor:pointer">Cancelar</button>
+            <h3>Registrar Saída</h3>
+            <select id="select-out"></select>
+            <input type="number" id="qty-out" placeholder="Quantidade a retirar">
+            <button class="btn btn-out" style="width:100%" onclick="movimentar('OUT')">Confirmar Saída</button>
+            <button onclick="closeModal('modalSaida')" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer">Fechar</button>
         </div>
     </div>
 
     <script>
-        // Simulando banco de dados que será Cloud no futuro
-        let estoque = JSON.parse(localStorage.getItem('db_estoque')) || [
-            { id: 1, nome: 'Resina PP Azul', qtd: 100 },
-            { id: 2, nome: 'Pino Extrator 8mm', qtd: 50 },
-            { id: 3, nome: 'Molde Carcaça G', qtd: 5 }
-        ];
-
-        let historico = JSON.parse(localStorage.getItem('db_historico')) || [];
+        // Banco de dados local (Substituir por Firebase para multiusuário)
+        let produtos = JSON.parse(localStorage.getItem('inj_produtos')) || [];
+        let logs = JSON.parse(localStorage.getItem('inj_logs')) || [];
 
         function openModal(id) {
-            populateSelects();
+            if (id !== 'modalNovo') preencherSelects();
             document.getElementById(id).style.display = 'block';
         }
 
@@ -123,72 +125,72 @@
             document.getElementById(id).style.display = 'none';
         }
 
-        function populateSelects() {
-            const inSelect = document.getElementById('in-select');
-            const outSelect = document.getElementById('out-select');
-            inSelect.innerHTML = outSelect.innerHTML = '';
+        function cadastrarProduto() {
+            const code = document.getElementById('new-code').value;
+            const desc = document.getElementById('new-desc').value;
+            const min = parseInt(document.getElementById('new-min').value);
+
+            if (!code || !desc) return alert("Preencha os campos!");
+
+            produtos.push({ code, desc, min, qty: 0 });
+            salvar();
+            closeModal('modalNovo');
+        }
+
+        function preencherSelects() {
+            const sIn = document.getElementById('select-in');
+            const sOut = document.getElementById('select-out');
+            sIn.innerHTML = sOut.innerHTML = '<option value="">Selecione o produto...</option>';
             
-            estoque.forEach(item => {
-                let opt = `<option value="${item.id}">${item.nome} (Atual: ${item.qtd})</option>`;
-                inSelect.innerHTML += opt;
-                outSelect.innerHTML += opt;
+            produtos.forEach((p, index) => {
+                let opt = `<option value="${index}">${p.desc} (${p.code})</option>`;
+                sIn.innerHTML += opt;
+                sOut.innerHTML += opt;
             });
         }
 
-        function processarFluxo(tipo) {
-            const prefix = tipo === 'ENTRADA' ? 'in' : 'out';
-            const idProd = parseInt(document.getElementById(`${prefix}-select`).value);
-            const qtdAlt = parseInt(document.getElementById(`${prefix}-qty`).value);
+        function movimentar(tipo) {
+            const idx = document.getElementById(tipo === 'IN' ? 'select-in' : 'select-out').value;
+            const qty = parseInt(document.getElementById(tipo === 'IN' ? 'qty-in' : 'qty-out').value);
 
-            if (isNaN(qtdAlt) || qtdAlt <= 0) return alert("Insira uma quantidade válida!");
+            if (idx === "" || isNaN(qty)) return alert("Dados inválidos!");
 
-            const produto = estoque.find(p => p.id === idProd);
+            const p = produtos[idx];
+            if (tipo === 'OUT' && p.qty < qty) return alert("Estoque insuficiente!");
 
-            if (tipo === 'SAIDA' && produto.qtd < qtdAlt) {
-                return alert("Estoque insuficiente para esta saída!");
-            }
-
-            // Atualiza Estoque
-            produto.qtd = tipo === 'ENTRADA' ? produto.qtd + qtdAlt : produto.qtd - qtdAlt;
-
-            // Registra Histórico
-            historico.unshift({
-                data: new Date().toLocaleString(),
-                tipo: tipo,
-                produto: produto.nome,
-                qtd: qtdAlt
-            });
-
-            saveAndRender();
-            closeModal(`modal${tipo.charAt(0) + tipo.slice(1).toLowerCase()}`);
-        }
-
-        function saveAndRender() {
-            localStorage.setItem('db_estoque', JSON.stringify(estoque));
-            localStorage.setItem('db_historico', JSON.stringify(historico));
+            p.qty = tipo === 'IN' ? p.qty + qty : p.qty - qty;
             
-            // Renderiza Estoque
-            const eBody = document.getElementById('estoqueBody');
-            eBody.innerHTML = '';
-            estoque.forEach(p => {
-                eBody.innerHTML += `<tr><td>${p.nome}</td><td><strong>${p.qtd}</strong></td></tr>`;
+            logs.unshift({
+                data: new Date().toLocaleTimeString(),
+                txt: `${tipo === 'IN' ? '➕' : '➖'} ${qty} un. de ${p.code}`
             });
 
-            // Renderiza Histórico
-            const hBody = document.getElementById('historyBody');
-            hBody.innerHTML = '';
-            historico.slice(0, 10).forEach(h => {
-                const classe = h.tipo === 'ENTRADA' ? 'log-entrada' : 'log-saida';
-                hBody.innerHTML += `<tr>
-                    <td>${h.data}</td>
-                    <td class="${classe}">${h.tipo}</td>
-                    <td>${h.produto}</td>
-                    <td>${h.qtd}</td>
-                </tr>`;
+            salvar();
+            closeModal(tipo === 'IN' ? 'modalEntrada' : 'modalSaida');
+        }
+
+        function salvar() {
+            localStorage.setItem('inj_produtos', JSON.stringify(produtos));
+            localStorage.setItem('inj_logs', JSON.stringify(logs));
+            renderizar();
+        }
+
+        function renderizar() {
+            const lista = document.getElementById('listaProdutos');
+            lista.innerHTML = '';
+            produtos.forEach(p => {
+                let status = p.qty <= p.min ? '<span class="badge" style="background:var(--danger)">ALERTA</span>' : '<span class="badge" style="background:var(--success)">OK</span>';
+                lista.innerHTML += `<tr><td>${p.code}</td><td>${p.desc}</td><td>${p.qty}</td><td>${status}</td></tr>`;
+            });
+
+            const listaL = document.getElementById('listaLogs');
+            listaL.innerHTML = '';
+            logs.slice(0, 8).forEach(l => {
+                listaL.innerHTML += `<tr><td>${l.data}</td><td>${l.txt}</td></tr>`;
             });
         }
 
-        saveAndRender();
+        renderizar();
     </script>
 </body>
 </html>
