@@ -58,8 +58,14 @@
         .card { background: var(--light-bg); padding: 20px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center; }
         .card h3 { font-size: 0.9em; text-transform: uppercase; color: #666; }
         .card p { font-size: 1.8em; font-weight: bold; margin-top: 5px; }
-        .chart-container { background: white; padding: 20px; border-radius: 6px; border: 1px solid var(--border-color); height: 430px; position: relative; }
+        .chart-container { background: white; padding: 20px; border-radius: 6px; border: 1px solid var(--border-color); height: 350px; position: relative; margin-bottom: 30px; }
         
+        /* Estilos da Tabela de Detalhes */
+        .history-container { margin-top: 20px; background: white; padding: 20px; border-radius: 6px; border: 1px solid var(--border-color); }
+        .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; color: white; }
+        .badge-liberado { background-color: var(--secondary-color); }
+        .badge-bloqueado { background-color: var(--danger-color); }
+
         @media print { .tabs, .actions { display: none; } }
     </style>
 </head>
@@ -236,6 +242,27 @@
         <div class="chart-container">
             <canvas id="monthlyChart"></canvas>
         </div>
+
+        <div class="history-container">
+            <h2 style="color: var(--primary-color); margin-bottom: 15px; font-size: 1.3em; text-transform: uppercase;">📋 Histórico Detalhado dos Registros</h2>
+            <table id="table-details">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Turno</th>
+                        <th>Injetora</th>
+                        <th>Operador</th>
+                        <th>Status</th>
+                        <th>Anomalias/Obs</th>
+                    </tr>
+                </thead>
+                <tbody id="history-rows">
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #999;">Carregando histórico detalhado...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -243,7 +270,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // Suas credenciais reais do Firebase vinculadas ao Realtime Database
     const firebaseConfig = {
         apiKey: "AIzaSyAlKpviJW_Q2gIF143wQewDujKt9EqHPCk",
         authDomain: "checklist-injetoras.firebaseapp.com",
@@ -255,15 +281,12 @@
         measurementId: "G-JYPGDXVWVE"
     };
 
-    // Inicializa o Firebase
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
-    // Ajusta data de hoje padrão no input
     document.getElementById('data').valueAsDate = new Date();
     let myChart = null;
 
-    // Controla a troca de abas visuais
     window.switchTab = function(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -276,7 +299,6 @@
         }
     }
 
-    // Varre a tela procurando marcações em Não Conformidade ("N")
     window.evalStatus = function() {
         const faults = document.querySelectorAll('input[type="radio"][value="N"]:checked');
         if (faults.length > 0) {
@@ -288,14 +310,12 @@
         }
     }
 
-    // Evento de Envio e Gravação no Banco de Dados
     document.getElementById('checklistForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
         const dataOriginal = document.getElementById('data').value;
         if(!dataOriginal) return;
 
-        // Captura dinâmica dos itens respondidos
         const itensRespondidos = {};
         document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
             if(radio.name !== "status_maquina") {
@@ -303,7 +323,6 @@
             }
         });
 
-        // Captura as caixas de observações
         const observacoesItens = {};
         document.querySelectorAll('.obs-input').forEach(input => {
             if(input.value.trim() !== "") {
@@ -322,7 +341,6 @@
             timestamp: Date.now()
         };
 
-        // Define ID composto estável para evitar sobreposição cega
         const registroId = `${dataOriginal}_${payload.turno.replace(' ', '')}_${payload.injetora}`;
         
         set(ref(database, 'checklists/' + registroId), payload)
@@ -333,38 +351,40 @@
                 window.evalStatus();
             })
             .catch((error) => {
-                alert('Falha na comunicação com o banco: ' + error.message);
+                alert('Falha na comunicação: ' + error.message);
             });
     });
 
-    // Puxa histórico e reconstrói Gráfico do Chart.js
     function loadDashboardData() {
         get(ref(database, 'checklists')).then((snapshot) => {
             if (!snapshot.exists()) {
-                alert("Nenhum dado encontrado no Firebase para compor métricas.");
+                document.getElementById('history-rows').innerHTML = '<tr><td colspan="6" style="text-align:center;">Nenhum dado no banco.</td></tr>';
                 return;
             }
 
             const data = snapshot.val();
             let total = 0, liberados = 0, bloqueados = 0;
             
-            // Inicializa mapa mensal estático de 1 a 31 dias
             let mapeamentoDias = {};
             for(let i = 1; i <= 31; i++) {
-                mapeamentoDias[i] = { liberado: 0, bankrupt: 0, bloqueado: 0 };
+                mapeamentoDias[i] = { liberado: 0, bloqueado: 0 };
             }
 
             const mesAtual = new Date().getMonth();
+            let tabelaHtml = '';
 
-            Object.keys(data).forEach(key => {
-                const registro = data[key];
+            // Converte o objeto em array e ordena por timestamp decrescente (mais recente primeiro)
+            const registrosOrdenados = Object.keys(data)
+                .map(key => data[key])
+                .sort((a, b) => b.timestamp - a.timestamp);
+
+            registrosOrdenados.forEach(registro => {
                 const dataObj = new Date(registro.data + "T00:00:00");
                 
                 total++;
                 if (registro.status === "LIBERADO") liberados++;
                 else bloqueados++;
 
-                // Agrupa se pertencer ao mesmo mês atual do operador
                 if(dataObj.getMonth() === mesAtual) {
                     const dia = dataObj.getDate();
                     if(registro.status === "LIBERADO") {
@@ -373,12 +393,38 @@
                         mapeamentoDias[dia].bloqueado += 1;
                     }
                 }
+
+                // Formata a data para padrão PT-BR (DD/MM/AAAA)
+                const dataFormatada = dataObj.toLocaleDateString('pt-BR');
+
+                // Filtra as notas/observações digitadas pelo operador caso existam
+                let obsTexto = '-';
+                if (registro.notas && Object.keys(registro.notas).length > 0) {
+                    obsTexto = Object.values(registro.notas).join(' | ');
+                } else if (registro.status === "BLOQUEADO") {
+                    obsTexto = "Bloqueio automático por item não conforme.";
+                }
+
+                const badgeClass = registro.status === "LIBERADO" ? "badge-liberado" : "badge-bloqueado";
+
+                // Monta a linha da tabela detalhada
+                tabelaHtml += `
+                    <tr>
+                        <td><strong>${dataFormatada}</strong></td>
+                        <td>${registro.turno || '-'}</td>
+                        <td><span style="color:#2c3e50; font-weight:600;">${registro.injetora || '-'}</span></td>
+                        <td>${registro.operador || '-'}</td>
+                        <td><span class="badge ${badgeClass}">${registro.status}</span></td>
+                        <td style="color:#555; font-size:0.9em; max-width:250px; word-wrap:break-word;">${obsTexto}</td>
+                    </tr>
+                `;
             });
 
-            // Atualização dos painéis numéricos
+            // Atualiza os componentes na tela
             document.getElementById('txt-total').innerText = total;
             document.getElementById('txt-liberados').innerText = liberados;
             document.getElementById('txt-bloqueados').innerText = bloqueados;
+            document.getElementById('history-rows').innerHTML = tabelaHtml;
 
             const labelsDias = Object.keys(mapeamentoDias);
             const dadosLiberados = labelsDias.map(d => mapeamentoDias[d].liberado);
@@ -410,7 +456,7 @@
                 }
             });
         }).catch(err => {
-            console.error("Falha ao recuperar registros do Firebase:", err);
+            console.error("Falha ao carregar os detalhes:", err);
         });
     }
 </script>
