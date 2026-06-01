@@ -6,6 +6,8 @@
     <title>Checklist & Dashboard de Injetoras</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
     <style>
         :root {
@@ -53,7 +55,7 @@
         .btn-success { background-color: var(--secondary-color); }
         .btn-primary { background-color: var(--primary-color); }
         
-        /* Botão menor para tabela */
+        /* Botão da Tabela */
         .btn-sm { padding: 5px 10px; font-size: 0.85em; border-radius: 3px; background-color: #34495e; color: white; border: none; cursor: pointer; font-weight: bold; }
         .btn-sm:hover { background-color: var(--primary-color); }
 
@@ -63,7 +65,7 @@
         .card h3 { font-size: 0.85em; text-transform: uppercase; color: #666; }
         .card p { font-size: 1.6em; font-weight: bold; margin-top: 5px; }
         
-        /* Painel de Destaque da Última Inspeção */
+        /* Destaque */
         .highlight-panel { background: #e1f5fe; border: 1px solid #b3e5fc; padding: 15px 20px; border-radius: 6px; margin-bottom: 25px; }
         .highlight-panel h2 { font-size: 1em; color: #0288d1; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #b3e5fc; padding-bottom: 5px; }
         .highlight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
@@ -280,7 +282,7 @@
                 </thead>
                 <tbody id="history-rows">
                     <tr>
-                        <td colspan="7" style="text-align: center; color: #999;">Carregando histórico detalhado...</td>
+                        <td colspan="7" style="text-align: center; color: #999;">Aguardando inicialização do sistema...</td>
                     </tr>
                 </tbody>
             </table>
@@ -288,11 +290,8 @@
     </div>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-    // Credenciais atuais do seu projeto
+<script>
+    // Inicialização Compatível do Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyAlKpviJW_Q2gIF143wQewDujKt9EqHPCk",
         authDomain: "checklist-injetoras.firebaseapp.com",
@@ -304,8 +303,9 @@
         measurementId: "G-JYPGDXVWVE"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
+    // Inicializa o app e o banco globalmente sem depender de módulos ES6
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
     let cacheRegistros = {};
     document.getElementById('data').valueAsDate = new Date();
@@ -370,7 +370,7 @@
             document.getElementById('statusBlock').style.background = '#f8d7da';
         }
 
-        alert(`Visualizando registro carregado: Injetora ${registro.injetora}. Pronto para leitura ou Impressão de PDF.`);
+        alert(`Registro carregado com sucesso!\nInjetora: ${registro.injetora}\nOperador: ${registro.operador}`);
     }
 
     document.getElementById('checklistForm').addEventListener('submit', function(e) {
@@ -406,22 +406,24 @@
 
         const registroId = `${dataOriginal}_${payload.turno.replace(' ', '')}_${payload.injetora}_${payload.timestamp}`;
         
-        set(ref(database, 'checklists/' + registroId), payload)
+        database.ref('checklists/' + registroId).set(payload)
             .then(() => {
-                alert('✓ Sincronizado e Gravado com Sucesso no Firebase!');
+                alert('✓ Gravado com Sucesso no Firebase!');
                 document.getElementById('checklistForm').reset();
                 document.getElementById('data').valueAsDate = new Date();
                 window.evalStatus();
             })
             .catch((error) => {
-                alert('Erro ao Salvar! Verifique se as Regras do seu Firebase estão públicas: ' + error.message);
+                alert('Erro ao Salvar: ' + error.message);
             });
     });
 
     function loadDashboardData() {
-        get(ref(database, 'checklists')).then((snapshot) => {
+        document.getElementById('history-rows').innerHTML = '<tr><td colspan="7" style="text-align: center; color: #666;">Conectando e buscando dados...</td></tr>';
+        
+        database.ref('checklists').get().then((snapshot) => {
             if (!snapshot.exists()) {
-                document.getElementById('history-rows').innerHTML = '<tr><td colspan="7" style="text-align:center; color:#e67e22; font-weight:bold;">O Banco de dados está conectado, mas ainda não possui nenhum checklist salvo. Faça o primeiro envio!</td></tr>';
+                document.getElementById('history-rows').innerHTML = '<tr><td colspan="7" style="text-align:center; color:#e67e22; font-weight:bold;">Conexão estabelecida! Porém, nenhum registro foi encontrado no seu banco. Faça um envio de teste na Aba anterior!</td></tr>';
                 return;
             }
 
@@ -446,8 +448,8 @@
                 const dataFormatada = dataObj.toLocaleDateString('pt-BR');
                 if (timestamp) {
                     const horas = String(dataObj.getHours()).padStart(2, '0');
-                    const minutos = String(dataObj.getMinutes()).padStart(2, '0');
-                    return `${dataFormatada} - ${horas}:${minutos}`;
+                    const minutes = String(dataObj.getMinutes()).padStart(2, '0');
+                    return `${dataFormatada} - ${horas}:${minutes}`;
                 }
                 return dataFormatada;
             }
@@ -536,7 +538,7 @@
                 }
             });
         }).catch(err => {
-            document.getElementById('history-rows').innerHTML = `<tr><td colspan="7" style="text-align:center; color:#c0392b; font-weight:bold;">Erro de permissão no Firebase! Vá em 'Rules' e mude para true. Detalhes: ${err.message}</td></tr>`;
+            document.getElementById('history-rows').innerHTML = `<tr><td colspan="7" style="text-align:center; color:#c0392b; font-weight:bold;">Acesso Recusado! Verifique as regras do Firebase. Erro: ${err.message}</td></tr>`;
         });
     }
 </script>
