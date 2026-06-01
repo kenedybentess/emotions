@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checklist & Dashboard de Injetoras</title>
     
-    <!-- Chart.js para o Gráfico do Dashboard -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
@@ -84,13 +83,11 @@
 <body>
 
 <div class="container">
-    <!-- Abas de Navegação -->
     <div class="tabs">
         <button id="btn-tab-checklist" class="tab-btn active" onclick="switchTab('checklist-tab')">📝 Realizar/Ver Checklist</button>
         <button id="btn-tab-dashboard" class="tab-btn" onclick="switchTab('dashboard-tab')">📊 Dashboard Mensal</button>
     </div>
 
-    <!-- ABA 1: FORMULÁRIO DE CHECKLIST -->
     <div id="checklist-tab" class="tab-content active">
         <header>
             <div class="logo-placeholder">SISTEMA DE GESTÃO DE SEGURANÇA INTERNA</div>
@@ -112,7 +109,6 @@
                 <div class="form-group"><label>Operador:</label><input type="text" id="operador" placeholder="Nome Completo" required></div>
             </div>
 
-            <!-- Grupo 1 -->
             <div class="section-title">1. Proteções Mecânicas e Físicas</div>
             <table>
                 <thead>
@@ -159,7 +155,6 @@
                 </tbody>
             </table>
 
-            <!-- Grupo 2 -->
             <div class="section-title">2. Dispositivos de Segurança Eletromecânicos e Sensores</div>
             <table>
                 <thead>
@@ -198,7 +193,6 @@
                 </tbody>
             </table>
 
-            <!-- Grupo 3 -->
             <div class="section-title">3. Sistemas Hidráulicos e Condições de Área</div>
             <table>
                 <thead>
@@ -244,14 +238,12 @@
         </form>
     </div>
 
-    <!-- ABA 2: DASHBOARD E GRÁFICO -->
     <div id="dashboard-tab" class="tab-content">
         <header>
             <h1>Dashboard Mensal de Segurança</h1>
             <p>Acompanhamento diário de conformidade das injetoras</p>
         </header>
 
-        <!-- PAINEL DE DESTAQUE -->
         <div class="highlight-panel">
             <h2>📌 Última Inspeção Registrada</h2>
             <div class="highlight-grid">
@@ -296,11 +288,11 @@
     </div>
 </div>
 
-<!-- Configuração Firebase Integrada -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+    // Credenciais atuais do seu projeto
     const firebaseConfig = {
         apiKey: "AIzaSyAlKpviJW_Q2gIF143wQewDujKt9EqHPCk",
         authDomain: "checklist-injetoras.firebaseapp.com",
@@ -315,9 +307,7 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
-    // Variável global para armazenar temporariamente os dados carregados do banco
     let cacheRegistros = {};
-
     document.getElementById('data').valueAsDate = new Date();
     let myChart = null;
 
@@ -344,24 +334,19 @@
         }
     }
 
-    // NOVA FUNÇÃO: Resgata um registro individual e o monta completamente no formulário original para análise ou re-impressão
     window.visualizarRegistroIndividual = function(idUnico) {
         const registro = cacheRegistros[idUnico];
         if(!registro) return;
 
-        // Mudar para a aba do formulário
         switchTab('checklist-tab');
 
-        // Preencher os metadados
         document.getElementById('data').value = registro.data;
         document.getElementById('turno').value = registro.turno;
         document.getElementById('injetora').value = registro.injetora;
         document.getElementById('operador').value = registro.operador;
 
-        // Resetar campos de observações antes de preencher
         document.querySelectorAll('.obs-input').forEach(input => input.value = "");
 
-        // Preencher respostas de rádio originais gravadas
         if(registro.respostas) {
             Object.keys(registro.respostas).forEach(nomeRadio => {
                 const valorGravado = registro.respostas[nomeRadio];
@@ -370,13 +355,6 @@
             });
         }
 
-        // Preencher as observações digitadas na época
-        if(registro.notes) { // compatibilidade
-            Object.keys(registro.notes).forEach(idObs => {
-                const campoObs = document.getElementById(idObs);
-                if(campoObs) campoObs.value = registro.notes[idObs];
-            });
-        }
         if(registro.notas) {
             Object.keys(registro.notas).forEach(idObs => {
                 const campoObs = document.getElementById(idObs);
@@ -384,7 +362,6 @@
             });
         }
 
-        // Ajustar bloco de status visual final
         if(registro.status === "LIBERADO") {
             document.getElementById('status_liberado').checked = true;
             document.getElementById('statusBlock').style.background = '#fff3cd';
@@ -393,7 +370,7 @@
             document.getElementById('statusBlock').style.background = '#f8d7da';
         }
 
-        alert(`Visualizando registro carregado: Injetora ${registro.injetora} - Turno: ${registro.turno}. Pronto para leitura ou Impressão de PDF.`);
+        alert(`Visualizando registro carregado: Injetora ${registro.injetora}. Pronto para leitura ou Impressão de PDF.`);
     }
 
     document.getElementById('checklistForm').addEventListener('submit', function(e) {
@@ -437,19 +414,19 @@
                 window.evalStatus();
             })
             .catch((error) => {
-                alert('Falha na comunicação: ' + error.message);
+                alert('Erro ao Salvar! Verifique se as Regras do seu Firebase estão públicas: ' + error.message);
             });
     });
 
     function loadDashboardData() {
         get(ref(database, 'checklists')).then((snapshot) => {
             if (!snapshot.exists()) {
-                document.getElementById('history-rows').innerHTML = '<tr><td colspan="7" style="text-align:center;">Nenhum dado no banco.</td></tr>';
+                document.getElementById('history-rows').innerHTML = '<tr><td colspan="7" style="text-align:center; color:#e67e22; font-weight:bold;">O Banco de dados está conectado, mas ainda não possui nenhum checklist salvo. Faça o primeiro envio!</td></tr>';
                 return;
             }
 
             const data = snapshot.val();
-            cacheRegistros = data; // Guardamos os dados no cache para permitir acesso instantâneo ao clicar em "Ver"
+            cacheRegistros = data;
             
             let total = 0, liberados = 0, bloqueados = 0;
             let mapeamentoDias = {};
@@ -460,7 +437,6 @@
             const mesAtual = new Date().getMonth();
             let tabelaHtml = '';
 
-            // Mapeia chaves para podermos linkar o botão ao ID único estruturado do nó
             const chavesOrdenadas = Object.keys(data).sort((a, b) => {
                 return (data[b].timestamp || 0) - (data[a].timestamp || 0);
             });
@@ -476,7 +452,6 @@
                 return dataFormatada;
             }
 
-            // ALIMENTA O PAINEL DE DESTAQUE
             if(chavesOrdenadas.length > 0) {
                 const maisRecente = data[chavesOrdenadas[0]];
                 document.getElementById('lbl-last-data').innerText = formatarDataHora(maisRecente.timestamp, maisRecente.data);
@@ -561,7 +536,7 @@
                 }
             });
         }).catch(err => {
-            console.error("Falha ao carregar os detalhes:", err);
+            document.getElementById('history-rows').innerHTML = `<tr><td colspan="7" style="text-align:center; color:#c0392b; font-weight:bold;">Erro de permissão no Firebase! Vá em 'Rules' e mude para true. Detalhes: ${err.message}</td></tr>`;
         });
     }
 </script>
