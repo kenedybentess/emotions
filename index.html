@@ -53,6 +53,10 @@
         .btn { padding: 12px 24px; border: none; border-radius: 4px; font-size: 1em; font-weight: bold; cursor: pointer; color: white; }
         .btn-success { background-color: var(--secondary-color); }
         .btn-primary { background-color: var(--primary-color); }
+        
+        /* Botão menor para tabela */
+        .btn-sm { padding: 5px 10px; font-size: 0.85em; border-radius: 3px; background-color: #34495e; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .btn-sm:hover { background-color: var(--primary-color); }
 
         /* Dashboard */
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px; }
@@ -74,7 +78,7 @@
         .badge-liberado { background-color: var(--secondary-color); }
         .badge-bloqueado { background-color: var(--danger-color); }
 
-        @media print { .tabs, .actions { display: none; } }
+        @media print { .tabs, .actions, .history-container, .btn-sm { display: none !important; } }
     </style>
 </head>
 <body>
@@ -82,7 +86,7 @@
 <div class="container">
     <!-- Abas de Navegação -->
     <div class="tabs">
-        <button id="btn-tab-checklist" class="tab-btn active" onclick="switchTab('checklist-tab')">📝 Realizar Checklist</button>
+        <button id="btn-tab-checklist" class="tab-btn active" onclick="switchTab('checklist-tab')">📝 Realizar/Ver Checklist</button>
         <button id="btn-tab-dashboard" class="tab-btn" onclick="switchTab('dashboard-tab')">📊 Dashboard Mensal</button>
     </div>
 
@@ -123,33 +127,33 @@
                     <tr>
                         <td>1.1</td>
                         <td>A proteção móvel frontal (porta do operador) desliza livremente e sem rachaduras?</td>
-                        <td class="radio-cell"><input type="radio" name="item_1_1" value="S" checked onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_1_1" value="N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_1_1" value="NA" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_1_1" value="S" id="item_1_1_S" checked onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_1_1" value="N" id="item_1_1_N" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_1_1" value="NA" id="item_1_1_NA" onclick="evalStatus()"></td>
                         <td><input type="text" id="obs_1_1" class="obs-input" placeholder="..."></td>
                     </tr>
                     <tr>
                         <td>1.2</td>
                         <td>A proteção móvel traseira (lado oposto ao operador) está fechada e fixada corretamente?</td>
-                        <td class="radio-cell"><input type="radio" name="item_1_2" value="S" checked onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_1_2" value="N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_1_2" value="NA" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_1_2" value="S" id="item_1_2_S" checked onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_1_2" value="N" id="item_1_2_N" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_1_2" value="NA" id="item_1_2_NA" onclick="evalStatus()"></td>
                         <td><input type="text" id="obs_1_2" class="obs-input" placeholder="..."></td>
                     </tr>
                     <tr>
                         <td>1.3</td>
                         <td>As proteções fixas da zona do molde estão parafusadas e no lugar?</td>
-                        <td class="radio-cell"><input type="radio" name="item_1_3" value="S" checked onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_1_3" value="N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_1_3" value="NA" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_1_3" value="S" id="item_1_3_S" checked onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_1_3" value="N" id="item_1_3_N" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_1_3" value="NA" id="item_1_3_NA" onclick="evalStatus()"></td>
                         <td><input type="text" id="obs_1_3" class="obs-input" placeholder="..."></td>
                     </tr>
                     <tr>
                         <td>1.4</td>
                         <td>A proteção do bico da injetora (capô) está fechada e firme?</td>
-                        <td class="radio-cell"><input type="radio" name="item_1_4" value="S" checked onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_1_4" value="N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_1_4" value="NA" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_1_4" value="S" id="item_1_4_S" checked onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_1_4" value="N" id="item_1_4_N" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_1_4" value="NA" id="item_1_4_NA" onclick="evalStatus()"></td>
                         <td><input type="text" id="obs_1_4" class="obs-input" placeholder="..."></td>
                     </tr>
                 </tbody>
@@ -170,25 +174,25 @@
                     <tr>
                         <td>2.1</td>
                         <td>Ao abrir a porta frontal no meio do fechamento, o molde para imediatamente?</td>
-                        <td class="radio-cell"><input type="radio" name="item_2_1" value="S" checked onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_2_1" value="N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_2_1" value="NA" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_2_1" value="S" id="item_2_1_S" checked onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_2_1" value="N" id="item_2_1_N" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_2_1" value="NA" id="item_2_1_NA" onclick="evalStatus()"></td>
                         <td><input type="text" id="obs_2_1" class="obs-input" placeholder="..."></td>
                     </tr>
                     <tr>
                         <td>2.2</td>
                         <td>A barra mecânica de segurança impede o fechamento se a porta estiver aberta?</td>
-                        <td class="radio-cell"><input type="radio" name="item_2_2" value="S" checked onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_2_2" value="N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_2_2" value="NA" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_2_2" value="S" id="item_2_2_S" checked onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_2_2" value="N" id="item_2_2_N" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_2_2" value="NA" id="item_2_2_NA" onclick="evalStatus()"></td>
                         <td><input type="text" id="obs_2_2" class="obs-input" placeholder="..."></td>
                     </tr>
                     <tr>
                         <td>2.3</td>
                         <td>Os botões de emergência (frontal e traseiro) funcionam e desligam o comando?</td>
-                        <td class="radio-cell"><input type="radio" name="item_2_3" value="S" checked onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_2_3" value="N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_2_3" value="NA" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_2_3" value="S" id="item_2_3_S" checked onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_2_3" value="N" id="item_2_3_N" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_2_3" value="NA" id="item_2_3_NA" onclick="evalStatus()"></td>
                         <td><input type="text" id="obs_2_3" class="obs-input" placeholder="..."></td>
                     </tr>
                 </tbody>
@@ -209,17 +213,17 @@
                     <tr>
                         <td>3.1</td>
                         <td>Existe algum vazamento visível de óleo hidráulico nas mangueiras ou pistões?</td>
-                        <td class="radio-cell"><input type="radio" name="item_3_1" value="S" checked onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_3_1" value="N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_3_1" value="NA" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_3_1" value="S" id="item_3_1_S" checked onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_3_1" value="N" id="item_3_1_N" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_3_1" value="NA" id="item_3_1_NA" onclick="evalStatus()"></td>
                         <td><input type="text" id="obs_3_1" class="obs-input" placeholder="..."></td>
                     </tr>
                     <tr>
                         <td>3.2</td>
                         <td>A área ao redor está limpa, seca e organizada (Livre de pellets de plástico)?</td>
-                        <td class="radio-cell"><input type="radio" name="item_3_2" value="S" checked onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_3_2" value="N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_3_2" value="NA" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_3_2" value="S" id="item_3_2_S" checked onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_3_2" value="N" id="item_3_2_N" onclick="evalStatus()"></td>
+                        <td class="radio-cell"><input type="radio" name="item_3_2" value="NA" id="item_3_2_NA" onclick="evalStatus()"></td>
                         <td><input type="text" id="obs_3_2" class="obs-input" placeholder="..."></td>
                     </tr>
                 </tbody>
@@ -274,16 +278,17 @@
                 <thead>
                     <tr>
                         <th style="width: 18%;">Data e Hora</th>
-                        <th style="width: 12%;">Turno</th>
-                        <th style="width: 12%;">Injetora</th>
-                        <th style="width: 20%;">Operador</th>
-                        <th style="width: 13%;">Status</th>
-                        <th style="width: 25%;">Anomalias/Obs</th>
+                        <th style="width: 10%;">Turno</th>
+                        <th style="width: 10%;">Injetora</th>
+                        <th style="width: 18%;">Operador</th>
+                        <th style="width: 12%;">Status</th>
+                        <th style="width: 22%;">Anomalias/Obs</th>
+                        <th style="width: 10%; text-align: center;">Ações</th>
                     </tr>
                 </thead>
                 <tbody id="history-rows">
                     <tr>
-                        <td colspan="6" style="text-align: center; color: #999;">Carregando histórico detalhado...</td>
+                        <td colspan="7" style="text-align: center; color: #999;">Carregando histórico detalhado...</td>
                     </tr>
                 </tbody>
             </table>
@@ -310,6 +315,9 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
+    // Variável global para armazenar temporariamente os dados carregados do banco
+    let cacheRegistros = {};
+
     document.getElementById('data').valueAsDate = new Date();
     let myChart = null;
 
@@ -334,6 +342,58 @@
             document.getElementById('status_liberado').checked = true;
             document.getElementById('statusBlock').style.background = '#fff3cd';
         }
+    }
+
+    // NOVA FUNÇÃO: Resgata um registro individual e o monta completamente no formulário original para análise ou re-impressão
+    window.visualizarRegistroIndividual = function(idUnico) {
+        const registro = cacheRegistros[idUnico];
+        if(!registro) return;
+
+        // Mudar para a aba do formulário
+        switchTab('checklist-tab');
+
+        // Preencher os metadados
+        document.getElementById('data').value = registro.data;
+        document.getElementById('turno').value = registro.turno;
+        document.getElementById('injetora').value = registro.injetora;
+        document.getElementById('operador').value = registro.operador;
+
+        // Resetar campos de observações antes de preencher
+        document.querySelectorAll('.obs-input').forEach(input => input.value = "");
+
+        // Preencher respostas de rádio originais gravadas
+        if(registro.respostas) {
+            Object.keys(registro.respostas).forEach(nomeRadio => {
+                const valorGravado = registro.respostas[nomeRadio];
+                const elementoRadio = document.getElementById(`${nomeRadio}_${valorGravado}`);
+                if(elementoRadio) elementoRadio.checked = true;
+            });
+        }
+
+        // Preencher as observações digitadas na época
+        if(registro.notes) { // compatibilidade
+            Object.keys(registro.notes).forEach(idObs => {
+                const campoObs = document.getElementById(idObs);
+                if(campoObs) campoObs.value = registro.notes[idObs];
+            });
+        }
+        if(registro.notas) {
+            Object.keys(registro.notas).forEach(idObs => {
+                const campoObs = document.getElementById(idObs);
+                if(campoObs) campoObs.value = registro.notas[idObs];
+            });
+        }
+
+        // Ajustar bloco de status visual final
+        if(registro.status === "LIBERADO") {
+            document.getElementById('status_liberado').checked = true;
+            document.getElementById('statusBlock').style.background = '#fff3cd';
+        } else {
+            document.getElementById('status_bloqueado').checked = true;
+            document.getElementById('statusBlock').style.background = '#f8d7da';
+        }
+
+        alert(`Visualizando registro carregado: Injetora ${registro.injetora} - Turno: ${registro.turno}. Pronto para leitura ou Impressão de PDF.`);
     }
 
     document.getElementById('checklistForm').addEventListener('submit', function(e) {
@@ -367,7 +427,6 @@
             timestamp: Date.now()
         };
 
-        // Adiciona um sufixo numérico baseado no timestamp para evitar que cadastros no mesmo dia/turno/injetora se sobrescrevam
         const registroId = `${dataOriginal}_${payload.turno.replace(' ', '')}_${payload.injetora}_${payload.timestamp}`;
         
         set(ref(database, 'checklists/' + registroId), payload)
@@ -385,13 +444,14 @@
     function loadDashboardData() {
         get(ref(database, 'checklists')).then((snapshot) => {
             if (!snapshot.exists()) {
-                document.getElementById('history-rows').innerHTML = '<tr><td colspan="6" style="text-align:center;">Nenhum dado no banco.</td></tr>';
+                document.getElementById('history-rows').innerHTML = '<tr><td colspan="7" style="text-align:center;">Nenhum dado no banco.</td></tr>';
                 return;
             }
 
             const data = snapshot.val();
-            let total = 0, liberados = 0, bloqueados = 0;
+            cacheRegistros = data; // Guardamos os dados no cache para permitir acesso instantâneo ao clicar em "Ver"
             
+            let total = 0, liberados = 0, bloqueados = 0;
             let mapeamentoDias = {};
             for(let i = 1; i <= 31; i++) {
                 mapeamentoDias[i] = { liberado: 0, bloqueado: 0 };
@@ -400,16 +460,14 @@
             const mesAtual = new Date().getMonth();
             let tabelaHtml = '';
 
-            const registrosOrdenados = Object.keys(data)
-                .map(key => data[key])
-                .sort((a, b) => b.timestamp - a.timestamp);
+            // Mapeia chaves para podermos linkar o botão ao ID único estruturado do nó
+            const chavesOrdenadas = Object.keys(data).sort((a, b) => {
+                return (data[b].timestamp || 0) - (data[a].timestamp || 0);
+            });
 
-            // FUNÇÃO PARA TRATAR DATA E INSERIR HORA FORMATADA
             function formatarDataHora(timestamp, dataOriginal) {
                 const dataObj = timestamp ? new Date(timestamp) : new Date(dataOriginal + "T00:00:00");
                 const dataFormatada = dataObj.toLocaleDateString('pt-BR');
-                
-                // Se o registro tem timestamp válido, extrai o horário local formatado (HH:MM)
                 if (timestamp) {
                     const horas = String(dataObj.getHours()).padStart(2, '0');
                     const minutos = String(dataObj.getMinutes()).padStart(2, '0');
@@ -418,16 +476,17 @@
                 return dataFormatada;
             }
 
-            // ALIMENTA O PAINEL DE DESTAQUE COM O REGISTRO MAIS RECENTE
-            if(registrosOrdenados.length > 0) {
-                const maisRecente = registrosOrdenados[0];
+            // ALIMENTA O PAINEL DE DESTAQUE
+            if(chavesOrdenadas.length > 0) {
+                const maisRecente = data[chavesOrdenadas[0]];
                 document.getElementById('lbl-last-data').innerText = formatarDataHora(maisRecente.timestamp, maisRecente.data);
                 document.getElementById('lbl-last-operador').innerText = maisRecente.operador || '-';
                 document.getElementById('lbl-last-turno').innerText = maisRecente.turno || '-';
                 document.getElementById('lbl-last-injetora').innerText = maisRecente.injetora || '-';
             }
 
-            registrosOrdenados.forEach(registro => {
+            chavesOrdenadas.forEach(idChave => {
+                const registro = data[idChave];
                 const dataObjBase = new Date(registro.data + "T00:00:00");
                 
                 total++;
@@ -461,7 +520,8 @@
                         <td><span style="color:#2c3e50; font-weight:600;">${registro.injetora || '-'}</span></td>
                         <td>${registro.operador || '-'}</td>
                         <td><span class="badge ${badgeClass}">${registro.status}</span></td>
-                        <td style="color:#555; font-size:0.9em; max-width:250px; word-wrap:break-word;">${obsTexto}</td>
+                        <td style="color:#555; font-size:0.9em; max-width:220px; word-wrap:break-word;">${obsTexto}</td>
+                        <td style="text-align: center;"><button class="btn-sm" onclick="visualizarRegistroIndividual('${idChave}')">🔍 Ver</button></td>
                     </tr>
                 `;
             });
