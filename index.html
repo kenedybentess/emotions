@@ -247,11 +247,11 @@
             <p>Acompanhamento diário de conformidade das injetoras</p>
         </header>
 
-        <!-- NOVO PAINEL DE DESTAQUE ATUALIZADO -->
+        <!-- PAINEL DE DESTAQUE -->
         <div class="highlight-panel">
             <h2>📌 Última Inspeção Registrada</h2>
             <div class="highlight-grid">
-                <div class="highlight-item"><strong>Data</strong><span id="lbl-last-data">-</span></div>
+                <div class="highlight-item"><strong>Data e Hora</strong><span id="lbl-last-data">-</span></div>
                 <div class="highlight-item"><strong>Nome do Operador</strong><span id="lbl-last-operador">-</span></div>
                 <div class="highlight-item"><strong>Turno</strong><span id="lbl-last-turno">-</span></div>
                 <div class="highlight-item"><strong>Injetora (ID/Nº)</strong><span id="lbl-last-injetora">-</span></div>
@@ -273,12 +273,12 @@
             <table id="table-details">
                 <thead>
                     <tr>
-                        <th>Data</th>
-                        <th>Turno</th>
-                        <th>Injetora</th>
-                        <th>Operador</th>
-                        <th>Status</th>
-                        <th>Anomalias/Obs</th>
+                        <th style="width: 18%;">Data e Hora</th>
+                        <th style="width: 12%;">Turno</th>
+                        <th style="width: 12%;">Injetora</th>
+                        <th style="width: 20%;">Operador</th>
+                        <th style="width: 13%;">Status</th>
+                        <th style="width: 25%;">Anomalias/Obs</th>
                     </tr>
                 </thead>
                 <tbody id="history-rows">
@@ -367,7 +367,8 @@
             timestamp: Date.now()
         };
 
-        const registroId = `${dataOriginal}_${payload.turno.replace(' ', '')}_${payload.injetora}`;
+        // Adiciona um sufixo numérico baseado no timestamp para evitar que cadastros no mesmo dia/turno/injetora se sobrescrevam
+        const registroId = `${dataOriginal}_${payload.turno.replace(' ', '')}_${payload.injetora}_${payload.timestamp}`;
         
         set(ref(database, 'checklists/' + registroId), payload)
             .then(() => {
@@ -403,26 +404,38 @@
                 .map(key => data[key])
                 .sort((a, b) => b.timestamp - a.timestamp);
 
+            // FUNÇÃO PARA TRATAR DATA E INSERIR HORA FORMATADA
+            function formatarDataHora(timestamp, dataOriginal) {
+                const dataObj = timestamp ? new Date(timestamp) : new Date(dataOriginal + "T00:00:00");
+                const dataFormatada = dataObj.toLocaleDateString('pt-BR');
+                
+                // Se o registro tem timestamp válido, extrai o horário local formatado (HH:MM)
+                if (timestamp) {
+                    const horas = String(dataObj.getHours()).padStart(2, '0');
+                    const minutos = String(dataObj.getMinutes()).padStart(2, '0');
+                    return `${dataFormatada} - ${horas}:${minutos}`;
+                }
+                return dataFormatada;
+            }
+
             // ALIMENTA O PAINEL DE DESTAQUE COM O REGISTRO MAIS RECENTE
             if(registrosOrdenados.length > 0) {
                 const maisRecente = registrosOrdenados[0];
-                const dObj = new Date(maisRecente.data + "T00:00:00");
-                
-                document.getElementById('lbl-last-data').innerText = dObj.toLocaleDateString('pt-BR');
+                document.getElementById('lbl-last-data').innerText = formatarDataHora(maisRecente.timestamp, maisRecente.data);
                 document.getElementById('lbl-last-operador').innerText = maisRecente.operador || '-';
                 document.getElementById('lbl-last-turno').innerText = maisRecente.turno || '-';
                 document.getElementById('lbl-last-injetora').innerText = maisRecente.injetora || '-';
             }
 
             registrosOrdenados.forEach(registro => {
-                const dataObj = new Date(registro.data + "T00:00:00");
+                const dataObjBase = new Date(registro.data + "T00:00:00");
                 
                 total++;
                 if (registro.status === "LIBERADO") liberados++;
                 else bloqueados++;
 
-                if(dataObj.getMonth() === mesAtual) {
-                    const dia = dataObj.getDate();
+                if(dataObjBase.getMonth() === mesAtual) {
+                    const dia = dataObjBase.getDate();
                     if(registro.status === "LIBERADO") {
                         mapeamentoDias[dia].liberado += 1;
                     } else {
@@ -430,7 +443,7 @@
                     }
                 }
 
-                const dataFormatada = dataObj.toLocaleDateString('pt-BR');
+                const dataHoraFormatada = formatarDataHora(registro.timestamp, registro.data);
 
                 let obsTexto = '-';
                 if (registro.notas && Object.keys(registro.notas).length > 0) {
@@ -443,7 +456,7 @@
 
                 tabelaHtml += `
                     <tr>
-                        <td><strong>${dataFormatada}</strong></td>
+                        <td><strong>${dataHoraFormatada}</strong></td>
                         <td>${registro.turno || '-'}</td>
                         <td><span style="color:#2c3e50; font-weight:600;">${registro.injetora || '-'}</span></td>
                         <td>${registro.operador || '-'}</td>
