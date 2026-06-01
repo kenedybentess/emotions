@@ -243,7 +243,7 @@
     <div id="dashboard-tab" class="tab-content">
         <header>
             <h1>Dashboard Mensal de Segurança</h1>
-            <p>Acompanhamento diário de conformidade das injetoras</p>
+            <p>Acompanhamento em tempo real de conformidade física das injetoras</p>
         </header>
 
         <div class="highlight-panel">
@@ -258,8 +258,8 @@
 
         <div class="dashboard-grid">
             <div class="card"><h3>Total de Checklists</h3><p id="txt-total">0</p></div>
-            <div class="card" style="color: green;"><h3>Dias em Conformidade</h3><p id="txt-liberados">0</p></div>
-            <div class="card" style="color: red;"><h3>Dias Bloqueados</h3><p id="txt-bloqueados">0</p></div>
+            <div class="card" style="color: green;"><h3>Injetoras Liberadas</h3><p id="txt-liberados">0</p></div>
+            <div class="card" style="color: red;"><h3>Injetoras Bloqueadas</h3><p id="txt-bloqueados">0</p></div>
         </div>
 
         <div class="chart-container">
@@ -282,7 +282,7 @@
                 </thead>
                 <tbody id="history-rows">
                     <tr>
-                        <td colspan="7" style="text-align: center; color: #999;">Aguardando inicialização do sistema...</td>
+                        <td colspan="7" style="text-align: center; color: #999;">Conectando ao Firebase...</td>
                     </tr>
                 </tbody>
             </table>
@@ -291,7 +291,7 @@
 </div>
 
 <script>
-    // Inicialização Compatível do Firebase
+    // Inicialização do Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyAlKpviJW_Q2gIF143wQewDujKt9EqHPCk",
         authDomain: "checklist-injetoras.firebaseapp.com",
@@ -303,7 +303,6 @@
         measurementId: "G-JYPGDXVWVE"
     };
 
-    // Inicializa o app e o banco globalmente sem depender de módulos ES6
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
@@ -423,17 +422,19 @@
         
         database.ref('checklists').get().then((snapshot) => {
             if (!snapshot.exists()) {
-                document.getElementById('history-rows').innerHTML = '<tr><td colspan="7" style="text-align:center; color:#e67e22; font-weight:bold;">Conexão estabelecida! Porém, nenhum registro foi encontrado no seu banco. Faça um envio de teste na Aba anterior!</td></tr>';
+                document.getElementById('history-rows').innerHTML = '<tr><td colspan="7" style="text-align:center; color:#e67e22; font-weight:bold;">Nenhum registro encontrado no banco.</td></tr>';
                 return;
             }
 
             const data = snapshot.val();
             cacheRegistros = data;
             
-            let total = 0, liberados = 0, bloqueados = 0;
-            let mapeamentoDias = {};
+            let totalChecklists = 0;
+            let statusPorMaquina = {}; // Guarda o estado mais recente de cada injetora física
+            
+            let mapeamentoDiasGrafico = {};
             for(let i = 1; i <= 31; i++) {
-                mapeamentoDias[i] = { liberado: 0, bloqueado: 0 };
+                mapeamentoDiasGrafico[i] = { liberado: 0, blocked: 0 };
             }
 
             const mesAtual = new Date().getMonth();
@@ -448,8 +449,8 @@
                 const dataFormatada = dataObj.toLocaleDateString('pt-BR');
                 if (timestamp) {
                     const horas = String(dataObj.getHours()).padStart(2, '0');
-                    const minutes = String(dataObj.getMinutes()).padStart(2, '0');
-                    return `${dataFormatada} - ${horas}:${minutes}`;
+                    const minutos = String(dataObj.getMinutes()).padStart(2, '0');
+                    return `${dataFormatada} - ${horas}:${minutos}`;
                 }
                 return dataFormatada;
             }
@@ -462,20 +463,30 @@
                 document.getElementById('lbl-last-injetora').innerText = maisRecente.injetora || '-';
             }
 
+            // Processamento do histórico de trás para frente (mais antigo para mais novo)
+            // para que o estado final reflita o último enviado de cada injetora
+            const chavesCronologicas = [...chavesOrdenadas].reverse();
+            chavesCronologicas.forEach(idChave => {
+                const registro = data[idChave];
+                const nomeMaq = (registro.injetora || '').trim().toUpperCase();
+                if(nomeMaq) {
+                    statusPorMaquina[nomeMaq] = registro.status; // Sobrescreve sempre com o mais recente
+                }
+            });
+
+            // Montagem da tabela visual com os dados ordenados por data decrescente
             chavesOrdenadas.forEach(idChave => {
                 const registro = data[idChave];
                 const dataObjBase = new Date(registro.data + "T00:00:00");
                 
-                total++;
-                if (registro.status === "LIBERADO") liberados++;
-                else bloqueados++;
+                totalChecklists++;
 
                 if(dataObjBase.getMonth() === mesAtual) {
                     const dia = dataObjBase.getDate();
                     if(registro.status === "LIBERADO") {
-                        mapeamentoDias[dia].liberado += 1;
+                        mapeamentoDiasGrafico[dia].liberado += 1;
                     } else {
-                        mapeamentoDias[dia].bloqueado += 1;
+                        mapeamentoDiasGrafico[dia].blocked += 1;
                     }
                 }
 
@@ -503,14 +514,25 @@
                 `;
             });
 
-            document.getElementById('txt-total').innerText = total;
-            document.getElementById('txt-liberados').innerText = liberados;
-            document.getElementById('txt-bloqueados').innerText = bloqueados;
+            // Contabilização de máquinas reais físicas baseadas no último status mapeado
+            let qtdMaquinasLiberadas = 0;
+            let qtdMaquinasBloqueadas = 0;
+            
+            Object.keys(statusPorMaquina).forEach(maq => {
+                if(statusPorMaquina[maq] === "LIBERADO") qtdMaquinasLiberadas++;
+                else qtdMaquinasBloqueadas++;
+            });
+
+            // Atualiza os painéis com a quantidade exata de MÁQUINAS
+            document.getElementById('txt-total').innerText = totalChecklists;
+            document.getElementById('txt-liberados').innerText = qtdMaquinasLiberadas;
+            document.getElementById('txt-bloqueados').innerText = qtdMaquinasBloqueadas;
             document.getElementById('history-rows').innerHTML = tabelaHtml;
 
-            const labelsDias = Object.keys(mapeamentoDias);
-            const dadosLiberados = labelsDias.map(d => mapeamentoDias[d].liberado);
-            const dadosBloqueados = labelsDias.map(d => mapeamentoDias[d].bloqueado);
+            // Renderização do gráfico
+            const labelsDias = Object.keys(mapeamentoDiasGrafico);
+            const dadosLiberados = labelsDias.map(d => mapeamentoDiasGrafico[d].liberado);
+            const dadosBloqueados = labelsDias.map(d => mapeamentoDiasGrafico[d].blocked);
 
             if (myChart) { myChart.destroy(); }
 
@@ -520,8 +542,8 @@
                 data: {
                     labels: labelsDias.map(d => "Dia " + d),
                     datasets: [
-                        { label: '🟢 Liberado', data: dadosLiberados, backgroundColor: '#18bc9c' },
-                        { label: '🔴 Bloqueado', data: dadosBloqueados, backgroundColor: '#e74c3c' }
+                        { label: '🟢 Liberados (Checklists)', data: dadosLiberados, backgroundColor: '#18bc9c' },
+                        { label: '🔴 Bloqueados (Checklists)', data: dadosBloqueados, backgroundColor: '#e74c3c' }
                     ]
                 },
                 options: {
@@ -533,12 +555,12 @@
                     },
                     plugins: {
                         legend: { position: 'top' },
-                        title: { display: true, text: 'Visão Mensal de Conformidades por Turno (Mês Corrente)' }
+                        title: { display: true, text: 'Volume Diário de Inspeções Realizadas (Mês Corrente)' }
                     }
                 }
             });
         }).catch(err => {
-            document.getElementById('history-rows').innerHTML = `<tr><td colspan="7" style="text-align:center; color:#c0392b; font-weight:bold;">Acesso Recusado! Verifique as regras do Firebase. Erro: ${err.message}</td></tr>`;
+            document.getElementById('history-rows').innerHTML = `<tr><td colspan="7" style="text-align:center; color:#c0392b; font-weight:bold;">Erro na comunicação com o banco: ${err.message}</td></tr>`;
         });
     }
 </script>
