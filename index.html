@@ -1,609 +1,340 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checklist & Dashboard de Injetoras</title>
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    
-    <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #18bc9c;
-            --danger-color: #e74c3c;
-            --light-bg: #f8f9fa;
-            --border-color: #dee2e6;
-            --text-dark: #333333;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #eef2f5; color: var(--text-dark); padding: 20px; }
-        .container { max-width: 1100px; margin: 0 auto; background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        
-        /* Navegação por Abas */
-        .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
-        .tab-btn { padding: 10px 20px; border: none; background: #ddd; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 1em; transition: 0.2s; }
-        .tab-btn.active { background: var(--primary-color); color: white; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        header { text-align: center; border-bottom: 3px solid var(--primary-color); padding-bottom: 20px; margin-bottom: 25px; }
-        h1 { color: var(--primary-color); font-size: 1.8em; text-transform: uppercase; }
-        
-        /* Formulário */
-        .meta-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: var(--light-bg); padding: 20px; border-radius: 6px; margin-bottom: 25px; border: 1px solid var(--border-color); }
-        .form-group { display: flex; flex-direction: column; }
-        .form-group label { font-size: 0.85em; font-weight: 600; margin-bottom: 5px; }
-        .form-group input, .form-group select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95em; }
-        
-        .section-title { background: var(--primary-color); color: white; padding: 10px 15px; font-size: 1.1em; font-weight: 600; margin-top: 25px; margin-bottom: 10px; border-radius: 4px; text-transform: uppercase; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        th, td { border: 1px solid var(--border-color); padding: 10px 12px; font-size: 0.95em; }
-        th { background-color: #f1f4f6; color: var(--primary-color); font-weight: 600; }
-        .radio-cell { text-align: center; }
-        .radio-cell input { transform: scale(1.2); cursor: pointer; }
-        .obs-input { width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
-        
-        .status-block { background: #e2e3e5; border: 1px solid #ced4da; padding: 20px; border-radius: 6px; margin-top: 25px; transition: background 0.3s; }
-        .status-options { display: flex; gap: 20px; margin-top: 10px; }
-        .status-option { display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer; }
-        
-        .actions { margin-top: 30px; display: flex; justify-content: flex-end; gap: 15px; }
-        .btn { padding: 12px 24px; border: none; border-radius: 4px; font-size: 1em; font-weight: bold; cursor: pointer; color: white; }
-        .btn-success { background-color: var(--secondary-color); }
-        .btn-primary { background-color: var(--primary-color); }
-        
-        /* Botão da Tabela */
-        .btn-sm { padding: 5px 10px; font-size: 0.85em; border-radius: 3px; background-color: #34495e; color: white; border: none; cursor: pointer; font-weight: bold; }
-        .btn-sm:hover { background-color: var(--primary-color); }
-
-        /* Dashboard */
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px; }
-        .card { background: var(--light-bg); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center; }
-        .card h3 { font-size: 0.85em; text-transform: uppercase; color: #666; }
-        .card p { font-size: 1.6em; font-weight: bold; margin-top: 5px; }
-        
-        /* Destaque */
-        .highlight-panel { background: #e1f5fe; border: 1px solid #b3e5fc; padding: 15px 20px; border-radius: 6px; margin-bottom: 25px; }
-        .highlight-panel h2 { font-size: 1em; color: #0288d1; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #b3e5fc; padding-bottom: 5px; }
-        .highlight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .highlight-item { font-size: 0.95em; color: #333; }
-        .highlight-item strong { color: var(--primary-color); display: block; font-size: 0.85em; text-transform: uppercase; margin-bottom: 2px; }
-        .highlight-item span { font-size: 1.1em; font-weight: bold; color: #01579b; }
-
-        .chart-container { background: white; padding: 20px; border-radius: 6px; border: 1px solid var(--border-color); height: 350px; position: relative; margin-bottom: 30px; }
-        .history-container { margin-top: 20px; background: white; padding: 20px; border-radius: 6px; border: 1px solid var(--border-color); }
-        .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; color: white; }
-        .badge-liberado { background-color: var(--secondary-color); }
-        .badge-bloqueado { background-color: var(--danger-color); }
-
-        @media print { .tabs, .actions, .history-container, .btn-sm { display: none !important; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Checklist Industrial - 45 Itens</title>
+<style>
+body{font-family:Arial;margin:20px;background:#f4f4f4}
+.container{max-width:1200px;margin:auto;background:#fff;padding:20px}
+.section{margin-bottom:30px}
+h2{background:#2c3e50;color:#fff;padding:10px}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #ccc;padding:6px}
+th{background:#eee}
+.center{text-align:center}
+</style>
 </head>
 <body>
-
 <div class="container">
-    <div class="tabs">
-        <button id="btn-tab-checklist" class="tab-btn active" onclick="switchTab('checklist-tab')">📝 Realizar/Ver Checklist</button>
-        <button id="btn-tab-dashboard" class="tab-btn" onclick="switchTab('dashboard-tab')">📊 Dashboard Mensal</button>
-    </div>
-
-    <div id="checklist-tab" class="tab-content active">
-        <header>
-            <div class="logo-placeholder">SISTEMA DE GESTÃO DE SEGURANÇA INTERNA</div>
-            <h1>Checklist Diário de Segurança – Injetoras</h1>
-        </header>
-
-        <form id="checklistForm">
-            <div class="meta-form">
-                <div class="form-group"><label>Data:</label><input type="date" id="data" required></div>
-                <div class="form-group">
-                    <label>Turno:</label>
-                    <select id="turno" required>
-                        <option value="" disabled selected>Selecione o Turno</option>
-                        <option value="1º Turno">1º Turno</option>
-                        <option value="2º Turno">2º Turno</option>
-                        <option value="3º Turno">3º Turno</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>Injetora (ID/Nº):</label><input type="text" id="injetora" placeholder="Ex: INJ-05" required></div>
-                <div class="form-group"><label>Operador:</label><input type="text" id="operador" placeholder="Nome Completo" required></div>
-            </div>
-
-            <div class="section-title">1. Proteções Mecânicas e Físicas</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 8%;">Item</th>
-                        <th style="width: 52%;">Descrição da Inspeção</th>
-                        <th style="width: 10%;">S</th><th style="width: 10%;">N</th><th style="width: 10%;">NA</th>
-                        <th style="width: 20%;">Observações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1.1</td>
-                        <td>A proteção móvel frontal (porta do operador) desliza livremente e sem rachaduras?</td>
-                        <td class="radio-cell"><input type="radio" name="item_1_1" value="S" id="item_1_1_S" onclick="evalStatus()" required></td>
-                        <td class="radio-cell"><input type="radio" name="item_1_1" value="N" id="item_1_1_N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_1_1" value="NA" id="item_1_1_NA" onclick="evalStatus()"></td>
-                        <td><input type="text" id="obs_1_1" class="obs-input" placeholder="..."></td>
-                    </tr>
-                    <tr>
-                        <td>1.2</td>
-                        <td>A proteção móvel traseira (lado oposto ao operador) está fechada e fixada corretamente?</td>
-                        <td class="radio-cell"><input type="radio" name="item_1_2" value="S" id="item_1_2_S" onclick="evalStatus()" required></td>
-                        <td class="radio-cell"><input type="radio" name="item_1_2" value="N" id="item_1_2_N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_1_2" value="NA" id="item_1_2_NA" onclick="evalStatus()"></td>
-                        <td><input type="text" id="obs_1_2" class="obs-input" placeholder="..."></td>
-                    </tr>
-                    <tr>
-                        <td>1.3</td>
-                        <td>As proteções fixas da zona do molde estão parafusadas e no lugar?</td>
-                        <td class="radio-cell"><input type="radio" name="item_1_3" value="S" id="item_1_3_S" onclick="evalStatus()" required></td>
-                        <td class="radio-cell"><input type="radio" name="item_1_3" value="N" id="item_1_3_N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_1_3" value="NA" id="item_1_3_NA" onclick="evalStatus()"></td>
-                        <td><input type="text" id="obs_1_3" class="obs-input" placeholder="..."></td>
-                    </tr>
-                    <tr>
-                        <td>1.4</td>
-                        <td>A proteção do bico da injetora (capô) está fechada e firme?</td>
-                        <td class="radio-cell"><input type="radio" name="item_1_4" value="S" id="item_1_4_S" onclick="evalStatus()" required></td>
-                        <td class="radio-cell"><input type="radio" name="item_1_4" value="N" id="item_1_4_N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_1_4" value="NA" id="item_1_4_NA" onclick="evalStatus()"></td>
-                        <td><input type="text" id="obs_1_4" class="obs-input" placeholder="..."></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="section-title">2. Dispositivos de Segurança Eletromecânicos e Sensores</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 8%;">Item</th>
-                        <th style="width: 52%;">Descrição da Inspeção</th>
-                        <th style="width: 10%;">S</th><th style="width: 10%;">N</th><th style="width: 10%;">NA</th>
-                        <th style="width: 20%;">Observações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>2.1</td>
-                        <td>Ao abrir a porta frontal no meio do fechamento, o molde para imediatamente?</td>
-                        <td class="radio-cell"><input type="radio" name="item_2_1" value="S" id="item_2_1_S" onclick="evalStatus()" required></td>
-                        <td class="radio-cell"><input type="radio" name="item_2_1" value="N" id="item_2_1_N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_2_1" value="NA" id="item_2_1_NA" onclick="evalStatus()"></td>
-                        <td><input type="text" id="obs_2_1" class="obs-input" placeholder="..."></td>
-                    </tr>
-                    <tr>
-                        <td>2.2</td>
-                        <td>A barra mecânica de segurança impede o fechamento se a porta estiver aberta?</td>
-                        <td class="radio-cell"><input type="radio" name="item_2_2" value="S" id="item_2_2_S" onclick="evalStatus()" required></td>
-                        <td class="radio-cell"><input type="radio" name="item_2_2" value="N" id="item_2_2_N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_2_2" value="NA" id="item_2_2_NA" onclick="evalStatus()"></td>
-                        <td><input type="text" id="obs_2_2" class="obs-input" placeholder="..."></td>
-                    </tr>
-                    <tr>
-                        <td>2.3</td>
-                        <td>Os botões de emergência (frontal e traseiro) funcionam e desligam o comando?</td>
-                        <td class="radio-cell"><input type="radio" name="item_2_3" value="S" id="item_2_3_S" onclick="evalStatus()" required></td>
-                        <td class="radio-cell"><input type="radio" name="item_2_3" value="N" id="item_2_3_N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_2_3" value="NA" id="item_2_3_NA" onclick="evalStatus()"></td>
-                        <td><input type="text" id="obs_2_3" class="obs-input" placeholder="..."></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="section-title">3. Sistemas Hidráulicos e Condições de Área</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 8%;">Item</th>
-                        <th style="width: 52%;">Descrição da Inspeção</th>
-                        <th style="width: 10%;">S</th><th style="width: 10%;">N</th><th style="width: 10%;">NA</th>
-                        <th style="width: 20%;">Observações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>3.1</td>
-                        <td>Existe algum vazamento visível de óleo hidráulico nas mangueiras ou pistões?</td>
-                        <td class="radio-cell"><input type="radio" name="item_3_1" value="S" id="item_3_1_S" onclick="evalStatus()" required></td>
-                        <td class="radio-cell"><input type="radio" name="item_3_1" value="N" id="item_3_1_N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_3_1" value="NA" id="item_3_1_NA" onclick="evalStatus()"></td>
-                        <td><input type="text" id="obs_3_1" class="obs-input" placeholder="..."></td>
-                    </tr>
-                    <tr>
-                        <td>3.2</td>
-                        <td>A área ao redor está limpa, seca e organizada (Livre de pellets de plástico)?</td>
-                        <td class="radio-cell"><input type="radio" name="item_3_2" value="S" id="item_3_2_S" onclick="evalStatus()" required></td>
-                        <td class="radio-cell"><input type="radio" name="item_3_2" value="N" id="item_3_2_N" onclick="evalStatus()"></td>
-                        <td class="radio-cell"><input type="radio" name="item_3_2" value="NA" id="item_3_2_NA" onclick="evalStatus()"></td>
-                        <td><input type="text" id="obs_3_2" class="obs-input" placeholder="..."></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="status-block" id="statusBlock">
-                <label>Status Final do Equipamento:</label>
-                <div class="status-options">
-                    <label class="status-option" style="color: green;"><input type="radio" name="status_maquina" id="status_liberado" value="LIBERADO" required disabled> 🟢 LIBERADO</label>
-                    <label class="status-option" style="color: red;"><input type="radio" name="status_maquina" id="status_bloqueado" value="BLOQUEADO" required disabled> 🔴 BLOQUEADO</label>
-                </div>
-            </div>
-
-            <div class="actions">
-                <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Imprimir PDF</button>
-                <button type="submit" class="btn btn-success">💾 Salvar no Firebase</button>
-            </div>
-        </form>
-    </div>
-
-    <div id="dashboard-tab" class="tab-content">
-        <header>
-            <h1>Dashboard Mensal de Segurança</h1>
-            <p>Acompanhamento em tempo real de conformidade física das injetoras</p>
-        </header>
-
-        <div class="highlight-panel">
-            <h2>📌 Última Inspeção Registrada</h2>
-            <div class="highlight-grid">
-                <div class="highlight-item"><strong>Data e Hora</strong><span id="lbl-last-data">-</span></div>
-                <div class="highlight-item"><strong>Nome do Operador</strong><span id="lbl-last-operador">-</span></div>
-                <div class="highlight-item"><strong>Turno</strong><span id="lbl-last-turno">-</span></div>
-                <div class="highlight-item"><strong>Injetora (ID/Nº)</strong><span id="lbl-last-injetora">-</span></div>
-            </div>
-        </div>
-
-        <div class="dashboard-grid">
-            <div class="card"><h3>Total de Checklists</h3><p id="txt-total">0</p></div>
-            <div class="card" style="color: green;"><h3>Injetoras Liberadas</h3><p id="txt-liberados">0</p></div>
-            <div class="card" style="color: red;"><h3>Injetoras Bloqueadas</h3><p id="txt-bloqueados">0</p></div>
-        </div>
-
-        <div class="chart-container">
-            <canvas id="monthlyChart"></canvas>
-        </div>
-
-        <div class="history-container">
-            <h2 style="color: var(--primary-color); margin-bottom: 15px; font-size: 1.3em; text-transform: uppercase;">📋 Histórico Detalhado dos Registros</h2>
-            <table id="table-details">
-                <thead>
-                    <tr>
-                        <th style="width: 18%;">Data e Hora</th>
-                        <th style="width: 10%;">Turno</th>
-                        <th style="width: 10%;">Injetora</th>
-                        <th style="width: 18%;">Operador</th>
-                        <th style="width: 12%;">Status</th>
-                        <th style="width: 22%;">Anomalias/Obs</th>
-                        <th style="width: 10%; text-align: center;">Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="history-rows">
-                    <tr>
-                        <td colspan="7" style="text-align: center; color: #999;">Conectando ao Firebase...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<script>
-    // Inicialização do Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyAlKpviJW_Q2gIF143wQewDujKt9EqHPCk",
-        authDomain: "checklist-injetoras.firebaseapp.com",
-        databaseURL: "https://checklist-injetoras-default-rtdb.firebaseio.com",
-        projectId: "checklist-injetoras",
-        storageBucket: "checklist-injetoras.firebasestorage.app",
-        messagingSenderId: "183975564720",
-        appId: "1:183975564720:web:e25fa8bf65b28f9ad63275",
-        measurementId: "G-JYPGDXVWVE"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    let cacheRegistros = {};
-    document.getElementById('data').valueAsDate = new Date();
-    let myChart = null;
-
-    window.switchTab = function(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        
-        document.getElementById(tabId).classList.add('active');
-        if(tabId === 'checklist-tab') document.getElementById('btn-tab-checklist').classList.add('active');
-        if(tabId === 'dashboard-tab') {
-            document.getElementById('btn-tab-dashboard').classList.add('active');
-            loadDashboardData();
-        }
-    }
-
-    // Avalia o status baseado nas seleções manuais do operador
-    window.evalStatus = function() {
-        const totalGrupos = 9; // Total de perguntas (4 no G1 + 3 no G2 + 2 no G3)
-        const marcados = document.querySelectorAll('input[type="radio"]:checked').length;
-        const faults = document.querySelectorAll('input[type="radio"][value="N"]:checked');
-        
-        const rLiberado = document.getElementById('status_liberado');
-        const rBloqueado = document.getElementById('status_bloqueado');
-        const sBlock = document.getElementById('statusBlock');
-
-        // Permite marcar e habilita visualmente o painel apenas se TODOS forem respondidos
-        if (marcados >= totalGrupos) {
-            rLiberado.disabled = false;
-            rBloqueado.disabled = false;
-            
-            if (faults.length > 0) {
-                rBloqueado.checked = true;
-                sBlock.style.background = '#f8d7da'; // Vermelho claro
-                sBlock.style.borderColor = '#f5c6cb';
-            } else {
-                rLiberado.checked = true;
-                sBlock.style.background = '#d4edda'; // Verde claro
-                sBlock.style.borderColor = '#c3e6cb';
-            }
-        } else {
-            // Enquanto não responder tudo, o status fica neutro/cinza
-            rLiberado.checked = false;
-            rBloqueado.checked = false;
-            rLiberado.disabled = true;
-            rBloqueado.disabled = true;
-            sBlock.style.background = '#e2e3e5'; // Cinza
-            sBlock.style.borderColor = '#ced4da';
-        }
-    }
-
-    window.visualizarRegistroIndividual = function(idUnico) {
-        const registro = cacheRegistros[idUnico];
-        if(!registro) return;
-
-        switchTab('checklist-tab');
-
-        document.getElementById('data').value = registro.data;
-        document.getElementById('turno').value = registro.turno;
-        document.getElementById('injetora').value = registro.injetora;
-        document.getElementById('operador').value = registro.operador;
-
-        document.querySelectorAll('.obs-input').forEach(input => input.value = "");
-
-        // Reseta todos os rádios antes de carregar o registro salvo
-        document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
-
-        if(registro.respostas) {
-            Object.keys(registro.respostas).forEach(nomeRadio => {
-                const valorGravado = registro.respostas[nomeRadio];
-                const elementoRadio = document.getElementById(`${nomeRadio}_${valorGravado}`);
-                if(elementoRadio) elementoRadio.checked = true;
-            });
-        }
-
-        if(registro.notas) {
-            Object.keys(registro.notas).forEach(idObs => {
-                const campoObs = document.getElementById(idObs);
-                if(campoObs) campoObs.value = registro.notas[idObs];
-            });
-        }
-
-        const rLiberado = document.getElementById('status_liberado');
-        const rBloqueado = document.getElementById('status_bloqueado');
-        const sBlock = document.getElementById('statusBlock');
-        
-        rLiberado.disabled = false;
-        rBloqueado.disabled = false;
-
-        if(registro.status === "LIBERADO") {
-            rLiberado.checked = true;
-            sBlock.style.background = '#d4edda';
-        } else {
-            rBloqueado.checked = true;
-            sBlock.style.background = '#f8d7da';
-        }
-
-        alert(`Registro carregado com sucesso!\nInjetora: ${registro.injetora}\nOperador: ${registro.operador}`);
-    }
-
-    document.getElementById('checklistForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const statusSelecionado = document.querySelector('input[name="status_maquina"]:checked');
-        if(!statusSelecionado) {
-            alert("Atenção: Você precisa responder a todas as perguntas do checklist antes de salvar!");
-            return;
-        }
-
-        const dataOriginal = document.getElementById('data').value;
-        if(!dataOriginal) return;
-
-        const itensRespondidos = {};
-        document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
-            if(radio.name !== "status_maquina") {
-                itensRespondidos[radio.name] = radio.value;
-            }
-        });
-
-        const observacoesItens = {};
-        document.querySelectorAll('.obs-input').forEach(input => {
-            if(input.value.trim() !== "") {
-                observacoesItens[input.id] = input.value;
-            }
-        });
-
-        const payload = {
-            data: dataOriginal,
-            turno: document.getElementById('turno').value,
-            injetora: document.getElementById('injetora').value,
-            operador: document.getElementById('operador').value,
-            status: statusSelecionado.value,
-            respostas: itensRespondidos,
-            notas: observacoesItens,
-            timestamp: Date.now()
-        };
-
-        const registroId = `${dataOriginal}_${payload.turno.replace(' ', '')}_${payload.injetora}_${payload.timestamp}`;
-        
-        database.ref('checklists/' + registroId).set(payload)
-            .then(() => {
-                alert('✓ Gravado com Sucesso no Firebase!');
-                document.getElementById('checklistForm').reset();
-                document.getElementById('data').valueAsDate = new Date();
-                
-                // Força a limpeza visual do bloco de status
-                const sBlock = document.getElementById('statusBlock');
-                document.getElementById('status_liberado').disabled = true;
-                document.getElementById('status_bloqueado').disabled = true;
-                sBlock.style.background = '#e2e3e5';
-                sBlock.style.borderColor = '#ced4da';
-            })
-            .catch((error) => {
-                alert('Erro ao Salvar: ' + error.message);
-            });
-    });
-
-    function loadDashboardData() {
-        document.getElementById('history-rows').innerHTML = '<tr><td colspan="7" style="text-align: center; color: #666;">Conectando e buscando dados...</td></tr>';
-        
-        database.ref('checklists').get().then((snapshot) => {
-            if (!snapshot.exists()) {
-                document.getElementById('history-rows').innerHTML = '<tr><td colspan="7" style="text-align:center; color:#e67e22; font-weight:bold;">Nenhum registro encontrado no banco.</td></tr>';
-                return;
-            }
-
-            const data = snapshot.val();
-            cacheRegistros = data;
-            
-            let totalChecklists = 0;
-            let statusPorMaquina = {};
-            
-            let mapeamentoDiasGrafico = {};
-            for(let i = 1; i <= 31; i++) {
-                mapeamentoDiasGrafico[i] = { liberado: 0, blocked: 0 };
-            }
-
-            const mesAtual = new Date().getMonth();
-            let tabelaHtml = '';
-
-            const chavesOrdenadas = Object.keys(data).sort((a, b) => {
-                return (data[b].timestamp || 0) - (data[a].timestamp || 0);
-            });
-
-            function formatarDataHora(timestamp, dataOriginal) {
-                const dataObj = timestamp ? new Date(timestamp) : new Date(dataOriginal + "T00:00:00");
-                const dataFormatada = dataObj.toLocaleDateString('pt-BR');
-                if (timestamp) {
-                    const horas = String(dataObj.getHours()).padStart(2, '0');
-                    const minutos = String(dataObj.getMinutes()).padStart(2, '0');
-                    return `${dataFormatada} - ${horas}:${minutos}`;
-                }
-                return dataFormatada;
-            }
-
-            if(chavesOrdenadas.length > 0) {
-                const maisRecente = data[chavesOrdenadas[0]];
-                document.getElementById('lbl-last-data').innerText = formatarDataHora(maisRecente.timestamp, maisRecente.data);
-                document.getElementById('lbl-last-operador').innerText = maisRecente.operador || '-';
-                document.getElementById('lbl-last-turno').innerText = maisRecente.turno || '-';
-                document.getElementById('lbl-last-injetora').innerText = maisRecente.injetora || '-';
-            }
-
-            const chavesCronologicas = [...chavesOrdenadas].reverse();
-            chavesCronologicas.forEach(idChave => {
-                const registro = data[idChave];
-                const nomeMaq = (registro.injetora || '').trim().toUpperCase();
-                if(nomeMaq) {
-                    statusPorMaquina[nomeMaq] = registro.status;
-                }
-            });
-
-            chavesOrdenadas.forEach(idChave => {
-                const registro = data[idChave];
-                const dataObjBase = new Date(registro.data + "T00:00:00");
-                
-                totalChecklists++;
-
-                if(dataObjBase.getMonth() === mesAtual) {
-                    const dia = dataObjBase.getDate();
-                    if(registro.status === "LIBERADO") {
-                        mapeamentoDiasGrafico[dia].liberado += 1;
-                    } else {
-                        mapeamentoDiasGrafico[dia].blocked += 1;
-                    }
-                }
-
-                const dataHoraFormatada = formatarDataHora(registro.timestamp, registro.data);
-
-                let obsTexto = '-';
-                if (registro.notas && Object.keys(registro.notas).length > 0) {
-                    obsTexto = Object.values(registro.notas).join(' | ');
-                } else if (registro.status === "BLOQUEADO") {
-                    obsTexto = "Bloqueio automático por item não conforme.";
-                }
-
-                const badgeClass = registro.status === "LIBERADO" ? "badge-liberado" : "badge-bloqueado";
-
-                tabelaHtml += `
-                    <tr>
-                        <td><strong>${dataHoraFormatada}</strong></td>
-                        <td>${registro.turno || '-'}</td>
-                        <td><span style="color:#2c3e50; font-weight:600;">${registro.injetora || '-'}</span></td>
-                        <td>${registro.operador || '-'}</td>
-                        <td><span class="badge ${badgeClass}">${registro.status}</span></td>
-                        <td style="color:#555; font-size:0.9em; max-width:220px; word-wrap:break-word;">${obsTexto}</td>
-                        <td style="text-align: center;"><button class="btn-sm" onclick="visualizarRegistroIndividual('${idChave}')">🔍 Ver</button></td>
-                    </tr>
-                `;
-            });
-
-            let qtdMaquinasLiberadas = 0;
-            let qtdMaquinasBloqueadas = 0;
-            
-            Object.keys(statusPorMaquina).forEach(maq => {
-                if(statusPorMaquina[maq] === "LIBERADO") qtdMaquinasLiberadas++;
-                else qtdMaquinasBloqueadas++;
-            });
-
-            document.getElementById('txt-total').innerText = totalChecklists;
-            document.getElementById('txt-liberados').innerText = qtdMaquinasLiberadas;
-            document.getElementById('txt-bloqueados').innerText = qtdMaquinasBloqueadas;
-            document.getElementById('history-rows').innerHTML = tabelaHtml;
-
-            const labelsDias = Object.keys(mapeamentoDiasGrafico);
-            const dadosLiberados = labelsDias.map(d => mapeamentoDiasGrafico[d].liberado);
-            const dadosBloqueados = labelsDias.map(d => mapeamentoDiasGrafico[d].blocked);
-
-            if (myChart) { myChart.destroy(); }
-
-            const ctx = document.getElementById('monthlyChart').getContext('2d');
-            myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labelsDias.map(d => "Dia " + d),
-                    datasets: [
-                        { label: '🟢 Liberados (Checklists)', data: dadosLiberados, backgroundColor: '#18bc9c' },
-                        { label: '🔴 Bloqueados (Checklists)', data: dadosBloqueados, backgroundColor: '#e74c3c' }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { stacked: true },
-                        y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } }
-                    },
-                    plugins: {
-                        legend: { position: 'top' },
-                        title: { display: true, text: 'Volume Diário de Inspeções Realizadas (Mês Corrente)' }
-                    }
-                }
-            });
-        }).catch(err => {
-            document.getElementById('history-rows').innerHTML = `<tr><td colspan="7" style="text-align:center; color:#c0392b; font-weight:bold;">Erro: ${err.message}</td></tr>`;
-        });
-    }
-</script>
-</body>
-</html>
+<h1>Checklist Industrial</h1>
+<form>
+<div class="section"><h2>1. Molde</h2><table><tr><th>Item</th><th>O que verificar</th><th>S</th><th>N</th><th>NA</th><th>Observações</th></tr><tr>
+<td>1</td>
+<td>Descrição do item 1</td>
+<td class="center"><input type="radio" name="item1" value="S"></td>
+<td class="center"><input type="radio" name="item1" value="N"></td>
+<td class="center"><input type="radio" name="item1" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>2</td>
+<td>Descrição do item 2</td>
+<td class="center"><input type="radio" name="item2" value="S"></td>
+<td class="center"><input type="radio" name="item2" value="N"></td>
+<td class="center"><input type="radio" name="item2" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>3</td>
+<td>Descrição do item 3</td>
+<td class="center"><input type="radio" name="item3" value="S"></td>
+<td class="center"><input type="radio" name="item3" value="N"></td>
+<td class="center"><input type="radio" name="item3" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>4</td>
+<td>Descrição do item 4</td>
+<td class="center"><input type="radio" name="item4" value="S"></td>
+<td class="center"><input type="radio" name="item4" value="N"></td>
+<td class="center"><input type="radio" name="item4" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>5</td>
+<td>Descrição do item 5</td>
+<td class="center"><input type="radio" name="item5" value="S"></td>
+<td class="center"><input type="radio" name="item5" value="N"></td>
+<td class="center"><input type="radio" name="item5" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>6</td>
+<td>Descrição do item 6</td>
+<td class="center"><input type="radio" name="item6" value="S"></td>
+<td class="center"><input type="radio" name="item6" value="N"></td>
+<td class="center"><input type="radio" name="item6" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>7</td>
+<td>Descrição do item 7</td>
+<td class="center"><input type="radio" name="item7" value="S"></td>
+<td class="center"><input type="radio" name="item7" value="N"></td>
+<td class="center"><input type="radio" name="item7" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>8</td>
+<td>Descrição do item 8</td>
+<td class="center"><input type="radio" name="item8" value="S"></td>
+<td class="center"><input type="radio" name="item8" value="N"></td>
+<td class="center"><input type="radio" name="item8" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>9</td>
+<td>Descrição do item 9</td>
+<td class="center"><input type="radio" name="item9" value="S"></td>
+<td class="center"><input type="radio" name="item9" value="N"></td>
+<td class="center"><input type="radio" name="item9" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>10</td>
+<td>Descrição do item 10</td>
+<td class="center"><input type="radio" name="item10" value="S"></td>
+<td class="center"><input type="radio" name="item10" value="N"></td>
+<td class="center"><input type="radio" name="item10" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>11</td>
+<td>Descrição do item 11</td>
+<td class="center"><input type="radio" name="item11" value="S"></td>
+<td class="center"><input type="radio" name="item11" value="N"></td>
+<td class="center"><input type="radio" name="item11" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>12</td>
+<td>Descrição do item 12</td>
+<td class="center"><input type="radio" name="item12" value="S"></td>
+<td class="center"><input type="radio" name="item12" value="N"></td>
+<td class="center"><input type="radio" name="item12" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>13</td>
+<td>Descrição do item 13</td>
+<td class="center"><input type="radio" name="item13" value="S"></td>
+<td class="center"><input type="radio" name="item13" value="N"></td>
+<td class="center"><input type="radio" name="item13" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>14</td>
+<td>Descrição do item 14</td>
+<td class="center"><input type="radio" name="item14" value="S"></td>
+<td class="center"><input type="radio" name="item14" value="N"></td>
+<td class="center"><input type="radio" name="item14" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr></table></div><div class="section"><h2>2. Máquinas</h2><table><tr><th>Item</th><th>O que verificar</th><th>S</th><th>N</th><th>NA</th><th>Observações</th></tr><tr>
+<td>15</td>
+<td>Descrição do item 15</td>
+<td class="center"><input type="radio" name="item15" value="S"></td>
+<td class="center"><input type="radio" name="item15" value="N"></td>
+<td class="center"><input type="radio" name="item15" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>16</td>
+<td>Descrição do item 16</td>
+<td class="center"><input type="radio" name="item16" value="S"></td>
+<td class="center"><input type="radio" name="item16" value="N"></td>
+<td class="center"><input type="radio" name="item16" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>17</td>
+<td>Descrição do item 17</td>
+<td class="center"><input type="radio" name="item17" value="S"></td>
+<td class="center"><input type="radio" name="item17" value="N"></td>
+<td class="center"><input type="radio" name="item17" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>18</td>
+<td>Descrição do item 18</td>
+<td class="center"><input type="radio" name="item18" value="S"></td>
+<td class="center"><input type="radio" name="item18" value="N"></td>
+<td class="center"><input type="radio" name="item18" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>19</td>
+<td>Descrição do item 19</td>
+<td class="center"><input type="radio" name="item19" value="S"></td>
+<td class="center"><input type="radio" name="item19" value="N"></td>
+<td class="center"><input type="radio" name="item19" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>20</td>
+<td>Descrição do item 20</td>
+<td class="center"><input type="radio" name="item20" value="S"></td>
+<td class="center"><input type="radio" name="item20" value="N"></td>
+<td class="center"><input type="radio" name="item20" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>21</td>
+<td>Descrição do item 21</td>
+<td class="center"><input type="radio" name="item21" value="S"></td>
+<td class="center"><input type="radio" name="item21" value="N"></td>
+<td class="center"><input type="radio" name="item21" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>22</td>
+<td>Descrição do item 22</td>
+<td class="center"><input type="radio" name="item22" value="S"></td>
+<td class="center"><input type="radio" name="item22" value="N"></td>
+<td class="center"><input type="radio" name="item22" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>23</td>
+<td>Descrição do item 23</td>
+<td class="center"><input type="radio" name="item23" value="S"></td>
+<td class="center"><input type="radio" name="item23" value="N"></td>
+<td class="center"><input type="radio" name="item23" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>24</td>
+<td>Descrição do item 24</td>
+<td class="center"><input type="radio" name="item24" value="S"></td>
+<td class="center"><input type="radio" name="item24" value="N"></td>
+<td class="center"><input type="radio" name="item24" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>25</td>
+<td>Descrição do item 25</td>
+<td class="center"><input type="radio" name="item25" value="S"></td>
+<td class="center"><input type="radio" name="item25" value="N"></td>
+<td class="center"><input type="radio" name="item25" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr></table></div><div class="section"><h2>3. Periféricos</h2><table><tr><th>Item</th><th>O que verificar</th><th>S</th><th>N</th><th>NA</th><th>Observações</th></tr><tr>
+<td>26</td>
+<td>Descrição do item 26</td>
+<td class="center"><input type="radio" name="item26" value="S"></td>
+<td class="center"><input type="radio" name="item26" value="N"></td>
+<td class="center"><input type="radio" name="item26" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>27</td>
+<td>Descrição do item 27</td>
+<td class="center"><input type="radio" name="item27" value="S"></td>
+<td class="center"><input type="radio" name="item27" value="N"></td>
+<td class="center"><input type="radio" name="item27" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>28</td>
+<td>Descrição do item 28</td>
+<td class="center"><input type="radio" name="item28" value="S"></td>
+<td class="center"><input type="radio" name="item28" value="N"></td>
+<td class="center"><input type="radio" name="item28" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>29</td>
+<td>Descrição do item 29</td>
+<td class="center"><input type="radio" name="item29" value="S"></td>
+<td class="center"><input type="radio" name="item29" value="N"></td>
+<td class="center"><input type="radio" name="item29" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>30</td>
+<td>Descrição do item 30</td>
+<td class="center"><input type="radio" name="item30" value="S"></td>
+<td class="center"><input type="radio" name="item30" value="N"></td>
+<td class="center"><input type="radio" name="item30" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>31</td>
+<td>Descrição do item 31</td>
+<td class="center"><input type="radio" name="item31" value="S"></td>
+<td class="center"><input type="radio" name="item31" value="N"></td>
+<td class="center"><input type="radio" name="item31" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>32</td>
+<td>Descrição do item 32</td>
+<td class="center"><input type="radio" name="item32" value="S"></td>
+<td class="center"><input type="radio" name="item32" value="N"></td>
+<td class="center"><input type="radio" name="item32" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>33</td>
+<td>Descrição do item 33</td>
+<td class="center"><input type="radio" name="item33" value="S"></td>
+<td class="center"><input type="radio" name="item33" value="N"></td>
+<td class="center"><input type="radio" name="item33" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>34</td>
+<td>Descrição do item 34</td>
+<td class="center"><input type="radio" name="item34" value="S"></td>
+<td class="center"><input type="radio" name="item34" value="N"></td>
+<td class="center"><input type="radio" name="item34" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>35</td>
+<td>Descrição do item 35</td>
+<td class="center"><input type="radio" name="item35" value="S"></td>
+<td class="center"><input type="radio" name="item35" value="N"></td>
+<td class="center"><input type="radio" name="item35" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr></table></div><div class="section"><h2>4. Matéria-Prima</h2><table><tr><th>Item</th><th>O que verificar</th><th>S</th><th>N</th><th>NA</th><th>Observações</th></tr><tr>
+<td>36</td>
+<td>Descrição do item 36</td>
+<td class="center"><input type="radio" name="item36" value="S"></td>
+<td class="center"><input type="radio" name="item36" value="N"></td>
+<td class="center"><input type="radio" name="item36" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>37</td>
+<td>Descrição do item 37</td>
+<td class="center"><input type="radio" name="item37" value="S"></td>
+<td class="center"><input type="radio" name="item37" value="N"></td>
+<td class="center"><input type="radio" name="item37" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>38</td>
+<td>Descrição do item 38</td>
+<td class="center"><input type="radio" name="item38" value="S"></td>
+<td class="center"><input type="radio" name="item38" value="N"></td>
+<td class="center"><input type="radio" name="item38" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>39</td>
+<td>Descrição do item 39</td>
+<td class="center"><input type="radio" name="item39" value="S"></td>
+<td class="center"><input type="radio" name="item39" value="N"></td>
+<td class="center"><input type="radio" name="item39" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>40</td>
+<td>Descrição do item 40</td>
+<td class="center"><input type="radio" name="item40" value="S"></td>
+<td class="center"><input type="radio" name="item40" value="N"></td>
+<td class="center"><input type="radio" name="item40" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr></table></div><div class="section"><h2>5. Processo</h2><table><tr><th>Item</th><th>O que verificar</th><th>S</th><th>N</th><th>NA</th><th>Observações</th></tr><tr>
+<td>41</td>
+<td>Descrição do item 41</td>
+<td class="center"><input type="radio" name="item41" value="S"></td>
+<td class="center"><input type="radio" name="item41" value="N"></td>
+<td class="center"><input type="radio" name="item41" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>42</td>
+<td>Descrição do item 42</td>
+<td class="center"><input type="radio" name="item42" value="S"></td>
+<td class="center"><input type="radio" name="item42" value="N"></td>
+<td class="center"><input type="radio" name="item42" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>43</td>
+<td>Descrição do item 43</td>
+<td class="center"><input type="radio" name="item43" value="S"></td>
+<td class="center"><input type="radio" name="item43" value="N"></td>
+<td class="center"><input type="radio" name="item43" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>44</td>
+<td>Descrição do item 44</td>
+<td class="center"><input type="radio" name="item44" value="S"></td>
+<td class="center"><input type="radio" name="item44" value="N"></td>
+<td class="center"><input type="radio" name="item44" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr><tr>
+<td>45</td>
+<td>Descrição do item 45</td>
+<td class="center"><input type="radio" name="item45" value="S"></td>
+<td class="center"><input type="radio" name="item45" value="N"></td>
+<td class="center"><input type="radio" name="item45" value="NA"></td>
+<td><input type="text" style="width:98%"></td>
+</tr></table></div>
+<button type="submit">Salvar</button>
+<button type="button" onclick="window.print()">Imprimir</button>
+</form></div></body></html>
