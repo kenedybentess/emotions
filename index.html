@@ -20,54 +20,51 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background-color: #eef2f5; color: #333; padding: 20px; }
-     .container { max-width: 1500px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .container { max-width: 1500px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         
-     .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
-     .tab-btn { padding: 10px 20px; border: none; background: #ddd; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 1em; }
-     .tab-btn.active { background: var(--primary-color); color: white; }
-     .tab-content { display: none; }
-     .tab-content.active { display: block; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
+    .tab-btn { padding: 10px 20px; border: none; background: #ddd; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 1em; }
+    .tab-btn.active { background: var(--primary-color); color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
         header { text-align: center; border-bottom: 3px solid var(--primary-color); padding-bottom: 20px; margin-bottom: 25px; }
         h1 { color: var(--primary-color); font-size: 1.8em; text-transform: uppercase; }
         
-     .meta-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: var(--light-bg); padding: 20px; border-radius: 6px; margin-bottom: 25px; border: 1px solid var(--border-color); }
-     .form-group { display: flex; flex-direction: column; }
-     .form-group label { font-size: 0.85em; font-weight: 600; margin-bottom: 5px; }
-     .form-group input,.form-group select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95em; }
+    .meta-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: var(--light-bg); padding: 20px; border-radius: 6px; margin-bottom: 25px; border: 1px solid var(--border-color); }
+    .form-group { display: flex; flex-direction: column; }
+    .form-group label { font-size: 0.85em; font-weight: 600; margin-bottom: 5px; }
+    .form-group input,.form-group select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95em; }
         
-     .fase-selector { display: flex; justify-content: center; gap: 10px; margin: 20px 0; background: var(--light-bg); padding: 15px; border-radius: 6px; }
-     .fase-btn { padding: 12px 24px; border: 2px solid var(--border-color); background: white; cursor: pointer; font-weight: bold; border-radius: 6px; transition: 0.2s; }
-     .fase-btn.active { background: var(--warning-color); color: white; border-color: var(--warning-color); }
-     .fase-btn.completed { background: var(--secondary-color); color: white; border-color: var(--secondary-color); }
-     .fase-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .fase-selector { display: flex; justify-content: center; gap: 10px; margin: 20px 0; background: var(--light-bg); padding: 15px; border-radius: 6px; }
+    .fase-btn { padding: 12px 24px; border: 2px solid var(--border-color); background: white; cursor: pointer; font-weight: bold; border-radius: 6px; transition: 0.2s; }
+    .fase-btn.active { background: var(--warning-color); color: white; border-color: var(--warning-color); }
+    .fase-btn.completed { background: var(--secondary-color); color: white; border-color: var(--secondary-color); }
         
-     .status-categoria { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-weight: bold; text-align: center; background: #ecf0f1; border: 2px solid var(--border-color); }
-     .status-categoria.liberado { background: #d4edda; color: #155724; border-color: #c3e6cb; }
-     .status-categoria.bloqueado { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+    .status-categoria { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-weight: bold; text-align: center; background: #ecf0f1; border: 2px solid var(--border-color); }
+    .status-categoria.liberado { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+    .status-categoria.bloqueado { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
         
-     .checklist-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9em; }
-     .checklist-table th,.checklist-table td { border: 1px solid var(--border-color); padding: 10px; }
-     .checklist-table th { background-color: #f1f4f6; color: var(--primary-color); font-weight: 600; text-align: center; }
-     .checklist-table.item-desc { text-align: left; width: 70%; }
-     .checklist-table.radio-group { display: flex; justify-content: center; gap: 15px; }
-     .checklist-table.radio-group label { display: flex; align-items: center; gap: 4px; font-size: 0.9em; cursor: pointer; padding: 5px 10px; border-radius: 4px; }
-     .checklist-table.radio-group label:hover { background: #e9ecef; }
+    .checklist-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9em; }
+    .checklist-table th,.checklist-table td { border: 1px solid var(--border-color); padding: 10px; }
+    .checklist-table th { background-color: #f1f4f6; color: var(--primary-color); font-weight: 600; text-align: center; }
+    .checklist-table.item-desc { text-align: left; width: 70%; }
+    .checklist-table.radio-group { display: flex; justify-content: center; gap: 15px; }
+    .checklist-table.radio-group label { display: flex; align-items: center; gap: 4px; font-size: 0.9em; cursor: pointer; padding: 5px 10px; border-radius: 4px; }
+    .checklist-table.radio-group label:hover { background: #e9ecef; }
         
-     .actions { margin-top: 20px; display: flex; justify-content: flex-end; gap: 15px; }
-     .btn { padding: 12px 24px; border: none; border-radius: 4px; font-size: 1em; font-weight: bold; cursor: pointer; color: white; }
-     .btn-success { background-color: var(--secondary-color); }
-     .btn-primary { background-color: var(--primary-color); }
-     .btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+    .actions { margin-top: 20px; display: flex; justify-content: flex-end; gap: 15px; }
+    .btn { padding: 12px 24px; border: none; border-radius: 4px; font-size: 1em; font-weight: bold; cursor: pointer; color: white; }
+    .btn-success { background-color: var(--secondary-color); }
+    .btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
         
-     .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
-     .card { background: var(--light-bg); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center; }
-     .card h3 { font-size: 0.75em; text-transform: uppercase; color: #666; }
-     .card p { font-size: 1.6em; font-weight: bold; margin-top: 5px; }
-     .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; color: white; }
-     .badge-liberado { background-color: var(--secondary-color); }
-     .badge-bloqueado { background-color: var(--danger-color); }
-     .badge-parcial { background-color: var(--warning-color); }
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .card { background: var(--light-bg); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center; }
+    .card h3 { font-size: 0.75em; text-transform: uppercase; color: #666; }
+    .card p { font-size: 1.6em; font-weight: bold; margin-top: 5px; }
+    .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; color: white; }
+    .badge-liberado { background-color: var(--secondary-color); }
+    .badge-bloqueado { background-color: var(--danger-color); }
 
         @media print {.tabs,.actions,.fase-selector { display: none!important; } }
     </style>
@@ -84,7 +81,7 @@
     </div>
 
     <header>
-        <h1>Checklist Injetoras - Por Fase</h1>
+        <h1>CHECKLIST INJETORAS - POR FASE</h1>
         <div class="meta-form">
             <div class="form-group"><label>Data:</label><input type="date" id="data" required></div>
             <div class="form-group">
@@ -101,7 +98,7 @@
         </div>
     </header>
 
-    <div id="conteudo-categoria"></div>
+    <div id="conteudo-principal"></div>
 
     <div id="dashboard" class="tab-content">
         <h2>Dashboard Geral</h2>
@@ -193,7 +190,7 @@
 
     function renderCategoria() {
         if (categoriaAtual === 'dashboard') {
-            document.getElementById('conteudo-categoria').innerHTML = '';
+            document.getElementById('conteudo-principal').innerHTML = '';
             document.getElementById('dashboard').classList.add('active');
             loadDashboard();
             return;
@@ -202,18 +199,19 @@
         document.getElementById('dashboard').classList.remove('active');
         const cat = checklistData[categoriaAtual];
         const itensFase = cat.filter(item => item[faseAtual] === 1);
+        const nomeCat = {molde:'1. Molde',maquinas:'2. Máquinas',perifericos:'3. Periféricos',materia:'4. Matéria-Prima',processo:'5. Processo'}[categoriaAtual];
         
         const html = `
             <div id="${categoriaAtual}" class="tab-content active">
-                <h2>${cat[0].desc.split('?')[0]}... - ${faseAtual.charAt(0).toUpperCase() + faseAtual.slice(1)} Processo</h2>
-                
                 <div class="fase-selector">
                     <button class="fase-btn ${faseAtual === 'inicio'? 'active' : ''}" onclick="switchFase('inicio')">Início Processo</button>
                     <button class="fase-btn ${faseAtual === 'durante'? 'active' : ''}" onclick="switchFase('durante')">Durante Processo</button>
                     <button class="fase-btn ${faseAtual === 'paradas'? 'active' : ''}" onclick="switchFase('paradas')">Paradas Processo</button>
                 </div>
                 
-                <div class="status-categoria" id="status-${categoriaAtual}-${faseAtual}">Status: Aguardando preenchimento</div>
+                <div class="status-categoria" id="status-${categoriaAtual}-${faseAtual}">
+                    Status: Aguardando preenchimento
+                </div>
                 
                 <table class="checklist-table">
                     <thead>
@@ -230,8 +228,8 @@
                                 <td class="item-desc">${item.desc}</td>
                                 <td>
                                     <div class="radio-group">
-                                        <label><input type="radio" name="${categoriaAtual}_${item.id}_${faseAtual}" value="S" onchange="evalFase('${categoriaAtual}','${faseAtual}')"> S - Conforme</label>
-                                        <label><input type="radio" name="${categoriaAtual}_${item.id}_${faseAtual}" value="N" onchange="evalFase('${categoriaAtual}','${faseAtual}')"> N - Não Conforme</label>
+                                        <label><input type="radio" name="${categoriaAtual}_${item.id}_${faseAtual}" value="S" onchange="evalFase()"> S - Conforme</label>
+                                        <label><input type="radio" name="${categoriaAtual}_${item.id}_${faseAtual}" value="N" onchange="evalFase()"> N - Não Conforme</label>
                                     </div>
                                 </td>
                             </tr>
@@ -240,25 +238,25 @@
                 </table>
                 
                 <div class="actions">
-                    <button class="btn btn-success" onclick="salvarFase('${categoriaAtual}','${faseAtual}')">💾 Salvar ${faseAtual.charAt(0).toUpperCase() + faseAtual.slice(1)} - ${checklistData[categoriaAtual][0].desc.split(' ')[0]}</button>
+                    <button class="btn btn-success" onclick="salvarFase()">💾 Salvar ${faseAtual.charAt(0).toUpperCase() + faseAtual.slice(1)} - ${nomeCat}</button>
                 </div>
             </div>
         `;
-        document.getElementById('conteudo-categoria').innerHTML = html;
-        evalFase(categoriaAtual, faseAtual);
+        document.getElementById('conteudo-principal').innerHTML = html;
+        evalFase();
     }
 
     window.switchCategoria = function(cat) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         event.target.classList.add('active');
         categoriaAtual = cat;
-        if (cat === 'dashboard') {
-            document.getElementById('conteudo-categoria').innerHTML = '';
-            document.getElementById('dashboard').classList.add('active');
-            loadDashboard();
-        } else {
+        if (cat!== 'dashboard') {
             document.getElementById('dashboard').classList.remove('active');
             renderCategoria();
+        } else {
+            document.getElementById('conteudo-principal').innerHTML = '';
+            document.getElementById('dashboard').classList.add('active');
+            loadDashboard();
         }
     }
 
@@ -267,60 +265,60 @@
         renderCategoria();
     }
 
-    window.evalFase = function(cat, fase) {
-        const radios = document.querySelectorAll(`input[name^="${cat}_"][name$="_${fase}"]`);
+    window.evalFase = function() {
+        const radios = document.querySelectorAll(`input[name^="${categoriaAtual}_"][name$="_${faseAtual}"]`);
         const total = radios.length / 2;
-        const respondidos = document.querySelectorAll(`input[name^="${cat}_"][name$="_${fase}"]:checked`).length;
-        const faults = document.querySelectorAll(`input[name^="${cat}_"][name$="_${fase}"][value="N"]:checked`).length;
+        const respondidos = document.querySelectorAll(`input[name^="${categoriaAtual}_"][name$="_${faseAtual}"]:checked`).length;
+        const faults = document.querySelectorAll(`input[name^="${categoriaAtual}_"][name$="_${faseAtual}"][value="N"]:checked`).length;
         
-        const statusDiv = document.getElementById(`status-${cat}-${fase}`);
+        const statusDiv = document.getElementById(`status-${categoriaAtual}-${faseAtual}`);
         if (respondidos >= total && total > 0) {
             if (faults > 0) {
                 statusDiv.className = 'status-categoria bloqueado';
-                statusDiv.innerText = `🔴 BLOQUEADO - ${faults} não conformidade(s)`;
+                statusDiv.innerText = `${categoriaAtual.toUpperCase()} - ${faseAtual.toUpperCase()}: 🔴 BLOQUEADO - ${faults} não conformidade(s)`;
             } else {
                 statusDiv.className = 'status-categoria liberado';
-                statusDiv.innerText = `🟢 LIBERADO - Todos conformes`;
+                statusDiv.innerText = `${categoriaAtual.toUpperCase()} - ${faseAtual.toUpperCase()}: 🟢 LIBERADO - Todos conformes`;
             }
         } else {
             statusDiv.className = 'status-categoria';
-            statusDiv.innerText = `Status: ${respondidos}/${total} respondidos`;
+            statusDiv.innerText = `${categoriaAtual.toUpperCase()} - ${faseAtual.toUpperCase()}: ${respondidos}/${total} respondidos`;
         }
     }
 
-    window.salvarFase = function(cat, fase) {
+    window.salvarFase = function() {
         const data = document.getElementById('data').value;
         const turno = document.getElementById('turno').value;
         const injetora = document.getElementById('injetora').value;
         const operador = document.getElementById('operador').value;
         
         if(!data ||!turno ||!injetora ||!operador) {
-            alert('Preencha Data, Turno, Injetora e Operador!');
+            alert('Preencha Data, Turno, Injetora e Operador primeiro!');
             return;
         }
 
-        const statusText = document.getElementById(`status-${cat}-${fase}`).innerText;
+        const statusText = document.getElementById(`status-${categoriaAtual}-${faseAtual}`).innerText;
         if(statusText.includes('Aguardando')) {
             alert('Responda todos os itens da fase antes de salvar!');
             return;
         }
 
         const respostas = {};
-        document.querySelectorAll(`input[name^="${cat}_"][name$="_${fase}"]:checked`).forEach(r => {
+        document.querySelectorAll(`input[name^="${categoriaAtual}_"][name$="_${faseAtual}"]:checked`).forEach(r => {
             const id = r.name.split('_')[1];
             respostas[id] = r.value;
         });
 
         const status = statusText.includes('LIBERADO')? 'LIBERADO' : 'BLOQUEADO';
-        const path = `checklists/${data}_${turno.replace(' ', '')}_${injetora}/${cat}/${fase}`;
+        const path = `checklists/${data}_${turno.replace(' ', '')}_${injetora}/${categoriaAtual}/${faseAtual}`;
         
         db.ref(path).set({
             data, turno, injetora, operador,
-            categoria: checklistData[cat][0].desc.split(' ')[0],
-            fase, status, respostas,
+            categoria: categoriaAtual, fase: faseAtual,
+            status, respostas,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         }).then(() => {
-            alert(`✓ ${fase.charAt(0).toUpperCase() + fase.slice(1)} de ${cat.toUpperCase()} salvo como ${status}!`);
+            alert(`✓ ${faseAtual.charAt(0).toUpperCase() + faseAtual.slice(1)} de ${categoriaAtual.toUpperCase()} salvo como ${status}!`);
         });
     }
 
@@ -328,7 +326,6 @@
         db.ref('checklists').get().then((snap) => {
             const cards = document.getElementById('cards-dashboard');
             cards.innerHTML = '<div class="card"><h3>Carregando...</h3></div>';
-            // Implementar dashboard consolidado
         });
     }
 
