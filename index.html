@@ -20,53 +20,55 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background-color: #eef2f5; color: #333; padding: 20px; }
-   .container { max-width: 1500px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+  .container { max-width: 1600px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         
-   .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
-   .tab-btn { padding: 10px 20px; border: none; background: #ddd; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 1em; }
-   .tab-btn.active { background: var(--primary-color); color: white; }
-   .tab-content { display: none; }
-   .tab-content.active { display: block; }
+  .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
+  .tab-btn { padding: 10px 20px; border: none; background: #ddd; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 1em; }
+  .tab-btn.active { background: var(--primary-color); color: white; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
 
         header { text-align: center; border-bottom: 3px solid var(--primary-color); padding-bottom: 20px; margin-bottom: 25px; }
         h1 { color: var(--primary-color); font-size: 1.8em; text-transform: uppercase; }
         
-   .meta-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: var(--light-bg); padding: 20px; border-radius: 6px; margin-bottom: 25px; border: 1px solid var(--border-color); }
-   .form-group { display: flex; flex-direction: column; }
-   .form-group label { font-size: 0.85em; font-weight: 600; margin-bottom: 5px; }
-   .form-group input,.form-group select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95em; }
+  .meta-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: var(--light-bg); padding: 20px; border-radius: 6px; margin-bottom: 25px; border: 1px solid var(--border-color); }
+  .form-group { display: flex; flex-direction: column; }
+  .form-group label { font-size: 0.85em; font-weight: 600; margin-bottom: 5px; }
+  .form-group input,.form-group select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95em; }
         
-   .fase-selector { display: flex; justify-content: center; gap: 10px; margin: 20px 0; background: var(--light-bg); padding: 15px; border-radius: 6px; }
-   .fase-btn { padding: 12px 24px; border: 2px solid var(--border-color); background: white; cursor: pointer; font-weight: bold; border-radius: 6px; transition: 0.2s; }
-   .fase-btn.active { background: var(--warning-color); color: white; border-color: var(--warning-color); }
-   .fase-btn.completed { background: var(--secondary-color); color: white; border-color: var(--secondary-color); }
+  .fase-selector { display: flex; justify-content: center; gap: 10px; margin: 20px 0; background: var(--light-bg); padding: 15px; border-radius: 6px; }
+  .fase-btn { padding: 12px 24px; border: 2px solid var(--border-color); background: white; cursor: pointer; font-weight: bold; border-radius: 6px; transition: 0.2s; }
+  .fase-btn.active { background: var(--warning-color); color: white; border-color: var(--warning-color); }
         
-   .status-categoria { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-weight: bold; text-align: center; background: #ecf0f1; border: 2px solid var(--border-color); }
-   .status-categoria.liberado { background: #d4edda; color: #155724; border-color: #c3e6cb; }
-   .status-categoria.bloqueado { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+  .status-categoria { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-weight: bold; text-align: center; background: #ecf0f1; border: 2px solid var(--border-color); }
+  .status-categoria.liberado { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+  .status-categoria.bloqueado { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
         
-   .checklist-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9em; }
-   .checklist-table th,.checklist-table td { border: 1px solid var(--border-color); padding: 10px; }
-   .checklist-table th { background-color: #f1f4f6; color: var(--primary-color); font-weight: 600; text-align: center; }
-   .checklist-table.item-desc { text-align: left; width: 70%; }
-   .checklist-table.radio-group { display: flex; justify-content: center; gap: 15px; }
-   .checklist-table.radio-group label { display: flex; align-items: center; gap: 4px; font-size: 0.9em; cursor: pointer; padding: 5px 10px; border-radius: 4px; }
-   .checklist-table.radio-group label:hover { background: #e9ecef; }
+  .checklist-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9em; }
+  .checklist-table th,.checklist-table td { border: 1px solid var(--border-color); padding: 10px; }
+  .checklist-table th { background-color: #f1f4f6; color: var(--primary-color); font-weight: 600; text-align: center; }
+  .checklist-table.item-desc { text-align: left; width: 70%; }
+  .checklist-table.radio-group { display: flex; justify-content: center; gap: 15px; }
+  .checklist-table.radio-group label { display: flex; align-items: center; gap: 4px; font-size: 0.9em; cursor: pointer; padding: 5px 10px; border-radius: 4px; }
+  .checklist-table.radio-group label:hover { background: #e9ecef; }
         
-   .actions { margin-top: 20px; display: flex; justify-content: flex-end; gap: 15px; }
-   .btn { padding: 12px 24px; border: none; border-radius: 4px; font-size: 1em; font-weight: bold; cursor: pointer; color: white; }
-   .btn-success { background-color: var(--secondary-color); }
-   .btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+  .actions { margin-top: 20px; display: flex; justify-content: flex-end; gap: 15px; }
+  .btn { padding: 12px 24px; border: none; border-radius: 4px; font-size: 1em; font-weight: bold; cursor: pointer; color: white; }
+  .btn-success { background-color: var(--secondary-color); }
+  .btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+  .btn-sm { padding: 6px 12px; font-size: 0.85em; border-radius: 3px; background-color: var(--primary-color); color: white; border: none; cursor: pointer; font-weight: bold; }
         
-   .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
-   .card { background: var(--light-bg); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center; }
-   .card h3 { font-size: 0.75em; text-transform: uppercase; color: #666; }
-   .card p { font-size: 1.6em; font-weight: bold; margin-top: 5px; }
-   .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; color: white; }
-   .badge-liberado { background-color: var(--secondary-color); }
-   .badge-bloqueado { background-color: var(--danger-color); }
+  .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+  .card { background: var(--light-bg); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center; }
+  .card h3 { font-size: 0.75em; text-transform: uppercase; color: #666; }
+  .card p { font-size: 1.6em; font-weight: bold; margin-top: 5px; }
+  .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; color: white; }
+  .badge-liberado { background-color: var(--secondary-color); }
+  .badge-bloqueado { background-color: var(--danger-color); }
+  .filtros-dashboard { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
+  .filtros-dashboard select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; }
 
-        @media print {.tabs,.actions,.fase-selector { display: none!important; } }
+        @media print {.tabs,.actions,.fase-selector,.filtros-dashboard,.btn-sm { display: none!important; }.tab-content { display: block!important; } }
     </style>
 </head>
 <body>
@@ -101,14 +103,34 @@
     <div id="conteudo-principal"></div>
 
     <div id="dashboard" class="tab-content">
-        <h2>Dashboard - Atualiza em Tempo Real</h2>
+        <h2>Dashboard Global - Todos os Preenchimentos</h2>
+        
+        <div class="filtros-dashboard">
+            <label><strong>Filtros:</strong></label>
+            <select id="filtroData" onchange="carregarDashboard()">
+                <option value="">Todas as Datas</option>
+            </select>
+            <select id="filtroInjetora" onchange="carregarDashboard()">
+                <option value="">Todas Injetoras</option>
+            </select>
+            <select id="filtroTurno" onchange="carregarDashboard()">
+                <option value="">Todos Turnos</option>
+                <option value="1º Turno">1º Turno</option>
+                <option value="2º Turno">2º Turno</option>
+                <option value="3º Turno">3º Turno</option>
+            </select>
+        </div>
+
         <div class="dashboard-grid" id="cards-dashboard"></div>
         <table class="checklist-table">
             <thead>
-                <tr><th>Data/Hora</th><th>Injetora</th><th>Turno</th><th>Categoria</th><th>Fase</th><th>Status</th></tr>
+                <tr>
+                    <th>Data/Hora</th><th>Injetora</th><th>Turno</th><th>Operador</th>
+                    <th>Categoria</th><th>Fase</th><th>Status</th><th>Ações</th>
+                </tr>
             </thead>
             <tbody id="historico-body">
-                <tr><td colspan="6" style="text-align:center;">Preencha Data, Turno e Injetora para ver histórico</td></tr>
+                <tr><td colspan="8" style="text-align:center;">Carregando...</td></tr>
             </tbody>
         </table>
     </div>
@@ -131,6 +153,7 @@
 
     let categoriaAtual = 'molde';
     let faseAtual = 'inicio';
+    let todosRegistros = {};
 
     const checklistData = {
         molde: [
@@ -319,65 +342,141 @@
         });
     }
 
+    // Dashboard global em tempo real
     function carregarDashboard() {
-        const data = document.getElementById('data').value;
-        const turno = document.getElementById('turno').value;
-        const injetora = document.getElementById('injetora').value;
-        
-        if (!data ||!turno ||!injetora) {
-            document.getElementById('historico-body').innerHTML = '<tr><td colspan="6" style="text-align:center;">Preencha Data, Turno e Injetora acima</td></tr>';
-            return;
-        }
-        
-        const chave = `${data}_${turno.replace(' ', '')}_${injetora}`;
-        
-        db.ref(`checklists/${chave}`).on('value', (snap) => {
+        db.ref('checklists').on('value', (snap) => {
             const dados = snap.val();
             const tbody = document.getElementById('historico-body');
             const cards = document.getElementById('cards-dashboard');
             
             if (!dados) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nenhum registro ainda</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Nenhum registro ainda</td></tr>';
                 cards.innerHTML = '';
                 return;
             }
             
             let html = '';
-            let contagem = {};
+            let totalRegistros = 0, totalLib = 0, totalBlock = 0;
+            let datas = new Set(), injetoras = new Set();
+            let todosItens = [];
             
-            Object.keys(dados).forEach(cat => {
-                if (typeof dados[cat] === 'object') {
-                    Object.keys(dados[cat]).forEach(fase => {
-                        const r = dados[cat][fase];
-                        if (r.timestamp) {
-                            const badge = r.status === 'LIBERADO'? 'badge-liberado' : 'badge-bloqueado';
-                            html += `
-                                <tr>
-                                    <td>${new Date(r.timestamp).toLocaleString('pt-BR')}</td>
-                                    <td>${r.injetora}</td>
-                                    <td>${r.turno}</td>
-                                    <td><strong>${cat.toUpperCase()}</strong></td>
-                                    <td>${fase.toUpperCase()}</td>
-                                    <td><span class="badge ${badge}">${r.status}</span></td>
-                                </tr>
-                            `;
-                            if (!contagem[cat]) contagem[cat] = {total: 0, lib: 0};
-                            contagem[cat].total++;
-                            if (r.status === 'LIBERADO') contagem[cat].lib++;
-                        }
-                    });
-                }
+            Object.keys(dados).forEach(chave => {
+                Object.keys(dados[chave]).forEach(cat => {
+                    if (typeof dados[chave][cat] === 'object') {
+                        Object.keys(dados[chave][cat]).forEach(fase => {
+                            const r = dados[chave][cat][fase];
+                            if (r && r.timestamp) {
+                                todosItens.push({chave, cat, fase,...r});
+                                datas.add(r.data);
+                                injetoras.add(r.injetora);
+                                totalRegistros++;
+                                if (r.status === 'LIBERADO') totalLib++; else totalBlock++;
+                            }
+                        });
+                    }
+                });
             });
             
-            tbody.innerHTML = html || '<tr><td colspan="6" style="text-align:center;">Nenhum registro ainda</td></tr>';
+            // Atualiza filtros
+            const filtroData = document.getElementById('filtroData');
+            const filtroInjetora = document.getElementById('filtroInjetora');
+            const filtroTurno = document.getElementById('filtroTurno');
             
-            cards.innerHTML = Object.keys(contagem).map(cat => `
+            filtroData.innerHTML = '<option value="">Todas as Datas</option>' + Array.from(datas).sort().reverse().map(d => `<option value="${d}">${d}</option>`).join('');
+            filtroInjetora.innerHTML = '<option value="">Todas Injetoras</option>' + Array.from(injetoras).sort().map(i => `<option value="${i}">${i}</option>`).join('');
+            
+            // Aplica filtros
+            const fData = filtroData.value;
+            const fInj = filtroInjetora.value;
+            const fTurno = filtroTurno.value;
+            
+            const itensFiltrados = todosItens.filter(r => {
+                return (!fData || r.data === fData) && 
+                       (!fInj || r.injetora === fInj) && 
+                       (!fTurno || r.turno === fTurno);
+            }).sort((a,b) => b.timestamp - a.timestamp);
+            
+            // Monta tabela
+            html = itensFiltrados.map(r => {
+                const badge = r.status === 'LIBERADO'? 'badge-liberado' : 'badge-bloqueado';
+                return `
+                    <tr>
+                        <td>${new Date(r.timestamp).toLocaleString('pt-BR')}</td>
+                        <td>${r.injetora}</td>
+                        <td>${r.turno}</td>
+                        <td>${r.operador}</td>
+                        <td><strong>${r.categoria.toUpperCase()}</strong></td>
+                        <td>${r.fase.toUpperCase()}</td>
+                        <td><span class="badge ${badge}">${r.status}</span></td>
+                        <td><button class="btn-sm" onclick="abrirChecklistPDF('${r.data}','${r.turno}','${r.injetora}','${r.categoria}','${r.fase}')">📄 Ver/PDF</button></td>
+                    </tr>
+                `;
+            }).join('');
+            
+            tbody.innerHTML = html || '<tr><td colspan="8" style="text-align:center;">Nenhum registro encontrado</td></tr>';
+            
+            // Cards resumo
+            cards.innerHTML = `
                 <div class="card">
-                    <h3>${cat.toUpperCase()}</h3>
-                    <p style="color: ${contagem[cat].lib === 3? 'green' : '#f39c12'};">${contagem[cat].lib}/3 fases</p>
+                    <h3>Total Registros</h3>
+                    <p>${totalRegistros}</p>
                 </div>
-            `).join('');
+                <div class="card">
+                    <h3>🟢 Liberados</h3>
+                    <p style="color: green;">${totalLib}</p>
+                </div>
+                <div class="card">
+                    <h3>🔴 Bloqueados</h3>
+                    <p style="color: red;">${totalBlock}</p>
+                </div>
+                <div class="card">
+                    <h3>Taxa Liberação</h3>
+                    <p style="color: #18bc9c;">${totalRegistros > 0? Math.round(totalLib/totalRegistros*100) : 0}%</p>
+                </div>
+            `;
         });
+    }
+
+    window.abrirChecklistPDF = function(data, turno, injetora, cat, fase) {
+        const chave = `${data}_${turno.replace(' ', '')}_${injetora}`;
+        const path = `checklists/${chave}/${cat}/${fase}`;
+        
+        db.ref(path).get().then((snap) => {
+            if (!snap.exists()) {
+                alert('Registro não encontrado!');
+                return;
+            }
+            const r = snap.val();
+            
+            // Preenche cabeçalho
+            document.getElementById('data').value = r.data;
+            document.getElementById('turno').value = r.turno;
+            document.getElementById('injetora').value = r.injetora;
+            document.getElementById('operador').value = r.operador;
+            
+            // Vai pra aba e fase correta
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="switchCategoria('${cat}')"]`).classList.add('active');
+            categoriaAtual = cat;
+            faseAtual = fase;
+            renderCategoria();
+            
+            // Marca os radios após renderizar
+            setTimeout(() => {
+                Object.keys(r.respostas).forEach(id => {
+                    const valor = r.respostas[id];
+                    const radio = document.querySelector(`input[name="${cat}_${id}_${fase}"][value="${valor}"]`);
+                    if (radio) radio.checked = true;
+                });
+                evalFase();
+                
+                // Abre impressão
+                setTimeout(() => {
+                    window.print();
+                }, 500);
+            }, 300);
+            
+        }).catch(err => alert('Erro ao carregar: ' + err.message));
     }
 
     renderCategoria();
