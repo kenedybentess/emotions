@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checklist por Fase - Injetoras</title>
+    <title>Checklist Injetoras - Por Fase</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -20,51 +20,51 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background-color: #eef2f5; color: #333; padding: 20px; }
-    .container { max-width: 1500px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+   .container { max-width: 1500px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         
-    .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
-    .tab-btn { padding: 10px 20px; border: none; background: #ddd; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 1em; }
-    .tab-btn.active { background: var(--primary-color); color: white; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+   .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
+   .tab-btn { padding: 10px 20px; border: none; background: #ddd; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 1em; }
+   .tab-btn.active { background: var(--primary-color); color: white; }
+   .tab-content { display: none; }
+   .tab-content.active { display: block; }
 
         header { text-align: center; border-bottom: 3px solid var(--primary-color); padding-bottom: 20px; margin-bottom: 25px; }
         h1 { color: var(--primary-color); font-size: 1.8em; text-transform: uppercase; }
         
-    .meta-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: var(--light-bg); padding: 20px; border-radius: 6px; margin-bottom: 25px; border: 1px solid var(--border-color); }
-    .form-group { display: flex; flex-direction: column; }
-    .form-group label { font-size: 0.85em; font-weight: 600; margin-bottom: 5px; }
-    .form-group input,.form-group select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95em; }
+   .meta-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: var(--light-bg); padding: 20px; border-radius: 6px; margin-bottom: 25px; border: 1px solid var(--border-color); }
+   .form-group { display: flex; flex-direction: column; }
+   .form-group label { font-size: 0.85em; font-weight: 600; margin-bottom: 5px; }
+   .form-group input,.form-group select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95em; }
         
-    .fase-selector { display: flex; justify-content: center; gap: 10px; margin: 20px 0; background: var(--light-bg); padding: 15px; border-radius: 6px; }
-    .fase-btn { padding: 12px 24px; border: 2px solid var(--border-color); background: white; cursor: pointer; font-weight: bold; border-radius: 6px; transition: 0.2s; }
-    .fase-btn.active { background: var(--warning-color); color: white; border-color: var(--warning-color); }
-    .fase-btn.completed { background: var(--secondary-color); color: white; border-color: var(--secondary-color); }
+   .fase-selector { display: flex; justify-content: center; gap: 10px; margin: 20px 0; background: var(--light-bg); padding: 15px; border-radius: 6px; }
+   .fase-btn { padding: 12px 24px; border: 2px solid var(--border-color); background: white; cursor: pointer; font-weight: bold; border-radius: 6px; transition: 0.2s; }
+   .fase-btn.active { background: var(--warning-color); color: white; border-color: var(--warning-color); }
+   .fase-btn.completed { background: var(--secondary-color); color: white; border-color: var(--secondary-color); }
         
-    .status-categoria { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-weight: bold; text-align: center; background: #ecf0f1; border: 2px solid var(--border-color); }
-    .status-categoria.liberado { background: #d4edda; color: #155724; border-color: #c3e6cb; }
-    .status-categoria.bloqueado { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+   .status-categoria { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-weight: bold; text-align: center; background: #ecf0f1; border: 2px solid var(--border-color); }
+   .status-categoria.liberado { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+   .status-categoria.bloqueado { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
         
-    .checklist-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9em; }
-    .checklist-table th,.checklist-table td { border: 1px solid var(--border-color); padding: 10px; }
-    .checklist-table th { background-color: #f1f4f6; color: var(--primary-color); font-weight: 600; text-align: center; }
-    .checklist-table.item-desc { text-align: left; width: 70%; }
-    .checklist-table.radio-group { display: flex; justify-content: center; gap: 15px; }
-    .checklist-table.radio-group label { display: flex; align-items: center; gap: 4px; font-size: 0.9em; cursor: pointer; padding: 5px 10px; border-radius: 4px; }
-    .checklist-table.radio-group label:hover { background: #e9ecef; }
+   .checklist-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9em; }
+   .checklist-table th,.checklist-table td { border: 1px solid var(--border-color); padding: 10px; }
+   .checklist-table th { background-color: #f1f4f6; color: var(--primary-color); font-weight: 600; text-align: center; }
+   .checklist-table.item-desc { text-align: left; width: 70%; }
+   .checklist-table.radio-group { display: flex; justify-content: center; gap: 15px; }
+   .checklist-table.radio-group label { display: flex; align-items: center; gap: 4px; font-size: 0.9em; cursor: pointer; padding: 5px 10px; border-radius: 4px; }
+   .checklist-table.radio-group label:hover { background: #e9ecef; }
         
-    .actions { margin-top: 20px; display: flex; justify-content: flex-end; gap: 15px; }
-    .btn { padding: 12px 24px; border: none; border-radius: 4px; font-size: 1em; font-weight: bold; cursor: pointer; color: white; }
-    .btn-success { background-color: var(--secondary-color); }
-    .btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+   .actions { margin-top: 20px; display: flex; justify-content: flex-end; gap: 15px; }
+   .btn { padding: 12px 24px; border: none; border-radius: 4px; font-size: 1em; font-weight: bold; cursor: pointer; color: white; }
+   .btn-success { background-color: var(--secondary-color); }
+   .btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
         
-    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
-    .card { background: var(--light-bg); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center; }
-    .card h3 { font-size: 0.75em; text-transform: uppercase; color: #666; }
-    .card p { font-size: 1.6em; font-weight: bold; margin-top: 5px; }
-    .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; color: white; }
-    .badge-liberado { background-color: var(--secondary-color); }
-    .badge-bloqueado { background-color: var(--danger-color); }
+   .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+   .card { background: var(--light-bg); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center; }
+   .card h3 { font-size: 0.75em; text-transform: uppercase; color: #666; }
+   .card p { font-size: 1.6em; font-weight: bold; margin-top: 5px; }
+   .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; color: white; }
+   .badge-liberado { background-color: var(--secondary-color); }
+   .badge-bloqueado { background-color: var(--danger-color); }
 
         @media print {.tabs,.actions,.fase-selector { display: none!important; } }
     </style>
@@ -101,13 +101,15 @@
     <div id="conteudo-principal"></div>
 
     <div id="dashboard" class="tab-content">
-        <h2>Dashboard Geral</h2>
+        <h2>Dashboard - Atualiza em Tempo Real</h2>
         <div class="dashboard-grid" id="cards-dashboard"></div>
         <table class="checklist-table">
             <thead>
                 <tr><th>Data/Hora</th><th>Injetora</th><th>Turno</th><th>Categoria</th><th>Fase</th><th>Status</th></tr>
             </thead>
-            <tbody id="historico-body"></tbody>
+            <tbody id="historico-body">
+                <tr><td colspan="6" style="text-align:center;">Preencha Data, Turno e Injetora para ver histórico</td></tr>
+            </tbody>
         </table>
     </div>
 </div>
@@ -192,13 +194,12 @@
         if (categoriaAtual === 'dashboard') {
             document.getElementById('conteudo-principal').innerHTML = '';
             document.getElementById('dashboard').classList.add('active');
-            loadDashboard();
+            carregarDashboard();
             return;
         }
         
         document.getElementById('dashboard').classList.remove('active');
-        const cat = checklistData[categoriaAtual];
-        const itensFase = cat.filter(item => item[faseAtual] === 1);
+        const itensFase = checklistData[categoriaAtual].filter(item => item[faseAtual] === 1);
         const nomeCat = {molde:'1. Molde',maquinas:'2. Máquinas',perifericos:'3. Periféricos',materia:'4. Matéria-Prima',processo:'5. Processo'}[categoriaAtual];
         
         const html = `
@@ -210,7 +211,7 @@
                 </div>
                 
                 <div class="status-categoria" id="status-${categoriaAtual}-${faseAtual}">
-                    Status: Aguardando preenchimento
+                    ${nomeCat} - ${faseAtual.charAt(0).toUpperCase() + faseAtual.slice(1)}: Aguardando preenchimento
                 </div>
                 
                 <table class="checklist-table">
@@ -250,14 +251,7 @@
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         event.target.classList.add('active');
         categoriaAtual = cat;
-        if (cat!== 'dashboard') {
-            document.getElementById('dashboard').classList.remove('active');
-            renderCategoria();
-        } else {
-            document.getElementById('conteudo-principal').innerHTML = '';
-            document.getElementById('dashboard').classList.add('active');
-            loadDashboard();
-        }
+        renderCategoria();
     }
 
     window.switchFase = function(fase) {
@@ -272,17 +266,20 @@
         const faults = document.querySelectorAll(`input[name^="${categoriaAtual}_"][name$="_${faseAtual}"][value="N"]:checked`).length;
         
         const statusDiv = document.getElementById(`status-${categoriaAtual}-${faseAtual}`);
+        const nomeCat = {molde:'Molde',maquinas:'Máquinas',perifericos:'Periféricos',materia:'Matéria-Prima',processo:'Processo'}[categoriaAtual];
+        const nomeFase = faseAtual.charAt(0).toUpperCase() + faseAtual.slice(1);
+        
         if (respondidos >= total && total > 0) {
             if (faults > 0) {
                 statusDiv.className = 'status-categoria bloqueado';
-                statusDiv.innerText = `${categoriaAtual.toUpperCase()} - ${faseAtual.toUpperCase()}: 🔴 BLOQUEADO - ${faults} não conformidade(s)`;
+                statusDiv.innerText = `${nomeCat} - ${nomeFase}: 🔴 BLOQUEADO - ${faults} não conformidade(s)`;
             } else {
                 statusDiv.className = 'status-categoria liberado';
-                statusDiv.innerText = `${categoriaAtual.toUpperCase()} - ${faseAtual.toUpperCase()}: 🟢 LIBERADO - Todos conformes`;
+                statusDiv.innerText = `${nomeCat} - ${nomeFase}: 🟢 LIBERADO - Todos conformes`;
             }
         } else {
             statusDiv.className = 'status-categoria';
-            statusDiv.innerText = `${categoriaAtual.toUpperCase()} - ${faseAtual.toUpperCase()}: ${respondidos}/${total} respondidos`;
+            statusDiv.innerText = `${nomeCat} - ${nomeFase}: ${respondidos}/${total} respondidos`;
         }
     }
 
@@ -293,7 +290,7 @@
         const operador = document.getElementById('operador').value;
         
         if(!data ||!turno ||!injetora ||!operador) {
-            alert('Preencha Data, Turno, Injetora e Operador primeiro!');
+            alert('Preencha Data, Turno, Injetora e Operador!');
             return;
         }
 
@@ -322,10 +319,64 @@
         });
     }
 
-    function loadDashboard() {
-        db.ref('checklists').get().then((snap) => {
+    function carregarDashboard() {
+        const data = document.getElementById('data').value;
+        const turno = document.getElementById('turno').value;
+        const injetora = document.getElementById('injetora').value;
+        
+        if (!data ||!turno ||!injetora) {
+            document.getElementById('historico-body').innerHTML = '<tr><td colspan="6" style="text-align:center;">Preencha Data, Turno e Injetora acima</td></tr>';
+            return;
+        }
+        
+        const chave = `${data}_${turno.replace(' ', '')}_${injetora}`;
+        
+        db.ref(`checklists/${chave}`).on('value', (snap) => {
+            const dados = snap.val();
+            const tbody = document.getElementById('historico-body');
             const cards = document.getElementById('cards-dashboard');
-            cards.innerHTML = '<div class="card"><h3>Carregando...</h3></div>';
+            
+            if (!dados) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nenhum registro ainda</td></tr>';
+                cards.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            let contagem = {};
+            
+            Object.keys(dados).forEach(cat => {
+                if (typeof dados[cat] === 'object') {
+                    Object.keys(dados[cat]).forEach(fase => {
+                        const r = dados[cat][fase];
+                        if (r.timestamp) {
+                            const badge = r.status === 'LIBERADO'? 'badge-liberado' : 'badge-bloqueado';
+                            html += `
+                                <tr>
+                                    <td>${new Date(r.timestamp).toLocaleString('pt-BR')}</td>
+                                    <td>${r.injetora}</td>
+                                    <td>${r.turno}</td>
+                                    <td><strong>${cat.toUpperCase()}</strong></td>
+                                    <td>${fase.toUpperCase()}</td>
+                                    <td><span class="badge ${badge}">${r.status}</span></td>
+                                </tr>
+                            `;
+                            if (!contagem[cat]) contagem[cat] = {total: 0, lib: 0};
+                            contagem[cat].total++;
+                            if (r.status === 'LIBERADO') contagem[cat].lib++;
+                        }
+                    });
+                }
+            });
+            
+            tbody.innerHTML = html || '<tr><td colspan="6" style="text-align:center;">Nenhum registro ainda</td></tr>';
+            
+            cards.innerHTML = Object.keys(contagem).map(cat => `
+                <div class="card">
+                    <h3>${cat.toUpperCase()}</h3>
+                    <p style="color: ${contagem[cat].lib === 3? 'green' : '#f39c12'};">${contagem[cat].lib}/3 fases</p>
+                </div>
+            `).join('');
         });
     }
 
