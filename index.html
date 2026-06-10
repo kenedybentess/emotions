@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checklists Individuais - Injetoras</title>
+    <title>Checklist por Fase - Injetoras</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -20,68 +20,71 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background-color: #eef2f5; color: #333; padding: 20px; }
-      .container { max-width: 1500px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+     .container { max-width: 1500px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         
-      .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
-      .tab-btn { padding: 10px 16px; border: none; background: #ddd; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 0.95em; }
-      .tab-btn.active { background: var(--primary-color); color: white; }
-      .tab-content { display: none; }
-      .tab-content.active { display: block; }
+     .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
+     .tab-btn { padding: 10px 20px; border: none; background: #ddd; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 1em; }
+     .tab-btn.active { background: var(--primary-color); color: white; }
+     .tab-content { display: none; }
+     .tab-content.active { display: block; }
 
         header { text-align: center; border-bottom: 3px solid var(--primary-color); padding-bottom: 20px; margin-bottom: 25px; }
         h1 { color: var(--primary-color); font-size: 1.8em; text-transform: uppercase; }
         
-      .meta-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: var(--light-bg); padding: 20px; border-radius: 6px; margin-bottom: 25px; border: 1px solid var(--border-color); }
-      .form-group { display: flex; flex-direction: column; }
-      .form-group label { font-size: 0.85em; font-weight: 600; margin-bottom: 5px; }
-      .form-group input,.form-group select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95em; }
+     .meta-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: var(--light-bg); padding: 20px; border-radius: 6px; margin-bottom: 25px; border: 1px solid var(--border-color); }
+     .form-group { display: flex; flex-direction: column; }
+     .form-group label { font-size: 0.85em; font-weight: 600; margin-bottom: 5px; }
+     .form-group input,.form-group select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95em; }
         
-      .checklist-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.88em; }
-      .checklist-table th,.checklist-table td { border: 1px solid var(--border-color); padding: 6px 8px; }
-      .checklist-table th { background-color: #f1f4f6; color: var(--primary-color); font-weight: 600; text-align: center; position: sticky; top: 0; }
-      .checklist-table.item-desc { text-align: left; width: 40%; }
-      .checklist-table.fase-header { background: var(--warning-color); color: white; font-size: 0.8em; width: 18%; }
-      .checklist-table.radio-group { display: flex; justify-content: center; gap: 6px; }
-      .checklist-table.radio-group label { display: flex; align-items: center; gap: 2px; font-size: 0.75em; cursor: pointer; }
-      .checklist-table.na-cell { background: #ecf0f1; text-align: center; color: #95a5a6; font-weight: bold; }
+     .fase-selector { display: flex; justify-content: center; gap: 10px; margin: 20px 0; background: var(--light-bg); padding: 15px; border-radius: 6px; }
+     .fase-btn { padding: 12px 24px; border: 2px solid var(--border-color); background: white; cursor: pointer; font-weight: bold; border-radius: 6px; transition: 0.2s; }
+     .fase-btn.active { background: var(--warning-color); color: white; border-color: var(--warning-color); }
+     .fase-btn.completed { background: var(--secondary-color); color: white; border-color: var(--secondary-color); }
+     .fase-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         
-      .status-block { background: #e2e3e5; border: 1px solid #ced4da; padding: 15px; border-radius: 6px; margin: 20px 0; }
-      .status-block.liberado { background: #d4edda; border-color: #c3e6cb; }
-      .status-block.bloqueado { background: #f8d7da; border-color: #f5c6cb; }
-      .status-options { display: flex; gap: 20px; margin-top: 10px; }
+     .status-categoria { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-weight: bold; text-align: center; background: #ecf0f1; border: 2px solid var(--border-color); }
+     .status-categoria.liberado { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+     .status-categoria.bloqueado { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
         
-      .actions { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
-      .btn { padding: 10px 20px; border: none; border-radius: 4px; font-size: 1em; font-weight: bold; cursor: pointer; color: white; }
-      .btn-success { background-color: var(--secondary-color); }
-      .btn-primary { background-color: var(--primary-color); }
-      .btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+     .checklist-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9em; }
+     .checklist-table th,.checklist-table td { border: 1px solid var(--border-color); padding: 10px; }
+     .checklist-table th { background-color: #f1f4f6; color: var(--primary-color); font-weight: 600; text-align: center; }
+     .checklist-table.item-desc { text-align: left; width: 70%; }
+     .checklist-table.radio-group { display: flex; justify-content: center; gap: 15px; }
+     .checklist-table.radio-group label { display: flex; align-items: center; gap: 4px; font-size: 0.9em; cursor: pointer; padding: 5px 10px; border-radius: 4px; }
+     .checklist-table.radio-group label:hover { background: #e9ecef; }
         
-      .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
-      .card { background: var(--light-bg); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center; }
-      .card h3 { font-size: 0.75em; text-transform: uppercase; color: #666; }
-      .card p { font-size: 1.5em; font-weight: bold; margin-top: 5px; }
+     .actions { margin-top: 20px; display: flex; justify-content: flex-end; gap: 15px; }
+     .btn { padding: 12px 24px; border: none; border-radius: 4px; font-size: 1em; font-weight: bold; cursor: pointer; color: white; }
+     .btn-success { background-color: var(--secondary-color); }
+     .btn-primary { background-color: var(--primary-color); }
+     .btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
         
-      .chart-container { background: white; padding: 20px; border-radius: 6px; border: 1px solid var(--border-color); height: 350px; margin-bottom: 20px; }
-      .history-container { margin-top: 20px; background: white; padding: 20px; border-radius: 6px; border: 1px solid var(--border-color); overflow-x: auto; }
-      .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; color: white; }
-      .badge-liberado { background-color: var(--secondary-color); }
-      .badge-bloqueado { background-color: var(--danger-color); }
-      .filter-row { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
+     .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+     .card { background: var(--light-bg); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center; }
+     .card h3 { font-size: 0.75em; text-transform: uppercase; color: #666; }
+     .card p { font-size: 1.6em; font-weight: bold; margin-top: 5px; }
+     .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; color: white; }
+     .badge-liberado { background-color: var(--secondary-color); }
+     .badge-bloqueado { background-color: var(--danger-color); }
+     .badge-parcial { background-color: var(--warning-color); }
+
+        @media print {.tabs,.actions,.fase-selector { display: none!important; } }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('molde')">1. Molde</button>
-        <button class="tab-btn" onclick="switchTab('maquinas')">2. Máquinas</button>
-        <button class="tab-btn" onclick="switchTab('perifericos')">3. Periféricos</button>
-        <button class="tab-btn" onclick="switchTab('materia')">4. Matéria-Prima</button>
-        <button class="tab-btn" onclick="switchTab('processo')">5. Processo</button>
-        <button class="tab-btn" onclick="switchTab('dashboard')">📊 Dashboard</button>
+        <button class="tab-btn active" onclick="switchCategoria('molde')">1. Molde</button>
+        <button class="tab-btn" onclick="switchCategoria('maquinas')">2. Máquinas</button>
+        <button class="tab-btn" onclick="switchCategoria('perifericos')">3. Periféricos</button>
+        <button class="tab-btn" onclick="switchCategoria('materia')">4. Matéria-Prima</button>
+        <button class="tab-btn" onclick="switchCategoria('processo')">5. Processo</button>
+        <button class="tab-btn" onclick="switchCategoria('dashboard')">📊 Dashboard</button>
     </div>
 
     <header>
-        <h1>Checklists Individuais – Injetoras</h1>
+        <h1>Checklist Injetoras - Por Fase</h1>
         <div class="meta-form">
             <div class="form-group"><label>Data:</label><input type="date" id="data" required></div>
             <div class="form-group">
@@ -98,33 +101,17 @@
         </div>
     </header>
 
-    <div id="checklist-container"></div>
+    <div id="conteudo-categoria"></div>
 
     <div id="dashboard" class="tab-content">
-        <div class="filter-row">
-            <label><strong>Filtrar por Categoria:</strong></label>
-            <select id="filtroCategoria" onchange="loadDashboard()">
-                <option value="todas">Todas</option>
-                <option value="molde">Molde</option>
-                <option value="maquinas">Máquinas</option>
-                <option value="perifericos">Periféricos</option>
-                <option value="materia">Matéria-Prima</option>
-                <option value="processo">Processo</option>
-            </select>
-        </div>
-        <div class="dashboard-grid" id="dashboard-cards"></div>
-        <div class="chart-container"><canvas id="chartStatus"></canvas></div>
-        <div class="history-container">
-            <table class="checklist-table">
-                <thead>
-                    <tr>
-                        <th>Data/Hora</th><th>Turno</th><th>Injetora</th><th>Categoria</th>
-                        <th>Status</th><th>Falhas Início</th><th>Falhas Durante</th><th>Falhas Parada</th>
-                    </tr>
-                </thead>
-                <tbody id="history-rows"></tbody>
-            </table>
-        </div>
+        <h2>Dashboard Geral</h2>
+        <div class="dashboard-grid" id="cards-dashboard"></div>
+        <table class="checklist-table">
+            <thead>
+                <tr><th>Data/Hora</th><th>Injetora</th><th>Turno</th><th>Categoria</th><th>Fase</th><th>Status</th></tr>
+            </thead>
+            <tbody id="historico-body"></tbody>
+        </table>
     </div>
 </div>
 
@@ -141,275 +128,211 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    let myChart = null;
     document.getElementById('data').valueAsDate = new Date();
 
-    const checklists = {
-        molde: {
-            nome: "1. Molde",
-            itens: [
-                {id: 1, desc: "Os pinos extratores estão funcionando corretamente e sem travamentos?", inicio: 1, durante: 1, paradas: 0},
-                {id: 2, desc: "As conexões de água/óleo do molde estão vedadas e sem vazamentos?", inicio: 1, durante: 1, paradas: 1},
-                {id: 3, desc: "Os sensores de temperatura, Datadores do molde estão calibrados e fornecendo leituras precisas?", inicio: 1, durante: 0, paradas: 0},
-                {id: 4, desc: "O sistema de câmara quente (se aplicável) está operando dentro das temperaturas especificadas?", inicio: 1, durante: 1, paradas: 1},
-                {id: 5, desc: "As buchas de injeção estão alinhadas corretamente com o bico da máquina?", inicio: 1, durante: 1, paradas: 0},
-                {id: 6, desc: "As placas do molde estão se movendo suavemente, sem atrito excessivo?", inicio: 1, durante: 1, paradas: 0},
-                {id: 7, desc: "O molde possui identificação clara e está de acordo com a documentação?", inicio: 1, durante: 1, paradas: 0},
-                {id: 8, desc: "Há alguma corrosão ou oxidação nas superfícies do molde?", inicio: 1, durante: 1, paradas: 1},
-                {id: 9, desc: "Os mecanismos de extração de peças estão ajustados para a peça atual?", inicio: 1, durante: 1, paradas: 0},
-                {id: 10, desc: "A ventilação/saída de gás do molde é adequada para evitar queima de material?", inicio: 0, durante: 1, paradas: 0},
-                {id: 11, desc: "As guias do molde estão lubrificadas e sem folgas excessivas?", inicio: 1, durante: 1, paradas: 1},
-                {id: 12, desc: "O molde foi inspecionado e aprovado antes do início da produção?", inicio: 1, durante: 1, paradas: 1},
-                {id: 13, desc: "O molde ficou fechado com as placas encostadas sem travamento?", inicio: 0, durante: 0, paradas: 1},
-                {id: 14, desc: "A temperatura do molde placas estão aquecidas adequadamente?", inicio: 1, durante: 1, paradas: 1}
-            ]
-        },
-        maquinas: {
-            nome: "2. Máquinas",
-            itens: [
-                {id: 15, desc: "A máquina injetora está limpa e organizada?", inicio: 1, durante: 1, paradas: 1},
-                {id: 16, desc: "Os níveis de óleo hidráulico de lubrificação das colunas estão corretos e o óleo está em boas condições?", inicio: 1, durante: 1, paradas: 1},
-                {id: 17, desc: "O sistema de aquecimento do cilindro e bico está funcionando e com temperaturas estáveis?", inicio: 1, durante: 1, paradas: 0},
-                {id: 18, desc: "Os dispositivos de segurança da máquina (portas, grades, botões de emergência) estão operantes?", inicio: 1, durante: 1, paradas: 1},
-                {id: 19, desc: "A máquina está calibrada e os parâmetros de processo são consistentes?", inicio: 1, durante: 1, paradas: 1},
-                {id: 20, desc: "Há vazamentos de óleo ou água na máquina?", inicio: 1, durante: 1, paradas: 1},
-                {id: 21, desc: "A tela de controle da máquina está funcionando corretamente e sem erros?", inicio: 1, durante: 1, paradas: 0},
-                {id: 22, desc: "O bico da máquina está limpo e sem obstruções de plasticos escorridos na resistência?", inicio: 1, durante: 1, paradas: 1},
-                {id: 23, desc: "Os sensores de posição das portas da máquina estão funcionando com precisão?", inicio: 1, durante: 1, paradas: 1},
-                {id: 24, desc: "Há alguma falha ou alarme ativo no painel da máquina?", inicio: 1, durante: 1, paradas: 1},
-                {id: 25, desc: "A máquina está operando dentro dos limites de segurança e desempenho?", inicio: 0, durante: 0, paradas: 0}
-            ]
-        },
-        perifericos: {
-            nome: "3. Periféricos",
-            itens: [
-                {id: 26, desc: "O alimentador de matéria-prima está limpo e funcionando corretamente?", inicio: 1, durante: 1, paradas: 1},
-                {id: 27, desc: "O controlador de temperatura de água/óleo (se aplicável) está ajustado na temperatura e funcionando?", inicio: 1, durante: 1, paradas: 1},
-                {id: 28, desc: "O robô ou sistema de extração de peças está programado e operando corretamente?", inicio: 1, durante: 1, paradas: 1},
-                {id: 29, desc: "Os transportadores de peças ventosas ou pinças estão funcionando sem interrupções?", inicio: 1, durante: 1, paradas: 0},
-                {id: 30, desc: "O sistema de dosagem de pigmentos/aditivos está calibrado e preciso?", inicio: 1, durante: 1, paradas: 0},
-                {id: 31, desc: "O sistema de refrigeração da fábrica (chiller) está operando eficientemente?", inicio: 0, durante: 0, paradas: 0},
-                {id: 32, desc: "As mangueiras e conexões dos periféricos estão em boas condições e sem vazamentos?", inicio: 1, durante: 1, paradas: 1},
-                {id: 33, desc: "Os painéis elétricos dos periféricos estão fechados e seguros?", inicio: 1, durante: 1, paradas: 0},
-                {id: 34, desc: "Há ruídos ou vibrações anormais nos periféricos?", inicio: 1, durante: 1, paradas: 0},
-                {id: 35, desc: "Os sistemas de segurança dos periféricos tipo: talha, aquecedor, robô e geladeira estão ativos e funcionando?", inicio: 1, durante: 1, paradas: 1}
-            ]
-        },
-        materia: {
-            nome: "4. Matéria-Prima",
-            itens: [
-                {id: 36, desc: "A matéria-prima está armazenada corretamente, em local seco e protegido?", inicio: 1, durante: 1, paradas: 0},
-                {id: 37, desc: "A embalagem da matéria-prima está intacta e sem sinais de contaminação?", inicio: 1, durante: 1, paradas: 0},
-                {id: 38, desc: "A matéria-prima foi pré-secada (se necessário) de acordo com as recomendações do fabricante e documentação?", inicio: 1, durante: 1, paradas: 0},
-                {id: 39, desc: "A matéria-prima está sendo manuseada para evitar danos ou contaminação?", inicio: 1, durante: 1, paradas: 0},
-                {id: 40, desc: "A matéria-prima está sendo utilizada dentro do prazo de validade?", inicio: 1, durante: 1, paradas: 0}
-            ]
-        },
-        processo: {
-            nome: "5. Processo de Produção de Peças Plásticas",
-            itens: [
-                {id: 41, desc: "O tempo de resfriamento é suficiente para solidificar a peça sem deformações?", inicio: 1, durante: 1, paradas: 0},
-                {id: 42, desc: "O tempo de ciclo está dentro do especificado e otimizado de acordo com a ficha técnica?", inicio: 1, durante: 1, paradas: 0},
-                {id: 43, desc: "As peças estão sendo extraídas do molde sem danos ou marcas que não estão de acordo com o padrão?", inicio: 1, durante: 1, paradas: 0},
-                {id: 44, desc: "Há rebarbas ou deformações nas peças produzidas que não estão de acordo com o padrão?", inicio: 1, durante: 1, paradas: 0},
-                {id: 45, desc: "As peças estão sendo embaladas e identificadas corretamente?", inicio: 1, durante: 1, paradas: 0}
-            ]
-        }
+    let categoriaAtual = 'molde';
+    let faseAtual = 'inicio';
+
+    const checklistData = {
+        molde: [
+            {id: 1, desc: "Os pinos extratores estão funcionando corretamente e sem travamentos?", inicio: 1, durante: 1, paradas: 0},
+            {id: 2, desc: "As conexões de água/óleo do molde estão vedadas e sem vazamentos?", inicio: 1, durante: 1, paradas: 1},
+            {id: 3, desc: "Os sensores de temperatura, Datadores do molde estão calibrados e fornecendo leituras precisas?", inicio: 1, durante: 0, paradas: 0},
+            {id: 4, desc: "O sistema de câmara quente (se aplicável) está operando dentro das temperaturas especificadas?", inicio: 1, durante: 1, paradas: 1},
+            {id: 5, desc: "As buchas de injeção estão alinhadas corretamente com o bico da máquina?", inicio: 1, durante: 1, paradas: 0},
+            {id: 6, desc: "As placas do molde estão se movendo suavemente, sem atrito excessivo?", inicio: 1, durante: 1, paradas: 0},
+            {id: 7, desc: "O molde possui identificação clara e está de acordo com a documentação?", inicio: 1, durante: 1, paradas: 0},
+            {id: 8, desc: "Há alguma corrosão ou oxidação nas superfícies do molde?", inicio: 1, durante: 1, paradas: 1},
+            {id: 9, desc: "Os mecanismos de extração de peças estão ajustados para a peça atual?", inicio: 1, durante: 1, paradas: 0},
+            {id: 10, desc: "A ventilação/saída de gás do molde é adequada para evitar queima de material?", inicio: 0, durante: 1, paradas: 0},
+            {id: 11, desc: "As guias do molde estão lubrificadas e sem folgas excessivas?", inicio: 1, durante: 1, paradas: 1},
+            {id: 12, desc: "O molde foi inspecionado e aprovado antes do início da produção?", inicio: 1, durante: 1, paradas: 1},
+            {id: 13, desc: "O molde ficou fechado com as placas encostadas sem travamento?", inicio: 0, durante: 0, paradas: 1},
+            {id: 14, desc: "A temperatura do molde placas estão aquecidas adequadamente?", inicio: 1, durante: 1, paradas: 1}
+        ],
+        maquinas: [
+            {id: 15, desc: "A máquina injetora está limpa e organizada?", inicio: 1, durante: 1, paradas: 1},
+            {id: 16, desc: "Os níveis de óleo hidráulico de lubrificação das colunas estão corretos e o óleo está em boas condições?", inicio: 1, durante: 1, paradas: 1},
+            {id: 17, desc: "O sistema de aquecimento do cilindro e bico está funcionando e com temperaturas estáveis?", inicio: 1, durante: 1, paradas: 0},
+            {id: 18, desc: "Os dispositivos de segurança da máquina (portas, grades, botões de emergência) estão operantes?", inicio: 1, durante: 1, paradas: 1},
+            {id: 19, desc: "A máquina está calibrada e os parâmetros de processo são consistentes?", inicio: 1, durante: 1, paradas: 1},
+            {id: 20, desc: "Há vazamentos de óleo ou água na máquina?", inicio: 1, durante: 1, paradas: 1},
+            {id: 21, desc: "A tela de controle da máquina está funcionando corretamente e sem erros?", inicio: 1, durante: 1, paradas: 0},
+            {id: 22, desc: "O bico da máquina está limpo e sem obstruções de plasticos escorridos na resistência?", inicio: 1, durante: 1, paradas: 1},
+            {id: 23, desc: "Os sensores de posição das portas da máquina estão funcionando com precisão?", inicio: 1, durante: 1, paradas: 1},
+            {id: 24, desc: "Há alguma falha ou alarme ativo no painel da máquina?", inicio: 1, durante: 1, paradas: 1},
+            {id: 25, desc: "A máquina está operando dentro dos limites de segurança e desempenho?", inicio: 0, durante: 0, paradas: 0}
+        ],
+        perifericos: [
+            {id: 26, desc: "O alimentador de matéria-prima está limpo e funcionando corretamente?", inicio: 1, durante: 1, paradas: 1},
+            {id: 27, desc: "O controlador de temperatura de água/óleo (se aplicável) está ajustado na temperatura e funcionando?", inicio: 1, durante: 1, paradas: 1},
+            {id: 28, desc: "O robô ou sistema de extração de peças está programado e operando corretamente?", inicio: 1, durante: 1, paradas: 1},
+            {id: 29, desc: "Os transportadores de peças ventosas ou pinças estão funcionando sem interrupções?", inicio: 1, durante: 1, paradas: 0},
+            {id: 30, desc: "O sistema de dosagem de pigmentos/aditivos está calibrado e preciso?", inicio: 1, durante: 1, paradas: 0},
+            {id: 31, desc: "O sistema de refrigeração da fábrica (chiller) está operando eficientemente?", inicio: 0, durante: 0, paradas: 0},
+            {id: 32, desc: "As mangueiras e conexões dos periféricos estão em boas condições e sem vazamentos?", inicio: 1, durante: 1, paradas: 1},
+            {id: 33, desc: "Os painéis elétricos dos periféricos estão fechados e seguros?", inicio: 1, durante: 1, paradas: 0},
+            {id: 34, desc: "Há ruídos ou vibrações anormais nos periféricos?", inicio: 1, durante: 1, paradas: 0},
+            {id: 35, desc: "Os sistemas de segurança dos periféricos tipo: talha, aquecedor, robô e geladeira estão ativos e funcionando?", inicio: 1, durante: 1, paradas: 1}
+        ],
+        materia: [
+            {id: 36, desc: "A matéria-prima está armazenada corretamente, em local seco e protegido?", inicio: 1, durante: 1, paradas: 0},
+            {id: 37, desc: "A embalagem da matéria-prima está intacta e sem sinais de contaminação?", inicio: 1, durante: 1, paradas: 0},
+            {id: 38, desc: "A matéria-prima foi pré-secada (se necessário) de acordo com as recomendações do fabricante e documentação?", inicio: 1, durante: 1, paradas: 0},
+            {id: 39, desc: "A matéria-prima está sendo manuseada para evitar danos ou contaminação?", inicio: 1, durante: 1, paradas: 0},
+            {id: 40, desc: "A matéria-prima está sendo utilizada dentro do prazo de validade?", inicio: 1, durante: 1, paradas: 0}
+        ],
+        processo: [
+            {id: 41, desc: "O tempo de resfriamento é suficiente para solidificar a peça sem deformações?", inicio: 1, durante: 1, paradas: 0},
+            {id: 42, desc: "O tempo de ciclo está dentro do especificado e otimizado de acordo com a ficha técnica?", inicio: 1, durante: 1, paradas: 0},
+            {id: 43, desc: "As peças estão sendo extraídas do molde sem danos ou marcas que não estão de acordo com o padrão?", inicio: 1, durante: 1, paradas: 0},
+            {id: 44, desc: "Há rebarbas ou deformações nas peças produzidas que não estão de acordo com o padrão?", inicio: 1, durante: 1, paradas: 0},
+            {id: 45, desc: "As peças estão sendo embaladas e identificadas corretamente?", inicio: 1, durante: 1, paradas: 0}
+        ]
     };
 
-    // Renderiza todas as abas
-    function renderChecklists() {
-        const container = document.getElementById('checklist-container');
-        container.innerHTML = '';
+    function renderCategoria() {
+        if (categoriaAtual === 'dashboard') {
+            document.getElementById('conteudo-categoria').innerHTML = '';
+            document.getElementById('dashboard').classList.add('active');
+            loadDashboard();
+            return;
+        }
         
-        Object.keys(checklists).forEach(key => {
-            const cat = checklists[key];
-            const div = document.createElement('div');
-            div.id = key;
-            div.className = 'tab-content';
-            div.innerHTML = `
-                <div class="status-block" id="status-${key}">
-                    <label>Status ${cat.nome}:</label>
-                    <div class="status-options">
-                        <span id="status-text-${key}" style="font-weight:bold;">Aguardando preenchimento</span>
-                    </div>
+        document.getElementById('dashboard').classList.remove('active');
+        const cat = checklistData[categoriaAtual];
+        const itensFase = cat.filter(item => item[faseAtual] === 1);
+        
+        const html = `
+            <div id="${categoriaAtual}" class="tab-content active">
+                <h2>${cat[0].desc.split('?')[0]}... - ${faseAtual.charAt(0).toUpperCase() + faseAtual.slice(1)} Processo</h2>
+                
+                <div class="fase-selector">
+                    <button class="fase-btn ${faseAtual === 'inicio'? 'active' : ''}" onclick="switchFase('inicio')">Início Processo</button>
+                    <button class="fase-btn ${faseAtual === 'durante'? 'active' : ''}" onclick="switchFase('durante')">Durante Processo</button>
+                    <button class="fase-btn ${faseAtual === 'paradas'? 'active' : ''}" onclick="switchFase('paradas')">Paradas Processo</button>
                 </div>
+                
+                <div class="status-categoria" id="status-${categoriaAtual}-${faseAtual}">Status: Aguardando preenchimento</div>
+                
                 <table class="checklist-table">
                     <thead>
                         <tr>
                             <th style="width: 5%;">Item</th>
                             <th class="item-desc">O que verificar</th>
-                            <th class="fase-header">Início Processo</th>
-                            <th class="fase-header">Durante Processo</th>
-                            <th class="fase-header">Paradas Processo</th>
+                            <th style="width: 25%;">Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${cat.itens.map(item => `
+                        ${itensFase.map(item => `
                             <tr>
                                 <td>${item.id}</td>
                                 <td class="item-desc">${item.desc}</td>
-                                ${['inicio','durante','paradas'].map(fase => 
-                                    item[fase]? `
-                                        <td>
-                                            <div class="radio-group">
-                                                <label><input type="radio" name="${key}_item_${item.id}_${fase}" value="S" onchange="evalCategoria('${key}')"> S</label>
-                                                <label><input type="radio" name="${key}_item_${item.id}_${fase}" value="N" onchange="evalCategoria('${key}')"> N</label>
-                                            </div>
-                                        </td>
-                                    ` : `<td class="na-cell">N/A</td>`
-                                ).join('')}
+                                <td>
+                                    <div class="radio-group">
+                                        <label><input type="radio" name="${categoriaAtual}_${item.id}_${faseAtual}" value="S" onchange="evalFase('${categoriaAtual}','${faseAtual}')"> S - Conforme</label>
+                                        <label><input type="radio" name="${categoriaAtual}_${item.id}_${faseAtual}" value="N" onchange="evalFase('${categoriaAtual}','${faseAtual}')"> N - Não Conforme</label>
+                                    </div>
+                                </td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
+                
                 <div class="actions">
-                    <button type="button" class="btn btn-success" onclick="salvarCategoria('${key}')">💾 Salvar ${cat.nome}</button>
+                    <button class="btn btn-success" onclick="salvarFase('${categoriaAtual}','${faseAtual}')">💾 Salvar ${faseAtual.charAt(0).toUpperCase() + faseAtual.slice(1)} - ${checklistData[categoriaAtual][0].desc.split(' ')[0]}</button>
                 </div>
-            `;
-            container.appendChild(div);
-        });
-        document.getElementById('molde').classList.add('active');
+            </div>
+        `;
+        document.getElementById('conteudo-categoria').innerHTML = html;
+        evalFase(categoriaAtual, faseAtual);
     }
-    renderChecklists();
 
-    window.switchTab = function(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
+    window.switchCategoria = function(cat) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         event.target.classList.add('active');
-        if(tabId === 'dashboard') loadDashboard();
-    }
-
-    window.evalCategoria = function(cat) {
-        const radios = document.querySelectorAll(`#${cat} input[type="radio"]`);
-        const total = new Set(Array.from(radios).filter(r =>!r.closest('td').classList.contains('na-cell')).map(r => r.name)).size;
-        const marcados = new Set(Array.from(document.querySelectorAll(`#${cat} input[type="radio"]:checked`)).map(r => r.name)).size;
-        const faults = document.querySelectorAll(`#${cat} input[value="N"]:checked`).length;
-        
-        const statusBlock = document.getElementById(`status-${cat}`);
-        const statusText = document.getElementById(`status-text-${cat}`);
-
-        if (marcados >= total && total > 0) {
-            if (faults > 0) {
-                statusBlock.className = 'status-block bloqueado';
-                statusText.innerHTML = `🔴 BLOQUEADO - ${faults} não conformidade(s)`;
-                statusText.style.color = '#c0392b';
-            } else {
-                statusBlock.className = 'status-block liberado';
-                statusText.innerHTML = `🟢 LIBERADO - Todos conformes`;
-                statusText.style.color = '#27ae60';
-            }
+        categoriaAtual = cat;
+        if (cat === 'dashboard') {
+            document.getElementById('conteudo-categoria').innerHTML = '';
+            document.getElementById('dashboard').classList.add('active');
+            loadDashboard();
         } else {
-            statusBlock.className = 'status-block';
-            statusText.innerHTML = `Aguardando: ${marcados}/${total} respondidos`;
-            statusText.style.color = '#666';
+            document.getElementById('dashboard').classList.remove('active');
+            renderCategoria();
         }
     }
 
-    window.salvarCategoria = function(cat) {
+    window.switchFase = function(fase) {
+        faseAtual = fase;
+        renderCategoria();
+    }
+
+    window.evalFase = function(cat, fase) {
+        const radios = document.querySelectorAll(`input[name^="${cat}_"][name$="_${fase}"]`);
+        const total = radios.length / 2;
+        const respondidos = document.querySelectorAll(`input[name^="${cat}_"][name$="_${fase}"]:checked`).length;
+        const faults = document.querySelectorAll(`input[name^="${cat}_"][name$="_${fase}"][value="N"]:checked`).length;
+        
+        const statusDiv = document.getElementById(`status-${cat}-${fase}`);
+        if (respondidos >= total && total > 0) {
+            if (faults > 0) {
+                statusDiv.className = 'status-categoria bloqueado';
+                statusDiv.innerText = `🔴 BLOQUEADO - ${faults} não conformidade(s)`;
+            } else {
+                statusDiv.className = 'status-categoria liberado';
+                statusDiv.innerText = `🟢 LIBERADO - Todos conformes`;
+            }
+        } else {
+            statusDiv.className = 'status-categoria';
+            statusDiv.innerText = `Status: ${respondidos}/${total} respondidos`;
+        }
+    }
+
+    window.salvarFase = function(cat, fase) {
         const data = document.getElementById('data').value;
         const turno = document.getElementById('turno').value;
         const injetora = document.getElementById('injetora').value;
         const operador = document.getElementById('operador').value;
         
         if(!data ||!turno ||!injetora ||!operador) {
-            alert('Preencha Data, Turno, Injetora e Operador primeiro!');
+            alert('Preencha Data, Turno, Injetora e Operador!');
             return;
         }
 
-        const statusText = document.getElementById(`status-text-${cat}`).innerText;
+        const statusText = document.getElementById(`status-${cat}-${fase}`).innerText;
         if(statusText.includes('Aguardando')) {
-            alert('Responda todos os itens aplicáveis antes de salvar!');
+            alert('Responda todos os itens da fase antes de salvar!');
             return;
         }
 
-        const respostas = {inicio: {}, durante: {}, paradas: {}};
-        document.querySelectorAll(`#${cat} input[type="radio"]:checked`).forEach(radio => {
-            const [,, id, fase] = radio.name.split('_');
-            respostas[fase][id] = radio.value;
+        const respostas = {};
+        document.querySelectorAll(`input[name^="${cat}_"][name$="_${fase}"]:checked`).forEach(r => {
+            const id = r.name.split('_')[1];
+            respostas[id] = r.value;
         });
 
         const status = statusText.includes('LIBERADO')? 'LIBERADO' : 'BLOQUEADO';
-        const path = `checklists/${data}_${turno.replace(' ', '')}_${injetora}/${cat}`;
+        const path = `checklists/${data}_${turno.replace(' ', '')}_${injetora}/${cat}/${fase}`;
         
         db.ref(path).set({
-            categoria: checklists[cat].nome,
             data, turno, injetora, operador,
-            status, respostas,
+            categoria: checklistData[cat][0].desc.split(' ')[0],
+            fase, status, respostas,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         }).then(() => {
-            alert(`✓ ${checklists[cat].nome} salvo como ${status}!`);
-        }).catch(err => alert('Erro: ' + err.message));
+            alert(`✓ ${fase.charAt(0).toUpperCase() + fase.slice(1)} de ${cat.toUpperCase()} salvo como ${status}!`);
+        });
     }
 
     function loadDashboard() {
-        const filtro = document.getElementById('filtroCategoria').value;
         db.ref('checklists').get().then((snap) => {
-            if (!snap.exists()) return;
-            const dados = snap.val();
-            let cards = {};
-            let historico = [];
-            
-            Object.keys(dados).forEach(chave => {
-                Object.keys(dados[chave]).forEach(cat => {
-                    if (filtro!== 'todas' && cat!== filtro) return;
-                    const r = dados[chave][cat];
-                    if (!cards[r.categoria]) cards[r.categoria] = {lib: 0, block: 0};
-                    if (r.status === 'LIBERADO') cards[r.categoria].lib++; else cards[r.categoria].block++;
-                    
-                    let fI = 0, fD = 0, fP = 0;
-                    Object.values(r.respostas.inicio || {}).forEach(v => { if(v === 'N') fI++; });
-                    Object.values(r.respostas.durante || {}).forEach(v => { if(v === 'N') fD++; });
-                    Object.values(r.respostas.paradas || {}).forEach(v => { if(v === 'N') fP++; });
-                    
-                    historico.push({
-                        data: new Date(r.timestamp || r.data).toLocaleString('pt-BR'),
-                        turno: r.turno, injetora: r.injetora, categoria: r.categoria,
-                        status: r.status, fI, fD, fP
-                    });
-                });
-            });
-
-            const cardsHtml = Object.keys(cards).map(cat => `
-                <div class="card">
-                    <h3>${cat}</h3>
-                    <p style="color: green;">${cards[cat].lib} Lib</p>
-                    <p style="color: red;">${cards[cat].block} Block</p>
-                </div>
-            `).join('');
-            document.getElementById('dashboard-cards').innerHTML = cardsHtml;
-
-            const tbody = document.getElementById('history-rows');
-            tbody.innerHTML = historico.sort((a,b) => new Date(b.data) - new Date(a.data)).map(r => `
-                <tr>
-                    <td>${r.data}</td>
-                    <td>${r.turno}</td>
-                    <td>${r.injetora}</td>
-                    <td>${r.categoria}</td>
-                    <td><span class="badge badge-${r.status.toLowerCase()}">${r.status}</span></td>
-                    <td style="text-align:center; color:${r.fI>0?'red':'green'}">${r.fI}</td>
-                    <td style="text-align:center; color:${r.fD>0?'red':'green'}">${r.fD}</td>
-                    <td style="text-align:center; color:${r.fP>0?'red':'green'}">${r.fP}</td>
-                </tr>
-            `).join('');
-
-            if (myChart) myChart.destroy();
-            const ctx = document.getElementById('chartStatus').getContext('2d');
-            myChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(cards),
-                    datasets: [{
-                        label: 'Bloqueados',
-                        data: Object.values(cards).map(c => c.block),
-                        backgroundColor: ['#e74c3c','#c0392b','#f39c12','#d35400','#8e44ad']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
+            const cards = document.getElementById('cards-dashboard');
+            cards.innerHTML = '<div class="card"><h3>Carregando...</h3></div>';
+            // Implementar dashboard consolidado
         });
     }
+
+    renderCategoria();
 </script>
 </body>
 </html>
