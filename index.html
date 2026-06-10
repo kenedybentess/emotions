@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checklist Completo Injetoras - 3 Fases</title>
+    <title>Checklist por Categoria - Injetoras</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -17,27 +17,30 @@
             --warning-color: #f39c12;
             --light-bg: #f8f9fa;
             --border-color: #dee2e6;
-            --text-dark: #333333;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #eef2f5; color: var(--text-dark); padding: 20px; }
-      .container { max-width: 1500px; margin: 0 auto; background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        body { background-color: #eef2f5; color: #333; padding: 20px; }
+      .container { max-width: 1500px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         
-      .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
-      .tab-btn { padding: 10px 20px; border: none; background: #ddd; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 1em; transition: 0.2s; }
+      .tabs { display: flex; gap: 8px; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
+      .tab-btn { padding: 10px 16px; border: none; background: #ddd; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 0.95em; }
       .tab-btn.active { background: var(--primary-color); color: white; }
+      .tab-btn.status-verde { background: var(--secondary-color); color: white; }
+      .tab-btn.status-vermelho { background: var(--danger-color); color: white; }
       .tab-content { display: none; }
       .tab-content.active { display: block; }
 
         header { text-align: center; border-bottom: 3px solid var(--primary-color); padding-bottom: 20px; margin-bottom: 25px; }
-        h1 { color: var(--primary-color); font-size: 1.8em; text-transform: uppercase; }
+        h1 { color: var(--primary-color); font-size: 1.6em; text-transform: uppercase; }
         
       .meta-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: var(--light-bg); padding: 20px; border-radius: 6px; margin-bottom: 25px; border: 1px solid var(--border-color); }
       .form-group { display: flex; flex-direction: column; }
       .form-group label { font-size: 0.85em; font-weight: 600; margin-bottom: 5px; }
       .form-group input,.form-group select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95em; }
         
-      .section-title { background: var(--primary-color); color: white; padding: 10px 15px; font-size: 1.1em; font-weight: 600; margin-top: 25px; margin-bottom: 10px; border-radius: 4px; text-transform: uppercase; }
+      .status-categoria { padding: 15px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; text-align: center; background: #ecf0f1; border: 2px solid #bdc3c7; }
+      .status-categoria.liberado { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+      .status-categoria.bloqueado { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
         
       .checklist-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.88em; }
       .checklist-table th,.checklist-table td { border: 1px solid var(--border-color); padding: 6px 8px; }
@@ -46,136 +49,102 @@
       .checklist-table.fase-header { background: var(--warning-color); color: white; font-size: 0.8em; }
       .checklist-table.radio-group { display: flex; justify-content: center; gap: 6px; }
       .checklist-table.radio-group label { display: flex; align-items: center; gap: 2px; font-size: 0.75em; cursor: pointer; }
-      .checklist-table.radio-group input { cursor: pointer; transform: scale(0.9); }
       .checklist-table.na-cell { background: #ecf0f1; text-align: center; color: #95a5a6; font-weight: bold; }
-      .checklist-table tr:hover { background: #f8f9fa; }
-        
-      .status-block { background: #e2e3e5; border: 1px solid #ced4da; padding: 20px; border-radius: 6px; margin-top: 25px; transition: background 0.3s; }
-      .status-options { display: flex; gap: 20px; margin-top: 10px; }
-      .status-option { display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer; }
         
       .actions { margin-top: 30px; display: flex; justify-content: flex-end; gap: 15px; }
       .btn { padding: 12px 24px; border: none; border-radius: 4px; font-size: 1em; font-weight: bold; cursor: pointer; color: white; }
       .btn-success { background-color: var(--secondary-color); }
       .btn-primary { background-color: var(--primary-color); }
-      .btn-sm { padding: 5px 10px; font-size: 0.85em; border-radius: 3px; background-color: #34495e; color: white; border: none; cursor: pointer; font-weight: bold; }
+      .btn-sm { padding: 5px 10px; font-size: 0.85em; border-radius: 3px; background-color: #34495e; color: white; border: none; cursor: pointer; }
         
-      .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
+      .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
       .card { background: var(--light-bg); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center; }
-      .card h3 { font-size: 0.8em; text-transform: uppercase; color: #666; }
-      .card p { font-size: 1.6em; font-weight: bold; margin-top: 5px; }
+      .card h3 { font-size: 0.75em; text-transform: uppercase; color: #666; }
+      .card p { font-size: 1.5em; font-weight: bold; margin-top: 5px; }
+      .card-status { padding: 10px; border-radius: 6px; margin-top: 10px; font-weight: bold; }
+      .card-status.verde { background: #d4edda; color: #155724; }
+      .card-status.vermelho { background: #f8d7da; color: #721c24; }
         
-      .highlight-panel { background: #e1f5fe; border: 1px solid #b3e5fc; padding: 15px 20px; border-radius: 6px; margin-bottom: 25px; }
-      .highlight-panel h2 { font-size: 1em; color: #0288d1; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #b3e5fc; padding-bottom: 5px; }
-      .highlight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-      .highlight-item { font-size: 0.95em; color: #333; }
-      .highlight-item strong { color: var(--primary-color); display: block; font-size: 0.85em; text-transform: uppercase; margin-bottom: 2px; }
-      .highlight-item span { font-size: 1.1em; font-weight: bold; color: #01579b; }
-
-      .chart-container { background: white; padding: 20px; border-radius: 6px; border: 1px solid var(--border-color); height: 350px; position: relative; margin-bottom: 30px; }
       .history-container { margin-top: 20px; background: white; padding: 20px; border-radius: 6px; border: 1px solid var(--border-color); overflow-x: auto; }
       .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; color: white; }
       .badge-liberado { background-color: var(--secondary-color); }
       .badge-bloqueado { background-color: var(--danger-color); }
 
-        @media print {.tabs,.actions,.history-container,.btn-sm { display: none!important; } }
+        @media print {.tabs,.actions,.btn-sm { display: none!important; } }
     </style>
 </head>
 <body>
-
 <div class="container">
     <div class="tabs">
-        <button id="btn-tab-checklist" class="tab-btn active" onclick="switchTab('checklist-tab')">📝 Checklist 3 Fases</button>
-        <button id="btn-tab-dashboard" class="tab-btn" onclick="switchTab('dashboard-tab')">📊 Dashboard</button>
+        <button class="tab-btn active" id="btn-tab-molde" onclick="switchTab('molde')">1. Molde</button>
+        <button class="tab-btn" id="btn-tab-maquinas" onclick="switchTab('maquinas')">2. Máquinas</button>
+        <button class="tab-btn" id="btn-tab-perifericos" onclick="switchTab('perifericos')">3. Periféricos</button>
+        <button class="tab-btn" id="btn-tab-materia" onclick="switchTab('materia')">4. Matéria-Prima</button>
+        <button class="tab-btn" id="btn-tab-processo" onclick="switchTab('processo')">5. Processo</button>
+        <button class="tab-btn" id="btn-tab-dashboard" onclick="switchTab('dashboard')">📊 Dashboard Geral</button>
     </div>
 
-    <div id="checklist-tab" class="tab-content active">
-        <header>
-            <h1>Checklist Completo – Injetoras</h1>
-            <p>Início / Durante / Paradas de Processo</p>
-        </header>
-
-        <form id="checklistForm">
-            <div class="meta-form">
-                <div class="form-group"><label>Data:</label><input type="date" id="data" required></div>
-                <div class="form-group">
-                    <label>Turno:</label>
-                    <select id="turno" required>
-                        <option value="" disabled selected>Selecione o Turno</option>
-                        <option value="1º Turno">1º Turno</option>
-                        <option value="2º Turno">2º Turno</option>
-                        <option value="3º Turno">3º Turno</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>Injetora (ID/Nº):</label><input type="text" id="injetora" placeholder="Ex: INJ-05" required></div>
-                <div class="form-group"><label>Operador:</label><input type="text" id="operador" placeholder="Nome Completo" required></div>
-            </div>
-
-            <div id="checklist-container"></div>
-
-            <div class="status-block" id="statusBlock">
-                <label>Status Final do Equipamento:</label>
-                <div class="status-options">
-                    <label class="status-option" style="color: green;"><input type="radio" name="status_maquina" id="status_liberado" value="LIBERADO" required disabled> 🟢 LIBERADO</label>
-                    <label class="status-option" style="color: red;"><input type="radio" name="status_maquina" id="status_bloqueado" value="BLOQUEADO" required disabled> 🔴 BLOQUEADO</label>
-                </div>
-                <p style="font-size: 0.85em; margin-top: 10px; color: #666;" id="status-info">Responda todos os itens aplicáveis para liberar o status</p>
-            </div>
-
-            <div class="actions">
-                <button type="button" class="btn btn-primary" onclick="window.print()">🖨 Imprimir PDF</button>
-                <button type="submit" class="btn btn-success">💾 Salvar no Firebase</button>
-            </div>
-        </form>
+    <div class="meta-form">
+        <div class="form-group"><label>Data:</label><input type="date" id="data" required></div>
+        <div class="form-group">
+            <label>Turno:</label>
+            <select id="turno" required>
+                <option value="" disabled selected>Selecione</option>
+                <option value="1º Turno">1º Turno</option>
+                <option value="2º Turno">2º Turno</option>
+                <option value="3º Turno">3º Turno</option>
+            </select>
+        </div>
+        <div class="form-group"><label>Injetora:</label><input type="text" id="injetora" placeholder="Ex: INJ-05" required></div>
+        <div class="form-group"><label>Operador:</label><input type="text" id="operador" placeholder="Nome Completo" required></div>
     </div>
 
-    <div id="dashboard-tab" class="tab-content">
-        <header>
-            <h1>Dashboard - Checklist 3 Fases</h1>
-        </header>
+    <!-- ABA MOLDE -->
+    <div id="tab-molde" class="tab-content active">
+        <div class="status-categoria" id="status-molde">Status Molde: Aguardando preenchimento</div>
+        <table class="checklist-table" id="tabela-molde"></table>
+        <div class="actions"><button class="btn btn-success" onclick="salvarCategoria('molde')">💾 Salvar Checklist Molde</button></div>
+    </div>
 
-        <div class="highlight-panel">
-            <h2>📌 Última Inspeção Registrada</h2>
-            <div class="highlight-grid">
-                <div class="highlight-item"><strong>Data e Hora</strong><span id="lbl-last-data">-</span></div>
-                <div class="highlight-item"><strong>Operador</strong><span id="lbl-last-operador">-</span></div>
-                <div class="highlight-item"><strong>Turno</strong><span id="lbl-last-turno">-</span></div>
-                <div class="highlight-item"><strong>Injetora</strong><span id="lbl-last-injetora">-</span></div>
-            </div>
-        </div>
+    <!-- ABA MÁQUINAS -->
+    <div id="tab-maquinas" class="tab-content">
+        <div class="status-categoria" id="status-maquinas">Status Máquinas: Aguardando preenchimento</div>
+        <table class="checklist-table" id="tabela-maquinas"></table>
+        <div class="actions"><button class="btn btn-success" onclick="salvarCategoria('maquinas')">💾 Salvar Checklist Máquinas</button></div>
+    </div>
 
-        <div class="dashboard-grid">
-            <div class="card"><h3>Total Checklists</h3><p id="txt-total">0</p></div>
-            <div class="card" style="color: green;"><h3>Liberados</h3><p id="txt-liberados">0</p></div>
-            <div class="card" style="color: red;"><h3>Bloqueados</h3><p id="txt-bloqueados">0</p></div>
-            <div class="card" style="color: #f39c12;"><h3>Falhas Início</h3><p id="txt-block-inicio">0</p></div>
-            <div class="card" style="color: #e67e22;"><h3>Falhas Durante</h3><p id="txt-block-durante">0</p></div>
-            <div class="card" style="color: #c0392b;"><h3>Falhas Parada</h3><p id="txt-block-parada">0</p></div>
-        </div>
+    <!-- ABA PERIFÉRICOS -->
+    <div id="tab-perifericos" class="tab-content">
+        <div class="status-categoria" id="status-perifericos">Status Periféricos: Aguardando preenchimento</div>
+        <table class="checklist-table" id="tabela-perifericos"></table>
+        <div class="actions"><button class="btn btn-success" onclick="salvarCategoria('perifericos')">💾 Salvar Checklist Periféricos</button></div>
+    </div>
 
-        <div class="chart-container">
-            <canvas id="monthlyChart"></canvas>
-        </div>
+    <!-- ABA MATÉRIA-PRIMA -->
+    <div id="tab-materia" class="tab-content">
+        <div class="status-categoria" id="status-materia">Status Matéria-Prima: Aguardando preenchimento</div>
+        <table class="checklist-table" id="tabela-materia"></table>
+        <div class="actions"><button class="btn btn-success" onclick="salvarCategoria('materia')">💾 Salvar Checklist Matéria-Prima</button></div>
+    </div>
 
+    <!-- ABA PROCESSO -->
+    <div id="tab-processo" class="tab-content">
+        <div class="status-categoria" id="status-processo">Status Processo: Aguardando preenchimento</div>
+        <table class="checklist-table" id="tabela-processo"></table>
+        <div class="actions"><button class="btn btn-success" onclick="salvarCategoria('processo')">💾 Salvar Checklist Processo</button></div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard" class="tab-content">
+        <header><h1>Dashboard Geral - Status por Categoria</h1></header>
+        <div class="dashboard-grid" id="cards-categorias"></div>
         <div class="history-container">
-            <h2 style="color: var(--primary-color); margin-bottom: 15px; font-size: 1.3em;">📋 Histórico Detalhado</h2>
+            <h2 style="color: var(--primary-color); margin-bottom: 15px;">📋 Últimos Checklists Salvos</h2>
             <table class="checklist-table">
                 <thead>
-                    <tr>
-                        <th>Data/Hora</th>
-                        <th>Turno</th>
-                        <th>Injetora</th>
-                        <th>Operador</th>
-                        <th>Status</th>
-                        <th>Falhas Início</th>
-                        <th>Falhas Durante</th>
-                        <th>Falhas Parada</th>
-                        <th>Ações</th>
-                    </tr>
+                    <tr><th>Data/Hora</th><th>Categoria</th><th>Injetora</th><th>Turno</th><th>Operador</th><th>Status</th><th>Falhas</th></tr>
                 </thead>
-                <tbody id="history-rows">
-                    <tr><td colspan="9" style="text-align: center; color: #999;">Conectando ao Firebase...</td></tr>
-                </tbody>
+                <tbody id="history-rows"><tr><td colspan="7" style="text-align:center;">Carregando...</td></tr></tbody>
             </table>
         </div>
     </div>
@@ -194,289 +163,230 @@
 
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-
-    let cacheRegistros = {};
     document.getElementById('data').valueAsDate = new Date();
-    let myChart = null;
 
     const checklistData = {
-        "1. Molde": [
-            {id: 1, desc: "Os pinos extratores estão funcionando corretamente e sem travamentos?", inicio: true, durante: true, paradas: false},
-            {id: 2, desc: "As conexões de água/óleo do molde estão vedadas e sem vazamentos?", inicio: true, durante: true, paradas: true},
-            {id: 3, desc: "Os sensores de temperatura, Datadores do molde estão calibrados e fornecendo leituras precisas?", inicio: true, durante: false, paradas: false},
-            {id: 4, desc: "O sistema de câmara quente (se aplicável) está operando dentro das temperaturas especificadas?", inicio: true, durante: true, paradas: true},
-            {id: 5, desc: "As buchas de injeção estão alinhadas corretamente com o bico da máquina?", inicio: true, durante: true, paradas: false},
-            {id: 6, desc: "As placas do molde estão se movendo suavemente, sem atrito excessivo?", inicio: true, durante: true, paradas: false},
-            {id: 7, desc: "O molde possui identificação clara e está de acordo com a documentação?", inicio: true, durante: true, paradas: false},
-            {id: 8, desc: "Há alguma corrosão ou oxidação nas superfícies do molde?", inicio: true, durante: true, paradas: true},
-            {id: 9, desc: "Os mecanismos de extração de peças estão ajustados para a peça atual?", inicio: true, durante: true, paradas: false},
-            {id: 10, desc: "A ventilação/saída de gás do molde é adequada para evitar queima de material?", inicio: false, durante: true, paradas: false},
-            {id: 11, desc: "As guias do molde estão lubrificadas e sem folgas excessivas?", inicio: true, durante: true, paradas: true},
-            {id: 12, desc: "O molde foi inspecionado e aprovado antes do início da produção?", inicio: true, durante: true, paradas: true},
-            {id: 13, desc: "O molde ficou fechado com as placas encostadas sem travamento?", inicio: false, durante: false, paradas: true},
-            {id: 14, desc: "A temperatura do molde placas estão aquecidas adequadamente?", inicio: true, durante: true, paradas: true}
+        molde: [
+            {id: 1, desc: "Os pinos extratores estão funcionando corretamente e sem travamentos?", inicio: 1, durante: 1, paradas: 0},
+            {id: 2, desc: "As conexões de água/óleo do molde estão vedadas e sem vazamentos?", inicio: 1, durante: 1, paradas: 1},
+            {id: 3, desc: "Os sensores de temperatura, Datadores do molde estão calibrados e fornecendo leituras precisas?", inicio: 1, durante: 0, paradas: 0},
+            {id: 4, desc: "O sistema de câmara quente (se aplicável) está operando dentro das temperaturas especificadas?", inicio: 1, durante: 1, paradas: 1},
+            {id: 5, desc: "As buchas de injeção estão alinhadas corretamente com o bico da máquina?", inicio: 1, durante: 1, paradas: 0},
+            {id: 6, desc: "As placas do molde estão se movendo suavemente, sem atrito excessivo?", inicio: 1, durante: 1, paradas: 0},
+            {id: 7, desc: "O molde possui identificação clara e está de acordo com a documentação?", inicio: 1, durante: 1, paradas: 0},
+            {id: 8, desc: "Há alguma corrosão ou oxidação nas superfícies do molde?", inicio: 1, durante: 1, paradas: 1},
+            {id: 9, desc: "Os mecanismos de extração de peças estão ajustados para a peça atual?", inicio: 1, durante: 1, paradas: 0},
+            {id: 10, desc: "A ventilação/saída de gás do molde é adequada para evitar queima de material?", inicio: 0, durante: 1, paradas: 0},
+            {id: 11, desc: "As guias do molde estão lubrificadas e sem folgas excessivas?", inicio: 1, durante: 1, paradas: 1},
+            {id: 12, desc: "O molde foi inspecionado e aprovado antes do início da produção?", inicio: 1, durante: 1, paradas: 1},
+            {id: 13, desc: "O molde ficou fechado com as placas encostadas sem travamento?", inicio: 0, durante: 0, paradas: 1},
+            {id: 14, desc: "A temperatura do molde placas estão aquecidas adequadamente?", inicio: 1, durante: 1, paradas: 1}
         ],
-        "2. Máquinas": [
-            {id: 15, desc: "A máquina injetora está limpa e organizada?", inicio: true, durante: true, paradas: true},
-            {id: 16, desc: "Os níveis de óleo hidráulico de lubrificação das colunas estão corretos e o óleo está em boas condições?", inicio: true, durante: true, paradas: true},
-            {id: 17, desc: "O sistema de aquecimento do cilindro e bico está funcionando e com temperaturas estáveis?", inicio: true, durante: true, paradas: false},
-            {id: 18, desc: "Os dispositivos de segurança da máquina (portas, grades, botões de emergência) estão operantes?", inicio: true, durante: true, paradas: true},
-            {id: 19, desc: "A máquina está calibrada e os parâmetros de processo são consistentes?", inicio: true, durante: true, paradas: true},
-            {id: 20, desc: "Há vazamentos de óleo ou água na máquina?", inicio: true, durante: true, paradas: true},
-            {id: 21, desc: "A tela de controle da máquina está funcionando corretamente e sem erros?", inicio: true, durante: true, paradas: false},
-            {id: 22, desc: "O bico da máquina está limpo e sem obstruções de plasticos escorridos na resistência?", inicio: true, durante: true, paradas: true},
-            {id: 23, desc: "Os sensores de posição das portas da máquina estão funcionando com precisão?", inicio: true, durante: true, paradas: true},
-            {id: 24, desc: "Há alguma falha ou alarme ativo no painel da máquina?", inicio: true, durante: true, paradas: true},
-            {id: 25, desc: "A máquina está operando dentro dos limites de segurança e desempenho?", inicio: false, durante: false, paradas: false}
+        maquinas: [
+            {id: 15, desc: "A máquina injetora está limpa e organizada?", inicio: 1, durante: 1, paradas: 1},
+            {id: 16, desc: "Os níveis de óleo hidráulico de lubrificação das colunas estão corretos e o óleo está em boas condições?", inicio: 1, durante: 1, paradas: 1},
+            {id: 17, desc: "O sistema de aquecimento do cilindro e bico está funcionando e com temperaturas estáveis?", inicio: 1, durante: 1, paradas: 0},
+            {id: 18, desc: "Os dispositivos de segurança da máquina (portas, grades, botões de emergência) estão operantes?", inicio: 1, durante: 1, paradas: 1},
+            {id: 19, desc: "A máquina está calibrada e os parâmetros de processo são consistentes?", inicio: 1, durante: 1, paradas: 1},
+            {id: 20, desc: "Há vazamentos de óleo ou água na máquina?", inicio: 1, durante: 1, paradas: 1},
+            {id: 21, desc: "A tela de controle da máquina está funcionando corretamente e sem erros?", inicio: 1, durante: 1, paradas: 0},
+            {id: 22, desc: "O bico da máquina está limpo e sem obstruções de plasticos escorridos na resistência?", inicio: 1, durante: 1, paradas: 1},
+            {id: 23, desc: "Os sensores de posição das portas da máquina estão funcionando com precisão?", inicio: 1, durante: 1, paradas: 1},
+            {id: 24, desc: "Há alguma falha ou alarme ativo no painel da máquina?", inicio: 1, durante: 1, paradas: 1},
+            {id: 25, desc: "A máquina está operando dentro dos limites de segurança e desempenho?", inicio: 0, durante: 0, paradas: 0}
         ],
-        "3. Periféricos": [
-            {id: 26, desc: "O alimentador de matéria-prima está limpo e funcionando corretamente?", inicio: true, durante: true, paradas: true},
-            {id: 27, desc: "O controlador de temperatura de água/óleo (se aplicável) está ajustado na temperatura e funcionando?", inicio: true, durante: true, paradas: true},
-            {id: 28, desc: "O robô ou sistema de extração de peças está programado e operando corretamente?", inicio: true, durante: true, paradas: true},
-            {id: 29, desc: "Os transportadores de peças ventosas ou pinças estão funcionando sem interrupções?", inicio: true, durante: true, paradas: false},
-            {id: 30, desc: "O sistema de dosagem de pigmentos/aditivos está calibrado e preciso?", inicio: true, durante: true, paradas: false},
-            {id: 31, desc: "O sistema de refrigeração da fábrica (chiller) está operando eficientemente?", inicio: false, durante: false, paradas: false},
-            {id: 32, desc: "As mangueiras e conexões dos periféricos estão em boas condições e sem vazamentos?", inicio: true, durante: true, paradas: true},
-            {id: 33, desc: "Os painéis elétricos dos periféricos estão fechados e seguros?", inicio: true, durante: true, paradas: false},
-            {id: 34, desc: "Há ruídos ou vibrações anormais nos periféricos?", inicio: true, durante: true, paradas: false},
-            {id: 35, desc: "Os sistemas de segurança dos periféricos tipo: talha, aquecedor, robô e geladeira estão ativos e funcionando?", inicio: true, durante: true, paradas: true}
+        perifericos: [
+            {id: 26, desc: "O alimentador de matéria-prima está limpo e funcionando corretamente?", inicio: 1, durante: 1, paradas: 1},
+            {id: 27, desc: "O controlador de temperatura de água/óleo (se aplicável) está ajustado na temperatura e funcionando?", inicio: 1, durante: 1, paradas: 1},
+            {id: 28, desc: "O robô ou sistema de extração de peças está programado e operando corretamente?", inicio: 1, durante: 1, paradas: 1},
+            {id: 29, desc: "Os transportadores de peças ventosas ou pinças estão funcionando sem interrupções?", inicio: 1, durante: 1, paradas: 0},
+            {id: 30, desc: "O sistema de dosagem de pigmentos/aditivos está calibrado e preciso?", inicio: 1, durante: 1, paradas: 0},
+            {id: 31, desc: "O sistema de refrigeração da fábrica (chiller) está operando eficientemente?", inicio: 0, durante: 0, paradas: 0},
+            {id: 32, desc: "As mangueiras e conexões dos periféricos estão em boas condições e sem vazamentos?", inicio: 1, durante: 1, paradas: 1},
+            {id: 33, desc: "Os painéis elétricos dos periféricos estão fechados e seguros?", inicio: 1, durante: 1, paradas: 0},
+            {id: 34, desc: "Há ruídos ou vibrações anormais nos periféricos?", inicio: 1, durante: 1, paradas: 0},
+            {id: 35, desc: "Os sistemas de segurança dos periféricos tipo: talha, aquecedor, robô e geladeira estão ativos e funcionando?", inicio: 1, durante: 1, paradas: 1}
         ],
-        "4. Matéria-Prima": [
-            {id: 36, desc: "A matéria-prima está armazenada corretamente, em local seco e protegido?", inicio: true, durante: true, paradas: false},
-            {id: 37, desc: "A embalagem da matéria-prima está intacta e sem sinais de contaminação?", inicio: true, durante: true, paradas: false},
-            {id: 38, desc: "A matéria-prima foi pré-secada (se necessário) de acordo com as recomendações do fabricante e documentação?", inicio: true, durante: true, paradas: false},
-            {id: 39, desc: "A matéria-prima está sendo manuseada para evitar danos ou contaminação?", inicio: true, durante: true, paradas: false},
-            {id: 40, desc: "A matéria-prima está sendo utilizada dentro do prazo de validade?", inicio: true, durante: true, paradas: false}
+        materia: [
+            {id: 36, desc: "A matéria-prima está armazenada corretamente, em local seco e protegido?", inicio: 1, durante: 1, paradas: 0},
+            {id: 37, desc: "A embalagem da matéria-prima está intacta e sem sinais de contaminação?", inicio: 1, durante: 1, paradas: 0},
+            {id: 38, desc: "A matéria-prima foi pré-secada (se necessário) de acordo com as recomendações do fabricante e documentação?", inicio: 1, durante: 1, paradas: 0},
+            {id: 39, desc: "A matéria-prima está sendo manuseada para evitar danos ou contaminação?", inicio: 1, durante: 1, paradas: 0},
+            {id: 40, desc: "A matéria-prima está sendo utilizada dentro do prazo de validade?", inicio: 1, durante: 1, paradas: 0}
         ],
-        "5. Processo de Produção de Peças Plásticas": [
-            {id: 41, desc: "O tempo de resfriamento é suficiente para solidificar a peça sem deformações?", inicio: true, durante: true, paradas: false},
-            {id: 42, desc: "O tempo de ciclo está dentro do especificado e otimizado de acordo com a ficha técnica?", inicio: true, durante: true, paradas: false},
-            {id: 43, desc: "As peças estão sendo extraídas do molde sem danos ou marcas que não estão de acordo com o padrão?", inicio: true, durante: true, paradas: false},
-            {id: 44, desc: "Há rebarbas ou deformações nas peças produzidas que não estão de acordo com o padrão?", inicio: true, durante: true, paradas: false},
-            {id: 45, desc: "As peças estão sendo embaladas e identificadas corretamente?", inicio: true, durante: true, paradas: false}
+        processo: [
+            {id: 41, desc: "O tempo de resfriamento é suficiente para solidificar a peça sem deformações?", inicio: 1, durante: 1, paradas: 0},
+            {id: 42, desc: "O tempo de ciclo está dentro do especificado e otimizado de acordo com a ficha técnica?", inicio: 1, durante: 1, paradas: 0},
+            {id: 43, desc: "As peças estão sendo extraídas do molde sem danos ou marcas que não estão de acordo com o padrão?", inicio: 1, durante: 1, paradas: 0},
+            {id: 44, desc: "Há rebarbas ou deformações nas peças produzidas que não estão de acordo com o padrão?", inicio: 1, durante: 1, paradas: 0},
+            {id: 45, desc: "As peças estão sendo embaladas e identificadas corretamente?", inicio: 1, durante: 1, paradas: 0}
         ]
     };
 
-    function renderAllTables() {
-        const container = document.getElementById('checklist-container');
-        container.innerHTML = '';
+    function renderCategoria(cat) {
+        const tabela = document.getElementById(`tabela-${cat}`);
+        let html = `
+            <thead>
+                <tr>
+                    <th style="width: 5%;">Item</th>
+                    <th class="item-desc">O que verificar</th>
+                    <th class="fase-header">Início Processo</th>
+                    <th class="fase-header">Durante Processo</th>
+                    <th class="fase-header">Paradas Processo</th>
+                </tr>
+            </thead>
+            <tbody>
+        `;
         
-        Object.keys(checklistData).forEach(categoria => {
-            const sectionDiv = document.createElement('div');
-            sectionDiv.innerHTML = `
-                <div class="section-title">${categoria}</div>
-                <table class="checklist-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 5%;">Item</th>
-                            <th class="item-desc">O que verificar</th>
-                            <th class="fase-header" style="width: 16%;">Início Processo</th>
-                            <th class="fase-header" style="width: 16%;">Durante Processo</th>
-                            <th class="fase-header" style="width: 16%;">Paradas Processo</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-${categoria.replace(/\s|\./g, '')}"></tbody>
-                </table>
-            `;
-            container.appendChild(sectionDiv);
-            
-            const tbody = sectionDiv.querySelector('tbody');
-            checklistData[categoria].forEach(item => {
-                const tr = document.createElement('tr');
-                let html = `<td>${item.id}</td><td class="item-desc">${item.desc}</td>`;
-                
-                ['inicio', 'durante', 'paradas'].forEach(fase => {
-                    if (item[fase]) {
-                        html += `
-                            <td>
-                                <div class="radio-group">
-                                    <label><input type="radio" name="item_${item.id}_${fase}" value="S" onclick="evalStatus()" required> S</label>
-                                    <label><input type="radio" name="item_${item.id}_${fase}" value="N" onclick="evalStatus()"> N</label>
-                                </div>
-                            </td>`;
-                    } else {
-                        html += `<td class="na-cell">N/A</td>`;
-                    }
-                });
-                tr.innerHTML = html;
-                tbody.appendChild(tr);
-            });
+        checklistData[cat].forEach(item => {
+            html += `<tr>
+                <td>${item.id}</td>
+                <td class="item-desc">${item.desc}</td>
+                ${['inicio','durante','paradas'].map(fase => 
+                    item[fase]? `
+                        <td>
+                            <div class="radio-group">
+                                <label><input type="radio" name="item_${item.id}_${fase}" value="S" onchange="evalCategoria('${cat}')" required> S</label>
+                                <label><input type="radio" name="item_${item.id}_${fase}" value="N" onchange="evalCategoria('${cat}')"> N</label>
+                            </div>
+                        </td>
+                    ` : `<td class="na-cell">N/A</td>`
+                ).join('')}
+            </tr>`;
         });
+        html += '</tbody>';
+        tabela.innerHTML = html;
     }
 
-    renderAllTables();
+    Object.keys(checklistData).forEach(cat => renderCategoria(cat));
 
-    window.switchTab = function(tabId) {
+    window.switchTab = function(tab) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        if(tabId === 'checklist-tab') document.getElementById('btn-tab-checklist').classList.add('active');
-        if(tabId === 'dashboard-tab') {
-            document.getElementById('btn-tab-dashboard').classList.add('active');
-            loadDashboardData();
-        }
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        document.getElementById(`btn-tab-${tab}`).classList.add('active');
+        if(tab === 'dashboard') carregarDashboard();
     }
 
-    window.evalStatus = function() {
-        const allRadios = document.querySelectorAll('input[type="radio"][name^="item_"]:not([disabled])');
-        const allNames = new Set(Array.from(allRadios).map(r => r.name));
-        const checkedNames = new Set(Array.from(document.querySelectorAll('input[type="radio"]:checked')).filter(r => r.name.startsWith('item_')).map(r => r.name));
-        const faults = document.querySelectorAll('input[type="radio"][value="N"]:checked');
+    window.evalCategoria = function(cat) {
+        const tabela = document.getElementById(`tabela-${cat}`);
+        const allRadios = tabela.querySelectorAll('input[type="radio"]');
+        const nomes = new Set(Array.from(allRadios).filter(r =>!r.closest('td').classList.contains('na-cell')).map(r => r.name));
+        const marcados = new Set(Array.from(tabela.querySelectorAll('input:checked')).map(r => r.name));
+        const faults = tabela.querySelectorAll('input[value="N"]:checked');
         
-        const rLiberado = document.getElementById('status_liberado');
-        const rBloqueado = document.getElementById('status_bloqueado');
-        const sBlock = document.getElementById('statusBlock');
-        const statusInfo = document.getElementById('status-info');
+        const statusDiv = document.getElementById(`status-${cat}`);
+        const btnTab = document.getElementById(`btn-tab-${cat}`);
 
-        if (checkedNames.size >= allNames.size) {
-            rLiberado.disabled = false;
-            rBloqueado.disabled = false;
-            
+        if (marcados.size >= nomes.size) {
             if (faults.length > 0) {
-                rBloqueado.checked = true;
-                sBlock.style.background = '#f8d7da';
-                sBlock.style.borderColor = '#f5c6cb';
-                statusInfo.innerText = `⚠️ ${faults.length} não conformidade(s) detectada(s)`;
-                statusInfo.style.color = '#c0392b';
+                statusDiv.className = 'status-categoria bloqueado';
+                statusDiv.innerText = `🔴 BLOQUEADO - ${faults.length} não conformidade(s)`;
+                btnTab.classList.add('status-vermelho');
+                btnTab.classList.remove('status-verde');
             } else {
-                rLiberado.checked = true;
-                sBlock.style.background = '#d4edda';
-                sBlock.style.borderColor = '#c3e6cb';
-                statusInfo.innerText = '✅ Todos os itens conformes';
-                statusInfo.style.color = '#27ae60';
+                statusDiv.className = 'status-categoria liberado';
+                statusDiv.innerText = '🟢 LIBERADO - Todos conformes';
+                btnTab.classList.add('status-verde');
+                btnTab.classList.remove('status-vermelho');
             }
         } else {
-            rLiberado.checked = false;
-            rBloqueado.checked = false;
-            rLiberado.disabled = true;
-            rBloqueado.disabled = true;
-            sBlock.style.background = '#e2e3e5';
-            statusInfo.innerText = `Responda todos os itens aplicáveis (${checkedNames.size}/${allNames.size})`;
-            statusInfo.style.color = '#666';
+            statusDiv.className = 'status-categoria';
+            statusDiv.innerText = `Status ${cat.charAt(0).toUpperCase()+cat.slice(1)}: ${marcados.size}/${nomes.size} respondidos`;
+            btnTab.classList.remove('status-verde', 'status-vermelho');
         }
     }
 
-    document.getElementById('checklistForm').addEventListener('submit', function(e) {
-        e.preventDefault();
+    window.salvarCategoria = function(cat) {
+        const data = document.getElementById('data').value;
+        const turno = document.getElementById('turno').value;
+        const injetora = document.getElementById('injetora').value;
+        const operador = document.getElementById('operador').value;
         
-        const statusSelecionado = document.querySelector('input[name="status_maquina"]:checked');
-        if(!statusSelecionado) {
-            alert("Responda todos os itens aplicáveis antes de salvar!");
+        if(!data ||!turno ||!injetora ||!operador) {
+            alert('Preencha Data, Turno, Injetora e Operador antes de salvar!');
             return;
         }
 
+        const tabela = document.getElementById(`tabela-${cat}`);
+        const allNames = new Set(Array.from(tabela.querySelectorAll('input[type="radio"]')).filter(r =>!r.closest('td').classList.contains('na-cell')).map(r => r.name));
+        const marcados = new Set(Array.from(tabela.querySelectorAll('input:checked')).map(r => r.name));
+        
+        if(marcados.size < allNames.size) {
+            alert('Responda todos os itens aplicáveis da categoria antes de salvar!');
+            return;
+        }
+
+        const faults = tabela.querySelectorAll('input[value="N"]:checked');
+        const status = faults.length > 0? 'BLOQUEADO' : 'LIBERADO';
+        
         const respostas = {inicio: {}, durante: {}, paradas: {}};
-        document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
-            if(radio.name.startsWith('item_')) {
-                const parts = radio.name.split('_');
-                const fase = parts[2];
-                const itemId = parts[1];
-                respostas[fase][itemId] = radio.value;
-            }
+        tabela.querySelectorAll('input:checked').forEach(r => {
+            const [, id, fase] = r.name.split('_');
+            respostas[fase][id] = r.value;
         });
 
         const payload = {
-            data: document.getElementById('data').value,
-            turno: document.getElementById('turno').value,
-            injetora: document.getElementById('injetora').value,
-            operador: document.getElementById('operador').value,
-            status: statusSelecionado.value,
-            respostas: respostas,
+            categoria: cat,
+            data, turno, injetora, operador,
+            status, respostas,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         };
 
-        const registroId = `${payload.data}_${payload.turno.replace(' ', '')}_${payload.injetora}_${Date.now()}`;
-        
-        database.ref('checklists/' + registroId).set(payload)
-          .then(() => {
-                alert('✓ Checklist salvo com sucesso!');
-                document.getElementById('checklistForm').reset();
-                document.getElementById('data').valueAsDate = new Date();
-                evalStatus();
-            })
-          .catch((error) => alert('Erro ao Salvar: ' + error.message));
-    });
+        const id = `${data}_${turno.replace(' ', '')}_${injetora}_${cat}_${Date.now()}`;
+        database.ref('checklists/' + id).set(payload).then(() => {
+            alert(`✅ Checklist de ${cat.toUpperCase()} salvo como ${status}!`);
+            evalCategoria(cat);
+        }).catch(e => alert('Erro: ' + e.message));
+    }
 
-    function loadDashboardData() {
-        database.ref('checklists').get().then((snapshot) => {
+    function carregarDashboard() {
+        database.ref('checklists').orderByChild('timestamp').limitToLast(100).get().then((snapshot) => {
             if (!snapshot.exists()) return;
             const data = snapshot.val();
-            cacheRegistros = data;
+            let html = '';
+            const statusPorCat = {molde: {}, maquinas: {}, perifericos: {}, materia: {}, processo: {}};
             
-            let total = 0, liberados = 0, bloqueados = 0;
-            let blockInicio = 0, blockDurante = 0, blockParada = 0;
-            const statusPorMaquina = {};
-            let mapeamentoDias = {};
-            for(let i = 1; i <= 31; i++) mapeamentoDias[i] = { liberado: 0, blocked: 0 };
-            
-            const mesAtual = new Date().getMonth();
-            const chavesOrdenadas = Object.keys(data).sort((a, b) => (data[b].timestamp || 0) - (data[a].timestamp || 0));
-            
-            if(chavesOrdenadas.length > 0) {
-                const r = data[chavesOrdenadas[0]];
-                const d = r.timestamp? new Date(r.timestamp) : new Date(r.data + "T00:00:00");
-                document.getElementById('lbl-last-data').innerText = d.toLocaleString('pt-BR');
-                document.getElementById('lbl-last-operador').innerText = r.operador || '-';
-                document.getElementById('lbl-last-turno').innerText = r.turno || '-';
-                document.getElementById('lbl-last-injetora').innerText = r.injetora || '-';
-            }
-
-            let tabelaHtml = '';
-            chavesOrdenadas.forEach(id => {
-                const r = data[id];
-                total++;
-                if (r.status === 'LIBERADO') liberados++; else bloqueados++;
+            Object.values(data).reverse().forEach(r => {
+                const falhas = Object.values(r.respostas.inicio || {}).filter(v=>v==='N').length + 
+                               Object.values(r.respostas.durante || {}).filter(v=>v==='N').length + 
+                               Object.values(r.respostas.paradas || {}).filter(v=>v==='N').length;
                 
-                const nomeMaq = (r.injetora || '').trim().toUpperCase();
-                if(nomeMaq) statusPorMaquina[nomeMaq] = r.status;
+                statusPorCat[r.categoria][r.injetora] = r.status;
                 
-                let fInicio = 0, fDurante = 0, fParada = 0;
-                if(r.respostas) {
-                    if(r.respostas.inicio) fInicio = Object.values(r.respostas.inicio).filter(v => v === 'N').length;
-                    if(r.respostas.durante) fDurante = Object.values(r.respostas.durante).filter(v => v === 'N').length;
-                    if(r.respostas.paradas) fParada = Object.values(r.respostas.paradas).filter(v => v === 'N').length;
-                }
-                blockInicio += fInicio > 0? 1 : 0;
-                blockDurante += fDurante > 0? 1 : 0;
-                blockParada += fParada > 0? 1 : 0;
-                
-                const d = r.timestamp? new Date(r.timestamp) : new Date(r.data + "T00:00:00");
-                if(d.getMonth() === mesAtual) {
-                    const dia = d.getDate();
-                    if(r.status === "LIBERADO") mapeamentoDias[dia].liberado++;
-                    else mapeamentoDias[dia].blocked++;
-                }
-                
-                const badgeClass = r.status === "LIBERADO"? "badge-liberado" : "badge-bloqueado";
-                tabelaHtml += `
+                html += `
                     <tr>
-                        <td>${d.toLocaleString('pt-BR')}</td>
+                        <td>${new Date(r.timestamp).toLocaleString('pt-BR')}</td>
+                        <td><strong>${r.categoria.toUpperCase()}</strong></td>
+                        <td>${r.injetora}</td>
                         <td>${r.turno}</td>
-                        <td><strong>${r.injetora}</strong></td>
                         <td>${r.operador}</td>
-                        <td><span class="badge ${badgeClass}">${r.status}</span></td>
-                        <td style="text-align:center; color:${fInicio>0?'red':'green'}">${fInicio}</td>
-                        <td style="text-align:center; color:${fDurante>0?'red':'green'}">${fDurante}</td>
-                        <td style="text-align:center; color:${fParada>0?'red':'green'}">${fParada}</td>
-                        <td><button class="btn-sm" onclick="visualizarRegistro('${id}')">🔍 Ver</button></td>
+                        <td><span class="badge badge-${r.status.toLowerCase()}">${r.status}</span></td>
+                        <td style="text-align:center; color:${falhas>0?'red':'green'}">${falhas}</td>
                     </tr>
                 `;
             });
+            document.getElementById('history-rows').innerHTML = html;
 
-            document.getElementById('txt-total').innerText = total;
-            document.getElementById('txt-liberados').innerText = Object.values(statusPorMaquina).filter(s=>s==='LIBERADO').length;
-            document.getElementById('txt-bloqueados').innerText = Object.values(statusPorMaquina).filter(s=>s==='BLOQUEADO').length;
-            document.getElementById('txt-block-inicio').innerText = blockInicio;
-            document.getElementById('txt-block-durante').innerText = blockDurante;
-            document.getElementById('txt-block-parada').innerText = blockParada;
-            document.getElementById('history-rows').innerHTML = tabelaHtml;
-
-            const labels = Object.keys(mapeamentoDias);
-            const dadosLib = labels.map(d => mapeamentoDias[d].liberado);
-            const dadosBlock = labels.map(d => mapeamentoDias[d].blocked);
-
-            if (myChart) myChart.destroy();
-            const ctx = document.getElementById('monthlyChart').getContext('2d');
-            myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
+            // Cards por categoria
+            const cardsContainer = document.getElementById('cards-categorias');
+            cardsContainer.innerHTML = '';
+            Object.keys(statusPorCat).forEach(cat => {
+                const maquinas = Object.keys(statusPorCat[cat]);
+                const liberadas = Object.values(statusPorCat[cat]).filter(s=>s==='LIBERADO').length;
+                const bloqueadas = maquinas.length - liberadas;
+                cardsContainer.innerHTML += `
+                    <div class="card">
+                        <h3>${cat.toUpperCase()}</h3>
+                        <p>${maquinas.length}</p>
+                        <div class="card-status ${bloqueadas>0?'vermelho':'verde'}">
+                            ${bloqueadas>0? `🔴 ${bloqueadas} Bloqueada(s)` : '🟢 Todas Liberadas'}
+                        </div>
+                    </div>
+                `;
+            });
+        });
+    }
+</script>
+</body>
+</html>
