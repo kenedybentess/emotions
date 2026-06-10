@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checklist por Categoria - Injetoras</title>
+    <title>Checklist 3 Fases Sequenciais - Injetoras</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -20,131 +20,132 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background-color: #eef2f5; color: #333; padding: 20px; }
-      .container { max-width: 1500px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+      .container { max-width: 1400px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         
-      .tabs { display: flex; gap: 8px; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
-      .tab-btn { padding: 10px 16px; border: none; background: #ddd; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 0.95em; }
+      .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+      .tab-btn { padding: 10px 20px; border: none; background: #ddd; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 1em; }
       .tab-btn.active { background: var(--primary-color); color: white; }
-      .tab-btn.status-verde { background: var(--secondary-color); color: white; }
-      .tab-btn.status-vermelho { background: var(--danger-color); color: white; }
       .tab-content { display: none; }
       .tab-content.active { display: block; }
 
         header { text-align: center; border-bottom: 3px solid var(--primary-color); padding-bottom: 20px; margin-bottom: 25px; }
-        h1 { color: var(--primary-color); font-size: 1.6em; text-transform: uppercase; }
+        h1 { color: var(--primary-color); font-size: 1.8em; text-transform: uppercase; }
         
       .meta-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: var(--light-bg); padding: 20px; border-radius: 6px; margin-bottom: 25px; border: 1px solid var(--border-color); }
       .form-group { display: flex; flex-direction: column; }
       .form-group label { font-size: 0.85em; font-weight: 600; margin-bottom: 5px; }
       .form-group input,.form-group select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95em; }
         
-      .status-categoria { padding: 15px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; text-align: center; background: #ecf0f1; border: 2px solid #bdc3c7; }
+      .fase-navigator { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
+      .fase-btn { padding: 12px 24px; border: 2px solid var(--border-color); background: white; cursor: pointer; font-weight: bold; border-radius: 6px; transition: 0.2s; }
+      .fase-btn.active { background: var(--warning-color); color: white; border-color: var(--warning-color); }
+      .fase-btn.completed { background: var(--secondary-color); color: white; border-color: var(--secondary-color); }
+      .fase-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        
+      .status-categoria { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-weight: bold; text-align: center; background: #ecf0f1; border: 2px solid var(--border-color); }
       .status-categoria.liberado { background: #d4edda; color: #155724; border-color: #c3e6cb; }
       .status-categoria.bloqueado { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
         
-      .checklist-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.88em; }
-      .checklist-table th,.checklist-table td { border: 1px solid var(--border-color); padding: 6px 8px; }
-      .checklist-table th { background-color: #f1f4f6; color: var(--primary-color); font-weight: 600; text-align: center; }
-      .checklist-table.item-desc { text-align: left; width: 40%; }
-      .checklist-table.fase-header { background: var(--warning-color); color: white; font-size: 0.8em; }
-      .checklist-table.radio-group { display: flex; justify-content: center; gap: 6px; }
-      .checklist-table.radio-group label { display: flex; align-items: center; gap: 2px; font-size: 0.75em; cursor: pointer; }
-      .checklist-table.na-cell { background: #ecf0f1; text-align: center; color: #95a5a6; font-weight: bold; }
+      .section-title { background: var(--primary-color); color: white; padding: 10px 15px; font-size: 1.1em; font-weight: 600; margin-top: 25px; margin-bottom: 10px; border-radius: 4px; text-transform: uppercase; }
         
-      .actions { margin-top: 30px; display: flex; justify-content: flex-end; gap: 15px; }
+      .checklist-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9em; }
+      .checklist-table th,.checklist-table td { border: 1px solid var(--border-color); padding: 8px 10px; }
+      .checklist-table th { background-color: #f1f4f6; color: var(--primary-color); font-weight: 600; text-align: center; }
+      .checklist-table.item-desc { text-align: left; width: 60%; }
+      .checklist-table.fase-col { width: 35%; }
+      .checklist-table.radio-group { display: flex; justify-content: center; gap: 15px; }
+      .checklist-table.radio-group label { display: flex; align-items: center; gap: 4px; font-size: 0.9em; cursor: pointer; padding: 5px 10px; border-radius: 4px; }
+      .checklist-table.radio-group label:hover { background: #e9ecef; }
+      .checklist-table.na-cell { background: #ecf0f1; text-align: center; color: #95a5a6; font-weight: bold; }
+      .checklist-table tr:hover { background: #f8f9fa; }
+        
+      .actions { margin-top: 30px; display: flex; justify-content: space-between; gap: 15px; }
       .btn { padding: 12px 24px; border: none; border-radius: 4px; font-size: 1em; font-weight: bold; cursor: pointer; color: white; }
       .btn-success { background-color: var(--secondary-color); }
       .btn-primary { background-color: var(--primary-color); }
-      .btn-sm { padding: 5px 10px; font-size: 0.85em; border-radius: 3px; background-color: #34495e; color: white; border: none; cursor: pointer; }
+      .btn-warning { background-color: var(--warning-color); }
+      .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+      .btn-sm { padding: 5px 10px; font-size: 0.85em; border-radius: 3px; background-color: #34495e; color: white; border: none; cursor: pointer; font-weight: bold; }
         
-      .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+      .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 20px; }
       .card { background: var(--light-bg); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center; }
       .card h3 { font-size: 0.75em; text-transform: uppercase; color: #666; }
-      .card p { font-size: 1.5em; font-weight: bold; margin-top: 5px; }
-      .card-status { padding: 10px; border-radius: 6px; margin-top: 10px; font-weight: bold; }
-      .card-status.verde { background: #d4edda; color: #155724; }
-      .card-status.vermelho { background: #f8d7da; color: #721c24; }
+      .card p { font-size: 1.6em; font-weight: bold; margin-top: 5px; }
         
+      .chart-container { background: white; padding: 20px; border-radius: 6px; border: 1px solid var(--border-color); height: 350px; margin-bottom: 30px; }
       .history-container { margin-top: 20px; background: white; padding: 20px; border-radius: 6px; border: 1px solid var(--border-color); overflow-x: auto; }
       .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; color: white; }
       .badge-liberado { background-color: var(--secondary-color); }
       .badge-bloqueado { background-color: var(--danger-color); }
+      .badge-parcial { background-color: var(--warning-color); }
 
-        @media print {.tabs,.actions,.btn-sm { display: none!important; } }
+        @media print {.tabs,.actions,.btn-sm,.fase-navigator { display: none!important; } }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="tabs">
-        <button class="tab-btn active" id="btn-tab-molde" onclick="switchTab('molde')">1. Molde</button>
-        <button class="tab-btn" id="btn-tab-maquinas" onclick="switchTab('maquinas')">2. Máquinas</button>
-        <button class="tab-btn" id="btn-tab-perifericos" onclick="switchTab('perifericos')">3. Periféricos</button>
-        <button class="tab-btn" id="btn-tab-materia" onclick="switchTab('materia')">4. Matéria-Prima</button>
-        <button class="tab-btn" id="btn-tab-processo" onclick="switchTab('processo')">5. Processo</button>
-        <button class="tab-btn" id="btn-tab-dashboard" onclick="switchTab('dashboard')">📊 Dashboard Geral</button>
+        <button id="btn-tab-checklist" class="tab-btn active" onclick="switchTab('checklist-tab')">📝 Checklist 3 Fases</button>
+        <button id="btn-tab-dashboard" class="tab-btn" onclick="switchTab('dashboard-tab')">📊 Dashboard</button>
     </div>
 
-    <div class="meta-form">
-        <div class="form-group"><label>Data:</label><input type="date" id="data" required></div>
-        <div class="form-group">
-            <label>Turno:</label>
-            <select id="turno" required>
-                <option value="" disabled selected>Selecione</option>
-                <option value="1º Turno">1º Turno</option>
-                <option value="2º Turno">2º Turno</option>
-                <option value="3º Turno">3º Turno</option>
-            </select>
+    <div id="checklist-tab" class="tab-content active">
+        <header>
+            <h1>Checklist Completo – Injetoras</h1>
+            <p>Início / Durante / Paradas de Processo</p>
+        </header>
+
+        <div class="meta-form">
+            <div class="form-group"><label>Data:</label><input type="date" id="data" required></div>
+            <div class="form-group">
+                <label>Turno:</label>
+                <select id="turno" required>
+                    <option value="" disabled selected>Selecione o Turno</option>
+                    <option value="1º Turno">1º Turno</option>
+                    <option value="2º Turno">2º Turno</option>
+                    <option value="3º Turno">3º Turno</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Injetora:</label><input type="text" id="injetora" placeholder="Ex: INJ-05" required></div>
+            <div class="form-group"><label>Operador:</label><input type="text" id="operador" placeholder="Nome Completo" required></div>
         </div>
-        <div class="form-group"><label>Injetora:</label><input type="text" id="injetora" placeholder="Ex: INJ-05" required></div>
-        <div class="form-group"><label>Operador:</label><input type="text" id="operador" placeholder="Nome Completo" required></div>
+
+        <div class="fase-navigator">
+            <button class="fase-btn active" id="btn-fase-inicio" onclick="mudarFase('inicio')">1️⃣ Início Processo</button>
+            <button class="fase-btn" id="btn-fase-durante" onclick="mudarFase('durante')" disabled>2️⃣ Durante Processo</button>
+            <button class="fase-btn" id="btn-fase-paradas" onclick="mudarFase('paradas')" disabled>3️⃣ Paradas Processo</button>
+        </div>
+
+        <div id="status-categoria-global" class="status-categoria">Status Geral: Aguardando preenchimento</div>
+
+        <div id="tabelas-container"></div>
+
+        <div class="actions">
+            <button type="button" class="btn btn-primary" onclick="window.print()">🖨 Imprimir PDF</button>
+            <button type="button" class="btn btn-warning" id="btn-salvar-fase" onclick="salvarFaseAtual()">💾 Salvar Fase Atual</button>
+            <button type="button" class="btn btn-success" id="btn-proxima-fase" onclick="proximaFase()" disabled>Próxima Fase ➡️</button>
+        </div>
     </div>
 
-    <!-- ABA MOLDE -->
-    <div id="tab-molde" class="tab-content active">
-        <div class="status-categoria" id="status-molde">Status Molde: Aguardando preenchimento</div>
-        <table class="checklist-table" id="tabela-molde"></table>
-        <div class="actions"><button class="btn btn-success" onclick="salvarCategoria('molde')">💾 Salvar Checklist Molde</button></div>
-    </div>
-
-    <!-- ABA MÁQUINAS -->
-    <div id="tab-maquinas" class="tab-content">
-        <div class="status-categoria" id="status-maquinas">Status Máquinas: Aguardando preenchimento</div>
-        <table class="checklist-table" id="tabela-maquinas"></table>
-        <div class="actions"><button class="btn btn-success" onclick="salvarCategoria('maquinas')">💾 Salvar Checklist Máquinas</button></div>
-    </div>
-
-    <!-- ABA PERIFÉRICOS -->
-    <div id="tab-perifericos" class="tab-content">
-        <div class="status-categoria" id="status-perifericos">Status Periféricos: Aguardando preenchimento</div>
-        <table class="checklist-table" id="tabela-perifericos"></table>
-        <div class="actions"><button class="btn btn-success" onclick="salvarCategoria('perifericos')">💾 Salvar Checklist Periféricos</button></div>
-    </div>
-
-    <!-- ABA MATÉRIA-PRIMA -->
-    <div id="tab-materia" class="tab-content">
-        <div class="status-categoria" id="status-materia">Status Matéria-Prima: Aguardando preenchimento</div>
-        <table class="checklist-table" id="tabela-materia"></table>
-        <div class="actions"><button class="btn btn-success" onclick="salvarCategoria('materia')">💾 Salvar Checklist Matéria-Prima</button></div>
-    </div>
-
-    <!-- ABA PROCESSO -->
-    <div id="tab-processo" class="tab-content">
-        <div class="status-categoria" id="status-processo">Status Processo: Aguardando preenchimento</div>
-        <table class="checklist-table" id="tabela-processo"></table>
-        <div class="actions"><button class="btn btn-success" onclick="salvarCategoria('processo')">💾 Salvar Checklist Processo</button></div>
-    </div>
-
-    <!-- DASHBOARD -->
-    <div id="tab-dashboard" class="tab-content">
-        <header><h1>Dashboard Geral - Status por Categoria</h1></header>
-        <div class="dashboard-grid" id="cards-categorias"></div>
+    <div id="dashboard-tab" class="tab-content">
+        <header><h1>Dashboard - 3 Fases</h1></header>
+        <div class="dashboard-grid">
+            <div class="card"><h3>Total Checklists</h3><p id="txt-total">0</p></div>
+            <div class="card" style="color: green;"><h3>Completos</h3><p id="txt-completos">0</p></div>
+            <div class="card" style="color: #f39c12;"><h3>Em Andamento</h3><p id="txt-andamento">0</p></div>
+            <div class="card" style="color: red;"><h3>Bloqueados</h3><p id="txt-bloqueados">0</p></div>
+        </div>
+        <div class="chart-container"><canvas id="chartFases"></canvas></div>
         <div class="history-container">
-            <h2 style="color: var(--primary-color); margin-bottom: 15px;">📋 Últimos Checklists Salvos</h2>
+            <h2 style="color: var(--primary-color); margin-bottom: 15px;">📋 Histórico por Fase</h2>
             <table class="checklist-table">
                 <thead>
-                    <tr><th>Data/Hora</th><th>Categoria</th><th>Injetora</th><th>Turno</th><th>Operador</th><th>Status</th><th>Falhas</th></tr>
+                    <tr>
+                        <th>Data/Hora</th><th>Injetora</th><th>Operador</th>
+                        <th>Início</th><th>Durante</th><th>Paradas</th><th>Status Final</th><th>Ações</th>
+                    </tr>
                 </thead>
-                <tbody id="history-rows"><tr><td colspan="7" style="text-align:center;">Carregando...</td></tr></tbody>
+                <tbody id="history-rows"><tr><td colspan="8" style="text-align: center;">Carregando...</td></tr></tbody>
             </table>
         </div>
     </div>
@@ -163,10 +164,13 @@
 
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
+    let faseAtual = 'inicio';
+    let cacheRegistros = {};
+    let myChart = null;
     document.getElementById('data').valueAsDate = new Date();
 
     const checklistData = {
-        molde: [
+        "1. Molde": [
             {id: 1, desc: "Os pinos extratores estão funcionando corretamente e sem travamentos?", inicio: 1, durante: 1, paradas: 0},
             {id: 2, desc: "As conexões de água/óleo do molde estão vedadas e sem vazamentos?", inicio: 1, durante: 1, paradas: 1},
             {id: 3, desc: "Os sensores de temperatura, Datadores do molde estão calibrados e fornecendo leituras precisas?", inicio: 1, durante: 0, paradas: 0},
@@ -182,7 +186,7 @@
             {id: 13, desc: "O molde ficou fechado com as placas encostadas sem travamento?", inicio: 0, durante: 0, paradas: 1},
             {id: 14, desc: "A temperatura do molde placas estão aquecidas adequadamente?", inicio: 1, durante: 1, paradas: 1}
         ],
-        maquinas: [
+        "2. Máquinas": [
             {id: 15, desc: "A máquina injetora está limpa e organizada?", inicio: 1, durante: 1, paradas: 1},
             {id: 16, desc: "Os níveis de óleo hidráulico de lubrificação das colunas estão corretos e o óleo está em boas condições?", inicio: 1, durante: 1, paradas: 1},
             {id: 17, desc: "O sistema de aquecimento do cilindro e bico está funcionando e com temperaturas estáveis?", inicio: 1, durante: 1, paradas: 0},
@@ -195,7 +199,7 @@
             {id: 24, desc: "Há alguma falha ou alarme ativo no painel da máquina?", inicio: 1, durante: 1, paradas: 1},
             {id: 25, desc: "A máquina está operando dentro dos limites de segurança e desempenho?", inicio: 0, durante: 0, paradas: 0}
         ],
-        perifericos: [
+        "3. Periféricos": [
             {id: 26, desc: "O alimentador de matéria-prima está limpo e funcionando corretamente?", inicio: 1, durante: 1, paradas: 1},
             {id: 27, desc: "O controlador de temperatura de água/óleo (se aplicável) está ajustado na temperatura e funcionando?", inicio: 1, durante: 1, paradas: 1},
             {id: 28, desc: "O robô ou sistema de extração de peças está programado e operando corretamente?", inicio: 1, durante: 1, paradas: 1},
@@ -207,14 +211,14 @@
             {id: 34, desc: "Há ruídos ou vibrações anormais nos periféricos?", inicio: 1, durante: 1, paradas: 0},
             {id: 35, desc: "Os sistemas de segurança dos periféricos tipo: talha, aquecedor, robô e geladeira estão ativos e funcionando?", inicio: 1, durante: 1, paradas: 1}
         ],
-        materia: [
+        "4. Matéria-Prima": [
             {id: 36, desc: "A matéria-prima está armazenada corretamente, em local seco e protegido?", inicio: 1, durante: 1, paradas: 0},
             {id: 37, desc: "A embalagem da matéria-prima está intacta e sem sinais de contaminação?", inicio: 1, durante: 1, paradas: 0},
             {id: 38, desc: "A matéria-prima foi pré-secada (se necessário) de acordo com as recomendações do fabricante e documentação?", inicio: 1, durante: 1, paradas: 0},
             {id: 39, desc: "A matéria-prima está sendo manuseada para evitar danos ou contaminação?", inicio: 1, durante: 1, paradas: 0},
             {id: 40, desc: "A matéria-prima está sendo utilizada dentro do prazo de validade?", inicio: 1, durante: 1, paradas: 0}
         ],
-        processo: [
+        "5. Processo de Produção de Peças Plásticas": [
             {id: 41, desc: "O tempo de resfriamento é suficiente para solidificar a peça sem deformações?", inicio: 1, durante: 1, paradas: 0},
             {id: 42, desc: "O tempo de ciclo está dentro do especificado e otimizado de acordo com a ficha técnica?", inicio: 1, durante: 1, paradas: 0},
             {id: 43, desc: "As peças estão sendo extraídas do molde sem danos ou marcas que não estão de acordo com o padrão?", inicio: 1, durante: 1, paradas: 0},
@@ -223,170 +227,129 @@
         ]
     };
 
-    function renderCategoria(cat) {
-        const tabela = document.getElementById(`tabela-${cat}`);
-        let html = `
-            <thead>
-                <tr>
-                    <th style="width: 5%;">Item</th>
-                    <th class="item-desc">O que verificar</th>
-                    <th class="fase-header">Início Processo</th>
-                    <th class="fase-header">Durante Processo</th>
-                    <th class="fase-header">Paradas Processo</th>
-                </tr>
-            </thead>
-            <tbody>
-        `;
+    function renderFase(fase) {
+        const container = document.getElementById('tabelas-container');
+        container.innerHTML = '';
         
-        checklistData[cat].forEach(item => {
-            html += `<tr>
-                <td>${item.id}</td>
-                <td class="item-desc">${item.desc}</td>
-                ${['inicio','durante','paradas'].map(fase => 
-                    item[fase]? `
-                        <td>
-                            <div class="radio-group">
-                                <label><input type="radio" name="item_${item.id}_${fase}" value="S" onchange="evalCategoria('${cat}')" required> S</label>
-                                <label><input type="radio" name="item_${item.id}_${fase}" value="N" onchange="evalCategoria('${cat}')"> N</label>
-                            </div>
-                        </td>
-                    ` : `<td class="na-cell">N/A</td>`
-                ).join('')}
-            </tr>`;
+        Object.keys(checklistData).forEach(categoria => {
+            const itensDaFase = checklistData[categoria].filter(item => item[fase] === 1);
+            if (itensDaFase.length === 0) return;
+            
+            const section = document.createElement('div');
+            section.innerHTML = `
+                <div class="section-title">${categoria}</div>
+                <table class="checklist-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">Item</th>
+                            <th class="item-desc">O que verificar</th>
+                            <th class="fase-col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itensDaFase.map(item => `
+                            <tr>
+                                <td>${item.id}</td>
+                                <td class="item-desc">${item.desc}</td>
+                                <td>
+                                    <div class="radio-group">
+                                        <label><input type="radio" name="item_${item.id}_${fase}" value="S" onchange="atualizarProgresso()" required> S - Conforme</label>
+                                        <label><input type="radio" name="item_${item.id}_${fase}" value="N" onchange="atualizarProgresso()"> N - Não Conforme</label>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            container.appendChild(section);
         });
-        html += '</tbody>';
-        tabela.innerHTML = html;
+        atualizarProgresso();
     }
 
-    Object.keys(checklistData).forEach(cat => renderCategoria(cat));
-
-    window.switchTab = function(tab) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(`tab-${tab}`).classList.add('active');
-        document.getElementById(`btn-tab-${tab}`).classList.add('active');
-        if(tab === 'dashboard') carregarDashboard();
+    window.mudarFase = function(fase) {
+        faseAtual = fase;
+        document.querySelectorAll('.fase-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-fase-${fase}`).classList.add('active');
+        renderFase(fase);
     }
 
-    window.evalCategoria = function(cat) {
-        const tabela = document.getElementById(`tabela-${cat}`);
-        const allRadios = tabela.querySelectorAll('input[type="radio"]');
-        const nomes = new Set(Array.from(allRadios).filter(r =>!r.closest('td').classList.contains('na-cell')).map(r => r.name));
-        const marcados = new Set(Array.from(tabela.querySelectorAll('input:checked')).map(r => r.name));
-        const faults = tabela.querySelectorAll('input[value="N"]:checked');
+    window.atualizarProgresso = function() {
+        const radios = document.querySelectorAll(`input[type="radio"][name*="_${faseAtual}"]`);
+        const total = new Set(Array.from(radios).map(r => r.name)).size;
+        const respondidos = new Set(Array.from(document.querySelectorAll(`input[type="radio"][name*="_${faseAtual}"]:checked`)).map(r => r.name)).size;
+        const faults = document.querySelectorAll(`input[type="radio"][name*="_${faseAtual}"][value="N"]:checked`).length;
         
-        const statusDiv = document.getElementById(`status-${cat}`);
-        const btnTab = document.getElementById(`btn-tab-${cat}`);
-
-        if (marcados.size >= nomes.size) {
-            if (faults.length > 0) {
+        const statusDiv = document.getElementById('status-categoria-global');
+        const btnProxima = document.getElementById('btn-proxima-fase');
+        
+        if (respondidos >= total) {
+            if (faults > 0) {
                 statusDiv.className = 'status-categoria bloqueado';
-                statusDiv.innerText = `🔴 BLOQUEADO - ${faults.length} não conformidade(s)`;
-                btnTab.classList.add('status-vermelho');
-                btnTab.classList.remove('status-verde');
+                statusDiv.innerText = `🔴 BLOQUEADO - ${faults} não conformidade(s) na fase ${faseAtual.toUpperCase()}`;
             } else {
                 statusDiv.className = 'status-categoria liberado';
-                statusDiv.innerText = '🟢 LIBERADO - Todos conformes';
-                btnTab.classList.add('status-verde');
-                btnTab.classList.remove('status-vermelho');
+                statusDiv.innerText = `🟢 LIBERADO - Fase ${faseAtual.toUpperCase()} completa`;
+                document.getElementById(`btn-fase-${faseAtual}`).classList.add('completed');
             }
+            btnProxima.disabled = false;
         } else {
             statusDiv.className = 'status-categoria';
-            statusDiv.innerText = `Status ${cat.charAt(0).toUpperCase()+cat.slice(1)}: ${marcados.size}/${nomes.size} respondidos`;
-            btnTab.classList.remove('status-verde', 'status-vermelho');
+            statusDiv.innerText = `Status ${faseAtual.toUpperCase()}: ${respondidos}/${total} respondidos`;
+            btnProxima.disabled = true;
         }
     }
 
-    window.salvarCategoria = function(cat) {
-        const data = document.getElementById('data').value;
-        const turno = document.getElementById('turno').value;
-        const injetora = document.getElementById('injetora').value;
-        const operador = document.getElementById('operador').value;
-        
-        if(!data ||!turno ||!injetora ||!operador) {
-            alert('Preencha Data, Turno, Injetora e Operador antes de salvar!');
-            return;
+    window.proximaFase = function() {
+        const fases = ['inicio', 'durante', 'paradas'];
+        const idx = fases.indexOf(faseAtual);
+        if (idx < 2) {
+            const proximaFase = fases[idx + 1];
+            document.getElementById(`btn-fase-${proximaFase}`).disabled = false;
+            mudarFase(proximaFase);
         }
+    }
 
-        const tabela = document.getElementById(`tabela-${cat}`);
-        const allNames = new Set(Array.from(tabela.querySelectorAll('input[type="radio"]')).filter(r =>!r.closest('td').classList.contains('na-cell')).map(r => r.name));
-        const marcados = new Set(Array.from(tabela.querySelectorAll('input:checked')).map(r => r.name));
-        
-        if(marcados.size < allNames.size) {
-            alert('Responda todos os itens aplicáveis da categoria antes de salvar!');
-            return;
-        }
-
-        const faults = tabela.querySelectorAll('input[value="N"]:checked');
-        const status = faults.length > 0? 'BLOQUEADO' : 'LIBERADO';
-        
-        const respostas = {inicio: {}, durante: {}, paradas: {}};
-        tabela.querySelectorAll('input:checked').forEach(r => {
-            const [, id, fase] = r.name.split('_');
-            respostas[fase][id] = r.value;
-        });
-
-        const payload = {
-            categoria: cat,
-            data, turno, injetora, operador,
-            status, respostas,
+    window.salvarFaseAtual = function() {
+        const dados = {
+            data: document.getElementById('data').value,
+            turno: document.getElementById('turno').value,
+            injetora: document.getElementById('injetora').value,
+            operador: document.getElementById('operador').value,
+            fase: faseAtual,
+            respostas: {},
             timestamp: firebase.database.ServerValue.TIMESTAMP
         };
+        
+        document.querySelectorAll(`input[type="radio"][name*="_${faseAtual}"]:checked`).forEach(radio => {
+            const [, id] = radio.name.split('_');
+            dados.respostas[id] = radio.value;
+        });
 
-        const id = `${data}_${turno.replace(' ', '')}_${injetora}_${cat}_${Date.now()}`;
-        database.ref('checklists/' + id).set(payload).then(() => {
-            alert(`✅ Checklist de ${cat.toUpperCase()} salvo como ${status}!`);
-            evalCategoria(cat);
-        }).catch(e => alert('Erro: ' + e.message));
-    }
-
-    function carregarDashboard() {
-        database.ref('checklists').orderByChild('timestamp').limitToLast(100).get().then((snapshot) => {
-            if (!snapshot.exists()) return;
-            const data = snapshot.val();
-            let html = '';
-            const statusPorCat = {molde: {}, maquinas: {}, perifericos: {}, materia: {}, processo: {}};
-            
-            Object.values(data).reverse().forEach(r => {
-                const falhas = Object.values(r.respostas.inicio || {}).filter(v=>v==='N').length + 
-                               Object.values(r.respostas.durante || {}).filter(v=>v==='N').length + 
-                               Object.values(r.respostas.paradas || {}).filter(v=>v==='N').length;
-                
-                statusPorCat[r.categoria][r.injetora] = r.status;
-                
-                html += `
-                    <tr>
-                        <td>${new Date(r.timestamp).toLocaleString('pt-BR')}</td>
-                        <td><strong>${r.categoria.toUpperCase()}</strong></td>
-                        <td>${r.injetora}</td>
-                        <td>${r.turno}</td>
-                        <td>${r.operador}</td>
-                        <td><span class="badge badge-${r.status.toLowerCase()}">${r.status}</span></td>
-                        <td style="text-align:center; color:${falhas>0?'red':'green'}">${falhas}</td>
-                    </tr>
-                `;
-            });
-            document.getElementById('history-rows').innerHTML = html;
-
-            // Cards por categoria
-            const cardsContainer = document.getElementById('cards-categorias');
-            cardsContainer.innerHTML = '';
-            Object.keys(statusPorCat).forEach(cat => {
-                const maquinas = Object.keys(statusPorCat[cat]);
-                const liberadas = Object.values(statusPorCat[cat]).filter(s=>s==='LIBERADO').length;
-                const bloqueadas = maquinas.length - liberadas;
-                cardsContainer.innerHTML += `
-                    <div class="card">
-                        <h3>${cat.toUpperCase()}</h3>
-                        <p>${maquinas.length}</p>
-                        <div class="card-status ${bloqueadas>0?'vermelho':'verde'}">
-                            ${bloqueadas>0? `🔴 ${bloqueadas} Bloqueada(s)` : '🟢 Todas Liberadas'}
-                        </div>
-                    </div>
-                `;
-            });
+        const id = `${dados.data}_${dados.turno}_${dados.injetora}_${faseAtual}_${Date.now()}`;
+        database.ref('checklists_fases/' + id).set(dados).then(() => {
+            alert(`✓ Fase ${faseAtual.toUpperCase()} salva!`);
+            document.getElementById(`btn-fase-${faseAtual}`).classList.add('completed');
         });
     }
+
+    window.switchTab = function(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        document.getElementById('btn-tab-' + tabId.split('-')[0]).classList.add('active');
+        if(tabId === 'dashboard-tab') loadDashboardData();
+    }
+
+    function loadDashboardData() {
+        // Implementar busca no Firebase e popular dashboard
+        database.ref('checklists_fases').get().then((snapshot) => {
+            // Lógica do dashboard aqui
+        });
+    }
+
+    // Inicializar
+    renderFase('inicio');
 </script>
 </body>
 </html>
